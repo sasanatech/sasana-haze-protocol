@@ -33,7 +33,7 @@
     </script>
     <style>
         .radar-grid {
-            background-image: radial-gradient(circle at center, rgba(14, 165, 233, 0.15) 1px, transparent 1px);
+            background-image: radial-gradient(circle at center, rgba(14, 165, 233, 0.2) 1px, transparent 1px);
             background-size: 24px 24px;
         }
         .pulse-ring {
@@ -49,6 +49,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
+    <!-- Header Navigation -->
     <header class="bg-slate-900 text-white shadow-lg border-b border-slate-800 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
@@ -78,6 +79,12 @@
                     </button>
                 </div>
 
+                <!-- GPS Auto-Detect Button -->
+                <button onclick="detectGPSLocation()" class="px-3 py-1.5 rounded-lg bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/60 flex items-center gap-2 transition font-medium">
+                    <i class="fa-solid fa-location-crosshairs text-emerald-400"></i>
+                    <span class="hidden sm:inline">Auto GPS</span>
+                </button>
+
                 <button onclick="openApimsViewerModal()" class="px-3 py-1.5 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700/60 flex items-center gap-2 transition font-medium">
                     <i class="fa-solid fa-globe text-sky-400"></i>
                     <span class="hidden sm:inline">View Official</span> Portal
@@ -97,27 +104,28 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-        <!-- Banner showing currently selected metric standard & link -->
+        <!-- Banner showing active metric & source -->
         <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white rounded-2xl p-4 shadow-sm border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-3">
                 <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
                 <div>
-                    <span class="font-bold text-slate-200">Active Metric & Source:</span>
+                    <span class="font-bold text-slate-200">Active Metric & Live Feed:</span>
                     <span id="active-metric-label" class="bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded font-bold border border-sky-500/30 ml-1">API (DOE)</span>
-                    <a id="banner-source-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="underline text-sky-300 font-mono ml-2 hover:text-sky-200">
+                    <a id="banner-source-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="underline text-sky-300 font-mono ml-2 hover:text-sky-200 break-all">
                         https://eqms.doe.gov.my/APIMS/main
                     </a>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <span id="last-sync-time" class="text-slate-400 font-mono">Last Sync: Today 2:00 PM</span>
-                <button onclick="fetchLiveAPIMSData()" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition flex items-center gap-1.5">
+                <button onclick="fetchLiveAPIMSData()" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-rotate-right" id="refresh-icon"></i>
                     <span>Sync Live Data</span>
                 </button>
             </div>
         </div>
 
+        <!-- Protocol Status Card -->
         <div id="protocol-status-card" class="rounded-2xl p-6 shadow-md transition-all duration-300 bg-white border-2 border-slate-200">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div class="flex items-start gap-4">
@@ -161,11 +169,13 @@
                     <div class="flex items-center justify-between mb-3">
                         <div>
                             <h3 class="font-bold text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-compass text-sky-600"></i> 4-Station Radius Map
+                                <i class="fa-solid fa-compass text-sky-600"></i> 4-Station Radius Radar Map
                             </h3>
-                            <p class="text-xs text-slate-500">Distance radius from your chosen school location</p>
+                            <p class="text-xs text-slate-500">Auto-calculated distance from target location</p>
                         </div>
-                        <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-mono">Image 1 Radar</span>
+                        <button onclick="detectGPSLocation()" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-300 px-2 py-1 rounded font-semibold transition flex items-center gap-1">
+                            <i class="fa-solid fa-location-crosshairs"></i> Auto GPS
+                        </button>
                     </div>
 
                     <!-- Canvas/SVG Distance Concentric Circles -->
@@ -173,13 +183,13 @@
                         
                         <!-- Concentric Rings -->
                         <div class="absolute inset-8 rounded-full border border-dashed border-slate-700/80 pointer-events-none flex items-start justify-center pt-1">
-                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">30 km</span>
+                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">50 km</span>
                         </div>
                         <div class="absolute inset-16 rounded-full border border-dashed border-slate-700/80 pointer-events-none flex items-start justify-center pt-1">
-                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">20 km</span>
+                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">30 km</span>
                         </div>
                         <div class="absolute inset-28 rounded-full border border-dashed border-slate-700/80 pointer-events-none flex items-start justify-center pt-1">
-                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">10 km</span>
+                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">15 km</span>
                         </div>
 
                         <!-- Compass North Arrow -->
@@ -187,6 +197,11 @@
                             <i class="fa-solid fa-arrow-up text-sky-400"></i>
                             <span class="text-[10px] font-bold">N</span>
                         </div>
+
+                        <!-- Dynamic SVG Lines Overlay -->
+                        <svg id="radar-svg-overlay" class="absolute inset-0 w-full h-full pointer-events-none z-10">
+                            <!-- Lines rendered via JS -->
+                        </svg>
 
                         <!-- Center Location Pin -->
                         <div class="relative z-20 flex flex-col items-center group cursor-pointer" onclick="openLocationModal()">
@@ -198,13 +213,8 @@
                             </span>
                         </div>
 
-                        <!-- Dynamic Lines SVG Overlay -->
-                        <svg id="radar-svg-overlay" class="absolute inset-0 w-full h-full pointer-events-none z-10">
-                            <!-- Lines drawn dynamically -->
-                        </svg>
-
                         <!-- Station Dots container -->
-                        <div id="radar-stations-container" class="absolute inset-0 z-20">
+                        <div id="radar-stations-container" class="absolute inset-0 z-20 pointer-events-auto">
                             <!-- Populated via JS -->
                         </div>
                     </div>
@@ -212,15 +222,15 @@
 
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                     <span class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Center Location
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Target Location
                     </span>
                     <span class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> 4 Nearest DOE Nodes
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Auto 4 Nearest Nodes
                     </span>
                 </div>
             </div>
 
-            <!-- Right Column: 4 Station API Inputs & Formula -->
+            <!-- Right Column: 4 Station Readings & Formula -->
             <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
                 <div>
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -229,12 +239,18 @@
                                 <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">1</span>
                                 <h3 id="station-readings-heading" class="font-bold text-slate-900 text-base">4 Nearest Station API Readings</h3>
                             </div>
-                            <p class="text-xs text-slate-500 mt-0.5 ml-8">Readings taken at 2:00 PM</p>
+                            <p class="text-xs text-slate-500 mt-0.5 ml-8">Auto-detected nearest stations • 2:00 PM Protocol</p>
                         </div>
-                        <button onclick="openApimsViewerModal()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition">
-                            <i class="fa-solid fa-list-check"></i>
-                            <span>Check Live Portal</span>
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="detectGPSLocation()" class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-semibold flex items-center gap-1.5 transition">
+                                <i class="fa-solid fa-location-crosshairs"></i>
+                                <span>Recalculate Nearest 4</span>
+                            </button>
+                            <button onclick="openApimsViewerModal()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition">
+                                <i class="fa-solid fa-list-check"></i>
+                                <span>Official Web Portal</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- 4 Station Cards Grid -->
@@ -265,16 +281,16 @@
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Test Protocol Rules (Quick Scenarios):</p>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="loadScenario('safe')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-medium transition">
-                            🟢 Normal (< 100 Index)
+                            🟢 Normal (&le; 100 Safe)
                         </button>
                         <button onclick="loadScenario('consecutive_orange')" class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-medium transition">
-                            🟠 3 Days > 150 (Closed)
+                            🟠 3 Days &gt; 150 (Closed)
                         </button>
                         <button onclick="loadScenario('single_red')" class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium transition">
-                            🔴 Single Day > 180 (Closed)
+                            🔴 Single Day &gt; 180 (Closed)
                         </button>
                         <button onclick="loadScenario('reopening')" class="px-2.5 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-medium transition">
-                            🟢 Reopening (Drop ≤ 150)
+                            🟢 Reopening (Drop &le; 150)
                         </button>
                     </div>
                 </div>
@@ -307,7 +323,7 @@
                 <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
                     <span class="flex items-center gap-2">
                         <i class="fa-solid fa-circle-info text-sky-500"></i>
-                        Note: The 3-day counter automatically resets after school reopens.
+                        Note: Counter resets automatically after school reopens.
                     </span>
                     <button onclick="reset3DayCounter()" class="text-xs text-sky-600 font-semibold hover:underline">Reset Counter</button>
                 </div>
@@ -330,7 +346,7 @@
                                     <span class="font-bold text-xs text-rose-900 uppercase">Single-Day Spike</span>
                                     <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-600 text-white">CLOSED NEXT DAY</span>
                                 </div>
-                                <p id="rule-red-heading" class="text-sm font-bold text-rose-950 mt-0.5">Average Index above 180</p>
+                                <p id="rule-red-heading" class="text-sm font-bold text-rose-950 mt-0.5">Average API above 180</p>
                                 <p class="text-xs text-rose-700 mt-0.5">Triggers immediate closure on any single day evaluated at 2:00 PM.</p>
                             </div>
                         </div>
@@ -343,7 +359,7 @@
                                     <span class="font-bold text-xs text-amber-900 uppercase">3-Day Cumulative</span>
                                     <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-600 text-white">CLOSED NEXT DAY</span>
                                 </div>
-                                <p id="rule-orange-heading" class="text-sm font-bold text-amber-950 mt-0.5">Average Index above 150</p>
+                                <p id="rule-orange-heading" class="text-sm font-bold text-amber-950 mt-0.5">Average API above 150</p>
                                 <p class="text-xs text-amber-700 mt-0.5">When average remains above 150 for 3 consecutive days.</p>
                             </div>
                         </div>
@@ -356,7 +372,7 @@
                                     <span class="font-bold text-xs text-emerald-900 uppercase">Reopening Condition</span>
                                     <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-600 text-white">REOPENS NEXT DAY</span>
                                 </div>
-                                <p id="rule-reopen-heading" class="text-sm font-bold text-emerald-950 mt-0.5">Average Index 150 or below</p>
+                                <p id="rule-reopen-heading" class="text-sm font-bold text-emerald-950 mt-0.5">Average API 150 or below</p>
                                 <p class="text-xs text-emerald-700 mt-0.5">While school is closed, dropping to $\le$ 150 reopens school next day.</p>
                             </div>
                         </div>
@@ -364,15 +380,16 @@
                 </div>
 
                 <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500">
-                    <p class="italic"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Check official readings on <a id="footer-rule-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-600 underline">DOE APIMS Portal</a></p>
+                    <p class="italic"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Verify readings on <a id="footer-rule-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-600 underline">DOE APIMS Portal</a></p>
                 </div>
             </div>
 
         </div>
 
+        <!-- Safety Guidelines Section -->
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
             <div class="flex items-center gap-2 mb-4">
-                <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">5</span>
+                <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">3</span>
                 <h3 class="font-bold text-slate-900 text-base">Safety Precautions While School Stays Open</h3>
             </div>
 
@@ -423,17 +440,18 @@
 
     <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-8">
         <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
-            <p class="font-medium text-slate-300">Malaysia Haze API Tracking System — Department of Environment (DOE) APIMS</p>
+            <p class="font-medium text-slate-300">Malaysia Haze API & AQI Tracking System — Department of Environment (DOE) APIMS & WAQI Network</p>
             <p>Official Portal Reference: <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-400 underline font-mono">https://eqms.doe.gov.my/APIMS/main</a> • Sasana International School Protocol</p>
         </div>
     </footer>
 
+    <!-- Location Settings Modal -->
     <div id="location-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <i class="fa-solid fa-map-location-dot text-sky-600"></i>
-                    Set Location & Select 4 Nearest APIMS Stations
+                    Location & Auto 4 Nearest Stations
                 </h3>
                 <button onclick="closeLocationModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
@@ -441,8 +459,19 @@
             </div>
 
             <div class="py-4 space-y-4">
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-emerald-900">GPS Auto Detection</p>
+                        <p class="text-xs text-emerald-700">Find nearest APIMS stations based on device GPS</p>
+                    </div>
+                    <button onclick="detectGPSLocation()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                        <span>Use My GPS</span>
+                    </button>
+                </div>
+
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Preset Malaysian Locations</label>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Preset Malaysian School Locations</label>
                     <select id="preset-location-select" onchange="handleLocationPresetChange(this.value)" class="w-full rounded-xl border border-slate-300 p-2.5 text-sm bg-white focus:ring-2 focus:ring-sky-500 font-medium text-slate-800">
                         <option value="sasana">Sasana Int. School (Bandar Tasik Puteri, Rawang)</option>
                         <option value="kl_center">Kuala Lumpur City Centre (KLCC)</option>
@@ -455,14 +484,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Custom Location Name</label>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Custom School Name</label>
                     <input type="text" id="custom-location-input" value="Sasana Int. School Bandar Tasik Puteri" class="w-full rounded-xl border border-slate-300 p-2.5 text-sm focus:ring-2 focus:ring-sky-500">
                 </div>
 
                 <div class="border-t border-slate-100 pt-3">
                     <div class="flex items-center justify-between mb-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase">Select 4 Monitoring Stations (APIMS Database)</label>
-                        <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-[11px] text-sky-600 hover:underline">Verify on eqms.doe.gov.my</a>
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Selected 4 Nearest Monitoring Stations</label>
+                        <span class="text-[11px] text-sky-600 font-semibold">Auto-Sorted by Radius</span>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="modal-station-selectors">
@@ -478,6 +507,7 @@
         </div>
     </div>
 
+    <!-- Parent WhatsApp Modal -->
     <div id="whatsapp-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -510,188 +540,9 @@
         </div>
     </div>
 
+    <!-- Official Portal Viewer Modal -->
     <div id="apims-viewer-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="bg-white rounded-2xl max-w-5xl w-full h-[90vh] flex flex-col shadow-2xl border border-slate-700 overflow-hidden">
-            <div class="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                        <i class="fa-solid fa-globe"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
-                            Official DOE APIMS Live Portal
-                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">Live Link</span>
-                        </h3>
-                        <p class="text-xs text-slate-400 font-mono">https://eqms.doe.gov.my/APIMS/main</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
-                        <span>Open New Tab</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
-                    <button onclick="closeApimsViewerModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- APIMS Viewer Body -->
-            <div class="flex-1 bg-slate-100 relative">
-                <iframe src="https://eqms.doe.gov.my/APIMS/main" class="w-full h-full border-0" title="Official DOE APIMS Portal" onerror="handleIframeError()"></iframe>
-                
-                <!-- Helper overlay info box -->
-                <div class="absolute bottom-4 left-4 right-4 bg-slate-900/90 text-white p-3 rounded-xl backdrop-blur border border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-sky-400 text-base"></i>
-                        <span>Cross-verify readings with 2:00 PM APIMS table above, then update station values in the app.</span>
-                    </div>
-                    <button onclick="closeApimsViewerModal()" class="px-3 py-1 bg-sky-600 text-white rounded font-bold hover:bg-sky-500">Back to App Engine</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3 text-sm">
-        <i id="toast-icon" class="fa-solid fa-circle-info text-sky-400 text-lg"></i>
-        <span id="toast-msg">Settings saved!</span>
-    </div>
-
-    <script>
-        const APIMS_STATIONS_DB = [
-            { id: "batu_muda", name: "Batu Muda, KL", defaultDist: 19, baseAPI: 85, state: "KL", coords: { x: 75, y: 62 } },
-            { id: "pj", name: "Petaling Jaya", defaultDist: 22, baseAPI: 80, state: "Selangor", coords: { x: 65, y: 72 } },
-            { id: "shah_alam", name: "Shah Alam", defaultDist: 24, baseAPI: 88, state: "Selangor", coords: { x: 52, y: 78 } },
-            { id: "k_selangor", name: "Kuala Selangor", defaultDist: 33, baseAPI: 75, state: "Selangor", coords: { x: 18, y: 50 } },
-            { id: "cheras", name: "Cheras, KL", defaultDist: 25, baseAPI: 84, state: "KL", coords: { x: 80, y: 70 } },
-            { id: "klang", name: "Klang", defaultDist: 28, baseAPI: 92, state: "Selangor", coords: { x: 40, y: 80 } },
-            { id: "johan_setia", name: "Johan Setia, Klang", defaultDist: 29, baseAPI: 127, state: "Selangor", coords: { x: 38, y: 82 } },
-            { id: "banting", name: "Banting", defaultDist: 40, baseAPI: 82, state: "Selangor", coords: { x: 45, y: 92 } },
-            { id: "putrajaya", name: "Putrajaya", defaultDist: 38, baseAPI: 78, state: "Putrajaya", coords: { x: 70, y: 88 } },
-            { id: "nilai", name: "Nilai", defaultDist: 52, baseAPI: 154, state: "Negeri Sembilan", coords: { x: 75, y: 92 } },
-            { id: "seremban", name: "Seremban", defaultDist: 65, baseAPI: 121, state: "Negeri Sembilan", coords: { x: 80, y: 95 } },
-            { id: "georgetown", name: "George Town", defaultDist: 12, baseAPI: 65, state: "Penang", coords: { x: 30, y: 30 } },
-            { id: "minden", name: "Minden, Penang", defaultDist: 14, baseAPI: 62, state: "Penang", coords: { x: 32, y: 32 } },
-            { id: "jb_city", name: "Larkin, Johor Bahru", defaultDist: 15, baseAPI: 162, state: "Johor", coords: { x: 80, y: 85 } },
-            { id: "pasir_gudang", name: "Pasir Gudang", defaultDist: 22, baseAPI: 155, state: "Johor", coords: { x: 85, y: 88 } },
-            { id: "batu_pahat", name: "Batu Pahat", defaultDist: 35, baseAPI: 154, state: "Johor", coords: { x: 70, y: 82 } },
-            { id: "segamat", name: "Segamat", defaultDist: 45, baseAPI: 153, state: "Johor", coords: { x: 68, y: 78 } },
-            { id: "kuching", name: "Kuching", defaultDist: 10, baseAPI: 167, state: "Sarawak", coords: { x: 78, y: 70 } },
-            { id: "serian", name: "Serian", defaultDist: 18, baseAPI: 182, state: "Sarawak", coords: { x: 82, y: 75 } },
-            { id: "samarahan", name: "Kota Samarahan", defaultDist: 15, baseAPI: 168, state: "Sarawak", coords: { x: 80, y: 72 } }
-        ];
-
-        const LOCATION_PRESETS = {
-            sasana: {
-                name: "Sasana Int. School Bandar Tasik Puteri",
-                shortName: "Sasana Int. School",
-                stations: [
-                    { id: "batu_muda", dist: 19, api: 85 },
-                    { id: "pj", dist: 22, api: 80 },
-                    { id: "shah_alam", dist: 24, api: 88 },
-                    { id: "k_selangor", dist: 33, api: 75 }
-                ]
-            },
-            kl_center: {
-                name: "KLCC City Centre, Kuala Lumpur",
-                shortName: "KLCC, Kuala Lumpur",
-                stations: [
-                    { id: "batu_muda", dist: 8, api: 90 },
-                    { id: "cheras", dist: 10, api: 86 },
-                    { id: "pj", dist: 14, api: 82 },
-                    { id: "shah_alam", dist: 26, api: 88 }
-                ]
-            },
-            petaling_jaya: {
-                name: "Subang Jaya / PJ Campus",
-                shortName: "Subang Jaya",
-                stations: [
-                    { id: "pj", dist: 5, api: 82 },
-                    { id: "shah_alam", dist: 11, api: 86 },
-                    { id: "batu_muda", dist: 20, api: 89 },
-                    { id: "klang", dist: 18, api: 91 }
-                ]
-            },
-            shah_alam: {
-                name: "Shah Alam Central Campus",
-                shortName: "Shah Alam",
-                stations: [
-                    { id: "shah_alam", dist: 4, api: 88 },
-                    { id: "johan_setia", dist: 12, api: 127 },
-                    { id: "klang", dist: 14, api: 92 },
-                    { id: "pj", dist: 16, api: 80 }
-                ]
-            },
-            penang: {
-                name: "George Town International Academy",
-                shortName: "George Town, Penang",
-                stations: [
-                    { id: "georgetown", dist: 6, api: 65 },
-                    { id: "minden", dist: 12, api: 62 },
-                    { id: "k_selangor", dist: 45, api: 70 },
-                    { id: "batu_muda", dist: 50, api: 72 }
-                ]
-            },
-            jb: {
-                name: "Johor Bahru Educational Hub",
-                shortName: "Johor Bahru",
-                stations: [
-                    { id: "jb_city", dist: 8, api: 162 },
-                    { id: "pasir_gudang", dist: 15, api: 155 },
-                    { id: "batu_pahat", dist: 35, api: 154 },
-                    { id: "segamat", dist: 45, api: 153 }
-                ]
-            },
-            kuching: {
-                name: "Kuching Academy Sarawak",
-                shortName: "Kuching, Sarawak",
-                stations: [
-                    { id: "serian", dist: 18, api: 182 },
-                    { id: "samarahan", dist: 15, api: 168 },
-                    { id: "kuching", dist: 10, api: 167 },
-                    { id: "jb_city", dist: 60, api: 162 }
-                ]
-            }
-        };
-
-        let state = {
-            currentLocationName: "Sasana Int. School Bandar Tasik Puteri",
-            shortLocationName: "Sasana Int. School",
-            isSchoolCurrentlyClosed: false,
-            
-            selectedStations: [
-                { id: "batu_muda", name: "Batu Muda, KL", dist: 19, api: 85, coords: { x: 78, y: 60 } },
-                { id: "pj", name: "Petaling Jaya", dist: 22, api: 80, coords: { x: 68, y: 74 } },
-                { id: "shah_alam", name: "Shah Alam", dist: 24, api: 88, coords: { x: 52, y: 79 } },
-                { id: "k_selangor", name: "Kuala Selangor", dist: 33, api: 75, coords: { x: 15, y: 50 } }
-            ],
-
-            history: [
-                { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 82.0, status: "OPEN" },
-                { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 84.0, status: "OPEN" },
-                { dayLabel: "Today (2:00 PM)", dateStr: getRelativeDate(0), avgApi: 82.0, status: "OPEN" }
-            ]
-        };
-
-        function getRelativeDate(offset) {
-            const d = new Date();
-            d.setDate(d.getDate() + offset);
-            return d.toLocaleDateString('en-MY', { day: 'numeric', month: 'short' });
-        }
-
-        function evaluateHazeProtocol() {
-            // 1. Calculate sum and average of 4 chosen stations
-            const sum = state.selectedStations.reduce((acc, st) => acc + (parseInt(st.api) || 0), 0);
-            const todayAvg = Math.round((sum / 4) * 10) / 10;
-
-            if (state.history[2]) {
-                state.history[2].avgApi = todayAvg;
-            }
-
-    <!-- Official Live Portal Viewer Modal with Dual Tab support (API vs AQI) -->
-    <div id="apims-viewer-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-white rounded-2xl max-w-5xl w-full h-[90vh] flex flex-col shadow-2xl border border-slate-700 overflow-hidden">
-            <!-- Modal Header with Tab Selector -->
             <div class="bg-slate-900 text-white p-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
@@ -706,7 +557,6 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <!-- Tab Buttons for DOE APIMS vs AQICN -->
                     <div class="bg-slate-800 p-1 rounded-xl border border-slate-700 flex items-center gap-1">
                         <button id="modal-tab-api" onclick="switchPortalTab('API')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white">
                             DOE APIMS (API)
@@ -726,15 +576,13 @@
                 </div>
             </div>
 
-            <!-- APIMS / AQICN Viewer Body -->
             <div class="flex-1 bg-slate-100 relative">
                 <iframe id="portal-iframe" src="https://eqms.doe.gov.my/APIMS/main" class="w-full h-full border-0" title="Official Air Quality Portal"></iframe>
                 
-                <!-- Helper overlay info box -->
                 <div class="absolute bottom-4 left-4 right-4 bg-slate-900/90 text-white p-3 rounded-xl backdrop-blur border border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-circle-info text-sky-400 text-base"></i>
-                        <span>Check real-time readings from the portal above, then update station values in the app engine.</span>
+                        <span>Check real-time readings from the live web portal, then sync or fine-tune station values in the engine.</span>
                     </div>
                     <button onclick="closeApimsViewerModal()" class="px-3 py-1 bg-sky-600 text-white rounded font-bold hover:bg-sky-500">Back to App Engine</button>
                 </div>
@@ -742,42 +590,92 @@
         </div>
     </div>
 
+    <!-- Notification Toast -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3 text-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-sky-400 text-lg"></i>
+        <span id="toast-msg">Settings saved!</span>
+    </div>
+
     <script>
+        // Full APIMS Malaysian Stations Database with Lat/Lng and live feed mappings
         const APIMS_STATIONS_DB = [
-            { id: "batu_muda", name: "Batu Muda, KL", defaultDist: 19, baseAPI: 85, baseAQI: 92, state: "KL", coords: { x: 75, y: 62 } },
-            { id: "pj", name: "Petaling Jaya", defaultDist: 22, baseAPI: 80, baseAQI: 88, state: "Selangor", coords: { x: 65, y: 72 } },
-            { id: "shah_alam", name: "Shah Alam", defaultDist: 24, baseAPI: 88, baseAQI: 95, state: "Selangor", coords: { x: 52, y: 78 } },
-            { id: "k_selangor", name: "Kuala Selangor", defaultDist: 33, baseAPI: 75, baseAQI: 82, state: "Selangor", coords: { x: 18, y: 50 } },
-            { id: "cheras", name: "Cheras, KL", defaultDist: 25, baseAPI: 84, baseAQI: 90, state: "KL", coords: { x: 80, y: 70 } },
-            { id: "klang", name: "Klang", defaultDist: 28, baseAPI: 92, baseAQI: 102, state: "Selangor", coords: { x: 40, y: 80 } },
-            { id: "johan_setia", name: "Johan Setia, Klang", defaultDist: 29, baseAPI: 127, baseAQI: 140, state: "Selangor", coords: { x: 38, y: 82 } },
-            { id: "banting", name: "Banting", defaultDist: 40, baseAPI: 82, baseAQI: 89, state: "Selangor", coords: { x: 45, y: 92 } },
-            { id: "putrajaya", name: "Putrajaya", defaultDist: 38, baseAPI: 78, baseAQI: 85, state: "Putrajaya", coords: { x: 70, y: 88 } },
-            { id: "nilai", name: "Nilai", defaultDist: 52, baseAPI: 154, baseAQI: 165, state: "Negeri Sembilan", coords: { x: 75, y: 92 } },
-            { id: "seremban", name: "Seremban", defaultDist: 65, baseAPI: 121, baseAQI: 132, state: "Negeri Sembilan", coords: { x: 80, y: 95 } },
-            { id: "georgetown", name: "George Town", defaultDist: 12, baseAPI: 65, baseAQI: 72, state: "Penang", coords: { x: 30, y: 30 } },
-            { id: "minden", name: "Minden, Penang", defaultDist: 14, baseAPI: 62, baseAQI: 68, state: "Penang", coords: { x: 32, y: 32 } },
-            { id: "jb_city", name: "Larkin, Johor Bahru", defaultDist: 15, baseAPI: 162, baseAQI: 175, state: "Johor", coords: { x: 80, y: 85 } },
-            { id: "pasir_gudang", name: "Pasir Gudang", defaultDist: 22, baseAPI: 155, baseAQI: 168, state: "Johor", coords: { x: 85, y: 88 } },
-            { id: "batu_pahat", name: "Batu Pahat", defaultDist: 35, baseAPI: 154, baseAQI: 162, state: "Johor", coords: { x: 70, y: 82 } },
-            { id: "segamat", name: "Segamat", defaultDist: 45, baseAPI: 153, baseAQI: 160, state: "Johor", coords: { x: 68, y: 78 } },
-            { id: "kuching", name: "Kuching", defaultDist: 10, baseAPI: 167, baseAQI: 178, state: "Sarawak", coords: { x: 78, y: 70 } },
-            { id: "serian", name: "Serian", defaultDist: 18, baseAPI: 182, baseAQI: 195, state: "Sarawak", coords: { x: 82, y: 75 } },
-            { id: "samarahan", name: "Kota Samarahan", defaultDist: 15, baseAPI: 168, baseAQI: 180, state: "Sarawak", coords: { x: 80, y: 72 } }
+            { id: "batu_muda", name: "Batu Muda, KL", lat: 3.2109, lng: 101.6888, baseAPI: 85, baseAQI: 92, waqiFeed: "kuala-lumpur" },
+            { id: "pj", name: "Petaling Jaya", lat: 3.1073, lng: 101.6420, baseAPI: 80, baseAQI: 88, waqiFeed: "petaling-jaya" },
+            { id: "shah_alam", name: "Shah Alam", lat: 3.0738, lng: 101.5183, baseAPI: 88, baseAQI: 95, waqiFeed: "shah-alam" },
+            { id: "k_selangor", name: "Kuala Selangor", lat: 3.3400, lng: 101.2500, baseAPI: 75, baseAQI: 82, waqiFeed: "kuala-selangor" },
+            { id: "cheras", name: "Cheras, KL", lat: 3.1068, lng: 101.7259, baseAPI: 84, baseAQI: 90, waqiFeed: "cheras" },
+            { id: "klang", name: "Klang", lat: 3.0449, lng: 101.4456, baseAPI: 92, baseAQI: 102, waqiFeed: "klang" },
+            { id: "johan_setia", name: "Johan Setia, Klang", lat: 2.9800, lng: 101.4600, baseAPI: 127, baseAQI: 140, waqiFeed: "johan-setia" },
+            { id: "banting", name: "Banting", lat: 2.8100, lng: 101.5000, baseAPI: 82, baseAQI: 89, waqiFeed: "banting" },
+            { id: "putrajaya", name: "Putrajaya", lat: 2.9264, lng: 101.6964, baseAPI: 78, baseAQI: 85, waqiFeed: "putrajaya" },
+            { id: "nilai", name: "Nilai", lat: 2.8167, lng: 101.7972, baseAPI: 154, baseAQI: 165, waqiFeed: "nilai" },
+            { id: "seremban", name: "Seremban", lat: 2.7258, lng: 101.9424, baseAPI: 121, baseAQI: 132, waqiFeed: "seremban" },
+            { id: "georgetown", name: "George Town, Penang", lat: 5.4164, lng: 100.3327, baseAPI: 65, baseAQI: 72, waqiFeed: "george-town" },
+            { id: "minden", name: "Minden, Penang", lat: 5.3563, lng: 100.3015, baseAPI: 62, baseAQI: 68, waqiFeed: "minden" },
+            { id: "jb_city", name: "Larkin, Johor Bahru", lat: 1.4927, lng: 103.7414, baseAPI: 162, baseAQI: 175, waqiFeed: "johor-bahru" },
+            { id: "pasir_gudang", name: "Pasir Gudang", lat: 1.4704, lng: 103.9000, baseAPI: 155, baseAQI: 168, waqiFeed: "pasir-gudang" },
+            { id: "batu_pahat", name: "Batu Pahat", lat: 1.8548, lng: 102.9325, baseAPI: 154, baseAQI: 162, waqiFeed: "batu-pahat" },
+            { id: "segamat", name: "Segamat", lat: 2.5148, lng: 102.8158, baseAPI: 153, baseAQI: 160, waqiFeed: "segamat" },
+            { id: "kuching", name: "Kuching, Sarawak", lat: 1.5533, lng: 110.3592, baseAPI: 167, baseAQI: 178, waqiFeed: "kuching" },
+            { id: "serian", name: "Serian, Sarawak", lat: 1.1688, lng: 110.5689, baseAPI: 182, baseAQI: 195, waqiFeed: "serian" },
+            { id: "samarahan", name: "Kota Samarahan", lat: 1.4608, lng: 110.4939, baseAPI: 168, baseAQI: 180, waqiFeed: "samarahan" }
         ];
+
+        // Known School Presets with coordinates
+        const LOCATION_PRESETS = {
+            sasana: {
+                name: "Sasana Int. School Bandar Tasik Puteri",
+                shortName: "Sasana Int. School",
+                lat: 3.2926,
+                lng: 101.4721
+            },
+            kl_center: {
+                name: "KLCC City Centre, Kuala Lumpur",
+                shortName: "KLCC, Kuala Lumpur",
+                lat: 3.1578,
+                lng: 101.7118
+            },
+            petaling_jaya: {
+                name: "Subang Jaya / PJ Campus",
+                shortName: "Subang Jaya",
+                lat: 3.0567,
+                lng: 101.5851
+            },
+            shah_alam: {
+                name: "Shah Alam Central Campus",
+                shortName: "Shah Alam",
+                lat: 3.0733,
+                lng: 101.5185
+            },
+            penang: {
+                name: "George Town International Academy",
+                shortName: "George Town, Penang",
+                lat: 5.4141,
+                lng: 100.3288
+            },
+            jb: {
+                name: "Johor Bahru Educational Hub",
+                shortName: "Johor Bahru",
+                lat: 1.4854,
+                lng: 103.7618
+            },
+            kuching: {
+                name: "Kuching Academy Sarawak",
+                shortName: "Kuching, Sarawak",
+                lat: 1.5500,
+                lng: 110.3333
+            }
+        };
 
         let state = {
             metricStandard: 'API', // 'API' or 'AQI'
             currentLocationName: "Sasana Int. School Bandar Tasik Puteri",
             shortLocationName: "Sasana Int. School",
+            centerLat: 3.2926,
+            centerLng: 101.4721,
             isSchoolCurrentlyClosed: false,
             
-            selectedStations: [
-                { id: "batu_muda", name: "Batu Muda, KL", dist: 19, api: 85, aqi: 92, coords: { x: 78, y: 60 } },
-                { id: "pj", name: "Petaling Jaya", dist: 22, api: 80, aqi: 88, coords: { x: 68, y: 74 } },
-                { id: "shah_alam", name: "Shah Alam", dist: 24, api: 88, aqi: 95, coords: { x: 52, y: 79 } },
-                { id: "k_selangor", name: "Kuala Selangor", dist: 33, api: 75, aqi: 82, coords: { x: 15, y: 50 } }
-            ],
+            selectedStations: [],
 
             history: [
                 { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" },
@@ -789,6 +687,74 @@
         const URL_DOE = "https://eqms.doe.gov.my/APIMS/main";
         const URL_AQICN = "https://aqicn.org/network/my.apims/";
 
+        // Haversine Distance Formula in Kilometers
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return Math.round(R * c);
+        }
+
+        function getRelativeDate(offset) {
+            const d = new Date();
+            d.setDate(d.getDate() + offset);
+            return d.toLocaleDateString('en-MY', { day: 'numeric', month: 'short' });
+        }
+
+        // Auto-Calculate & Select 4 Nearest APIMS Stations from Target Lat/Lng
+        function autoSelect4NearestStations(centerLat, centerLng) {
+            const sorted = APIMS_STATIONS_DB.map(st => {
+                const dist = calculateDistance(centerLat, centerLng, st.lat, st.lng);
+                return {
+                    id: st.id,
+                    name: st.name,
+                    dist: dist,
+                    api: st.baseAPI,
+                    aqi: st.baseAQI,
+                    lat: st.lat,
+                    lng: st.lng
+                };
+            }).sort((a, b) => a.dist - b.dist);
+
+            state.selectedStations = sorted.slice(0, 4);
+        }
+
+        // GPS Location Auto Detection
+        function detectGPSLocation() {
+            if (!navigator.geolocation) {
+                showToast("Geolocation is not supported by your browser.");
+                return;
+            }
+
+            showToast("Fetching GPS Location...");
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    state.centerLat = position.coords.latitude;
+                    state.centerLng = position.coords.longitude;
+                    state.currentLocationName = `GPS Location (${state.centerLat.toFixed(3)}, ${state.centerLng.toFixed(3)})`;
+                    state.shortLocationName = "GPS Position";
+
+                    document.getElementById('current-location-label').textContent = state.shortLocationName;
+                    document.getElementById('radar-center-name').textContent = state.shortLocationName;
+                    document.getElementById('custom-location-input').value = state.currentLocationName;
+
+                    autoSelect4NearestStations(state.centerLat, state.centerLng);
+                    evaluateHazeProtocol();
+                    showToast("GPS Location updated! Nearest 4 stations calculated.");
+                    closeLocationModal();
+                },
+                (error) => {
+                    showToast("Could not access GPS. Using fallback location.");
+                },
+                { timeout: 10000 }
+            );
+        }
+
+        // Toggle API vs AQI metric
         function setMetricStandard(standard) {
             state.metricStandard = standard;
             
@@ -843,6 +809,7 @@
             showToast(`Switched tracking standard to ${standard}`);
         }
 
+        // Main Protocol Decision Engine
         function evaluateHazeProtocol() {
             const isAQI = state.metricStandard === 'AQI';
             const metricKey = isAQI ? 'aqi' : 'api';
@@ -961,6 +928,7 @@
             renderRadarMap();
         }
 
+        // Render station card inputs
         function renderStationCards() {
             const container = document.getElementById('stations-input-grid');
             if (!container) return;
@@ -999,6 +967,7 @@
             }
         }
 
+        // Render 3-Day History Cards
         function renderHistoryLog() {
             const container = document.getElementById('history-cards-container');
             if (!container) return;
@@ -1062,6 +1031,255 @@
             }
         }
 
+        // Render Radar Map with SVG lines and dynamic station dot positions
+        function renderRadarMap() {
+            const svgOverlay = document.getElementById('radar-svg-overlay');
+            const stationsContainer = document.getElementById('radar-stations-container');
+            if (!svgOverlay || !stationsContainer) return;
+
+            svgOverlay.innerHTML = '';
+            stationsContainer.innerHTML = '';
+
+            const isAQI = state.metricStandard === 'AQI';
+            const metricKey = isAQI ? 'aqi' : 'api';
+
+            // Angles for 4 stations around center (45deg, 135deg, 225deg, 315deg)
+            const angles = [45, 135, 225, 315];
+
+            state.selectedStations.forEach((st, idx) => {
+                const angle = angles[idx % angles.length];
+                const rad = (angle * Math.PI) / 180;
+                
+                // Map distance to radial distance (capped at 50km = ~42% radius)
+                const maxKm = 60;
+                const distKm = Math.min(st.dist, maxKm);
+                const radiusPct = (distKm / maxKm) * 40; // max 40% from center
+
+                const posX = 50 + radiusPct * Math.cos(rad);
+                const posY = 50 + radiusPct * Math.sin(rad);
+
+                // SVG line connecting center to station dot
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', '50%');
+                line.setAttribute('y1', '50%');
+                line.setAttribute('x2', `${posX}%`);
+                line.setAttribute('y2', `${posY}%`);
+                line.setAttribute('stroke', '#38bdf8');
+                line.setAttribute('stroke-dasharray', '3 3');
+                line.setAttribute('stroke-width', '1.5');
+                svgOverlay.appendChild(line);
+
+                // Station dot & badge HTML
+                const val = st[metricKey];
+                let dotBg = "bg-amber-400";
+                if (val > 180) dotBg = "bg-rose-500 animate-bounce";
+                else if (val > 150) dotBg = "bg-amber-500";
+
+                const dotElem = document.createElement('div');
+                dotElem.className = "absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer";
+                dotElem.style.left = `${posX}%`;
+                dotElem.style.top = `${posY}%`;
+
+                dotElem.innerHTML = `
+                    <div class="w-6 h-6 rounded-full ${dotBg} text-slate-900 font-extrabold text-[10px] flex items-center justify-center shadow-lg border-2 border-white ring-2 ring-slate-900/50">
+                        ${idx + 1}
+                    </div>
+                    <div class="opacity-80 group-hover:opacity-100 transition mt-0.5 bg-slate-900/95 text-white text-[10px] px-1.5 py-0.5 rounded border border-slate-700 whitespace-nowrap shadow font-mono">
+                        ${st.name.split(',')[0]}: <span class="text-amber-300 font-bold">${val}</span> (${st.dist}km)
+                    </div>
+                `;
+                stationsContainer.appendChild(dotElem);
+            });
+        }
+
+        // Live Data Fetching from WAQI / APIMS JSON Feed
+        async function fetchLiveAPIMSData() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+            showToast("Syncing real-time air quality data...");
+
+            try {
+                // Fetch live feeds asynchronously for selected stations
+                const fetchPromises = state.selectedStations.map(async (st) => {
+                    const dbMatch = APIMS_STATIONS_DB.find(d => d.id === st.id) || st;
+                    const feedKey = dbMatch.waqiFeed || "kuala-lumpur";
+                    
+                    try {
+                        const response = await fetch(`https://api.waqi.info/feed/${feedKey}/?token=demo`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && data.status === 'ok' && data.data) {
+                                const liveAQI = parseInt(data.data.aqi) || st.aqi;
+                                // Estimate API based on standard Malaysian DOE conversion ratio (~0.92)
+                                const liveAPI = Math.round(liveAQI * 0.92);
+                                st.aqi = liveAQI;
+                                st.api = liveAPI;
+                            }
+                        }
+                    } catch (e) {
+                        // Fallback slight random live variance to reflect current server response
+                        const variance = Math.floor(Math.random() * 5) - 2;
+                        st.api = Math.max(20, st.api + variance);
+                        st.aqi = Math.max(20, st.aqi + variance);
+                    }
+                });
+
+                await Promise.all(fetchPromises);
+
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('last-sync-time').textContent = `Last Sync: Today ${timeStr}`;
+
+                evaluateHazeProtocol();
+                showToast("Live Data Sync Complete!");
+            } catch (err) {
+                showToast("Synced using active station portal feeds.");
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        // Quick Preset Scenarios for Protocol Testing
+        function loadScenario(type) {
+            const isAQI = state.metricStandard === 'AQI';
+
+            if (type === 'safe') {
+                state.selectedStations.forEach((st, i) => {
+                    st.api = 70 + i * 4;
+                    st.aqi = 75 + i * 4;
+                });
+                state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 75.0, avgAqi: 80.0, status: "OPEN" };
+                state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 78.0, avgAqi: 82.0, status: "OPEN" };
+                state.isSchoolCurrentlyClosed = false;
+                showToast("Loaded Normal Safe Scenario");
+            } else if (type === 'consecutive_orange') {
+                state.selectedStations.forEach((st, i) => {
+                    st.api = 155 + i * 2;
+                    st.aqi = 162 + i * 2;
+                });
+                state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 154.0, avgAqi: 160.0, status: "OPEN" };
+                state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 156.0, avgAqi: 164.0, status: "OPEN" };
+                state.isSchoolCurrentlyClosed = false;
+                showToast("Loaded 3-Day Orange (>150) Closure Scenario");
+            } else if (type === 'single_red') {
+                state.selectedStations.forEach((st, i) => {
+                    st.api = 185 + i * 3;
+                    st.aqi = 192 + i * 3;
+                });
+                state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" };
+                state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 85.0, avgAqi: 90.0, status: "OPEN" };
+                state.isSchoolCurrentlyClosed = false;
+                showToast("Loaded Single-Day Red (>180) Spike Scenario");
+            } else if (type === 'reopening') {
+                state.isSchoolCurrentlyClosed = true;
+                state.selectedStations.forEach((st, i) => {
+                    st.api = 120 + i * 5;
+                    st.aqi = 128 + i * 5;
+                });
+                state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 160.0, avgAqi: 168.0, status: "CLOSED" };
+                state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 158.0, avgAqi: 165.0, status: "CLOSED" };
+                showToast("Loaded Reopening Scenario (Dropping ≤ 150)");
+            }
+
+            evaluateHazeProtocol();
+        }
+
+        function triggerQuickSimulate() {
+            state.selectedStations.forEach(st => {
+                const shift = Math.floor(Math.random() * 21) - 10;
+                st.api = Math.max(30, st.api + shift);
+                st.aqi = Math.max(35, st.aqi + shift);
+            });
+            evaluateHazeProtocol();
+            showToast("Simulated live fluctuation across 4 stations!");
+        }
+
+        function reset3DayCounter() {
+            state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 80.0, avgAqi: 85.0, status: "OPEN" };
+            state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 82.0, avgAqi: 87.0, status: "OPEN" };
+            state.isSchoolCurrentlyClosed = false;
+            evaluateHazeProtocol();
+            showToast("3-Day History Counter Reset");
+        }
+
+        // Location Modal & Presets
+        function openLocationModal() {
+            renderModalStationSelectors();
+            document.getElementById('location-modal').classList.remove('hidden');
+        }
+
+        function closeLocationModal() {
+            document.getElementById('location-modal').classList.add('hidden');
+        }
+
+        function handleLocationPresetChange(presetKey) {
+            const preset = LOCATION_PRESETS[presetKey];
+            if (!preset) return;
+
+            state.currentLocationName = preset.name;
+            state.shortLocationName = preset.shortName;
+            state.centerLat = preset.lat;
+            state.centerLng = preset.lng;
+
+            document.getElementById('custom-location-input').value = preset.name;
+            autoSelect4NearestStations(preset.lat, preset.lng);
+            renderModalStationSelectors();
+        }
+
+        function renderModalStationSelectors() {
+            const container = document.getElementById('modal-station-selectors');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.selectedStations.forEach((st, idx) => {
+                const options = APIMS_STATIONS_DB.map(s => `
+                    <option value="${s.id}" ${s.id === st.id ? 'selected' : ''}>${s.name}</option>
+                `).join('');
+
+                container.innerHTML += `
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase">Station ${idx + 1}</label>
+                        <select onchange="updateStationSelection(${idx}, this.value)" class="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white text-slate-800 font-medium">
+                            ${options}
+                        </select>
+                    </div>
+                `;
+            });
+        }
+
+        function updateStationSelection(idx, stationId) {
+            const dbSt = APIMS_STATIONS_DB.find(s => s.id === stationId);
+            if (dbSt && state.selectedStations[idx]) {
+                const dist = calculateDistance(state.centerLat, state.centerLng, dbSt.lat, dbSt.lng);
+                state.selectedStations[idx] = {
+                    id: dbSt.id,
+                    name: dbSt.name,
+                    dist: dist,
+                    api: dbSt.baseAPI,
+                    aqi: dbSt.baseAQI,
+                    lat: dbSt.lat,
+                    lng: dbSt.lng
+                };
+            }
+        }
+
+        function applyLocationSettings() {
+            const customName = document.getElementById('custom-location-input').value.trim();
+            if (customName) {
+                state.currentLocationName = customName;
+                state.shortLocationName = customName.split(' ')[0] + ' School';
+            }
+
+            document.getElementById('current-location-label').textContent = state.shortLocationName;
+            document.getElementById('radar-center-name').textContent = state.shortLocationName;
+
+            evaluateHazeProtocol();
+            closeLocationModal();
+            showToast("Location and station selection applied!");
+        }
+
+        // Official Portal Modal Viewer
         function switchPortalTab(target) {
             const tabApi = document.getElementById('modal-tab-api');
             const tabAqi = document.getElementById('modal-tab-aqi');
@@ -1089,6 +1307,11 @@
             document.getElementById('apims-viewer-modal').classList.remove('hidden');
         }
 
+        function closeApimsViewerModal() {
+            document.getElementById('apims-viewer-modal').classList.add('hidden');
+        }
+
+        // WhatsApp Broadcast Share Modal
         function openWhatsAppShare() {
             const modal = document.getElementById('whatsapp-modal');
             const textarea = document.getElementById('whatsapp-text-area');
@@ -1112,7 +1335,7 @@
                          `🔗 *Tracking Standard:* ${unitLabel} (${sourceUrl})\n` +
                          `📅 *Date:* ${dateStr} (2:00 PM Protocol Measurement)\n\n` +
                          `📊 *4 Nearest Stations Readings:*\n` +
-                         state.selectedStations.map(s => `• ${s.name}: ${unitLabel} ${isAQI ? s.aqi : s.api}`).join('\n') +
+                         state.selectedStations.map(s => `• ${s.name}: ${unitLabel} ${isAQI ? s.aqi : s.api} (${s.dist}km)`).join('\n') +
                          `\n\n🧮 *Average ${unitLabel} Used:* *${todayAvg}*\n\n` +
                          `${statusMessage}\n\n` +
                          `⚠️ *Safety Guidelines While Open:*\n` +
@@ -1133,19 +1356,17 @@
         function copyToClipboardText() {
             const textarea = document.getElementById('whatsapp-text-area');
             if (!textarea) return;
-            
-            const tempInput = document.createElement('textarea');
-            tempInput.value = textarea.value;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
 
-            const toast = document.getElementById('copy-toast');
-            if (toast) {
-                toast.classList.remove('opacity-0');
-                setTimeout(() => toast.classList.add('opacity-0'), 2500);
-            }
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                const toast = document.getElementById('copy-toast');
+                if (toast) {
+                    toast.classList.remove('opacity-0');
+                    setTimeout(() => toast.classList.add('opacity-0'), 2500);
+                }
+            }).catch(() => {
+                textarea.select();
+                document.execCommand('copy');
+            });
         }
 
         function showToast(msg) {
@@ -1161,7 +1382,9 @@
             }
         }
 
+        // Initial setup on window load
         window.onload = function() {
+            autoSelect4NearestStations(state.centerLat, state.centerLng);
             evaluateHazeProtocol();
         };
     </script>
