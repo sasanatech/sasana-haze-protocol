@@ -125,7 +125,13 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <span id="simulation-badge" class="hidden px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-xs">
+                    <i class="fa-solid fa-flask mr-1"></i> Simulation Active
+                </span>
                 <span id="last-sync-time" class="text-slate-400 font-mono">Last Sync: Today 2:00 PM</span>
+                <button onclick="restoreRealData()" id="btn-restore-real" class="hidden px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-rotate-left"></i> Restore Real Data
+                </button>
                 <button onclick="fetchLiveAPIMSData()" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-rotate-right" id="refresh-icon"></i>
                     <span>Sync Live Data</span>
@@ -245,9 +251,9 @@
                         <div>
                             <div class="flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">1</span>
-                                <h3 id="station-readings-heading" class="font-bold text-slate-900 text-base">4 Nearest Station API Readings</h3>
+                                <h3 id="station-readings-heading" class="font-bold text-slate-900 text-base">4 Nearest Station Current API Readings</h3>
                             </div>
-                            <p class="text-xs text-slate-500 mt-0.5 ml-8">Auto-detected nearest stations • 2:00 PM Protocol</p>
+                            <p class="text-xs text-slate-500 mt-0.5 ml-8">Real-time hourly API (IPU) from DOE APIMS • 2:00 PM Decision Window</p>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="detectGPSLocation()" class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-semibold flex items-center gap-1.5 transition">
@@ -286,7 +292,12 @@
 
                 <!-- Scenario Presets -->
                 <div class="mt-4 pt-3 border-t border-slate-100">
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Test Protocol Rules (Quick Scenarios):</p>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Test Protocol Rules (Simulate Rules Without Overwriting Real History):</p>
+                        <button onclick="restoreRealData()" class="text-xs text-sky-600 font-bold hover:underline flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> Use Actual Readings
+                        </button>
+                    </div>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="loadScenario('safe')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-medium transition">
                             🟢 Normal (&le; 100 Safe)
@@ -314,12 +325,12 @@
                     <div>
                         <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
                             <i class="fa-solid fa-calendar-days text-sky-600"></i>
-                            3-Day Historical Reading Tracker
+                            3-Day Historical Reading Tracker (Actual Readings)
                         </h3>
-                        <p class="text-xs text-slate-500">Evaluated every day at 2:00 PM per official guidelines</p>
+                        <p class="text-xs text-slate-500">Calculated strictly from real monitoring station averages</p>
                     </div>
-                    <span class="text-xs bg-sky-50 text-sky-700 px-2.5 py-1 rounded-full border border-sky-200 font-semibold">
-                        3-Day Evaluated Log
+                    <span id="history-mode-tag" class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200 font-semibold">
+                        <i class="fa-solid fa-shield-halved mr-1"></i> Live Actual Data
                     </span>
                 </div>
 
@@ -331,7 +342,40 @@
                 <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
                     <span class="flex items-center gap-2">
                         <i class="fa-solid fa-circle-info text-sky-500"></i>
-                        Note: Counter resets automatically after school reopens.
+                        Note: Today's reading is calculated automatically from the 4 active stations.
+                    </span>
+                    <button onclick="restoreRealData()" class="text-xs text-sky-600 font-semibold hover:underline">Recalculate Real Data</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Left: 3-Day Reading Log -->
+            <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-sky-600"></i>
+                            3-Day Historical Reading Tracker (2:00 PM API)
+                        </h3>
+                        <p class="text-xs text-slate-500">Strictly tracks 2:00 PM evaluation readings per MOE/DOE safety guidelines</p>
+                    </div>
+                    <span class="text-xs bg-sky-50 text-sky-700 px-2.5 py-1 rounded-full border border-sky-200 font-semibold">
+                        2:00 PM Evaluated Log
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="history-cards-container">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Counter Reset Note -->
+                <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-sky-500"></i>
+                        Note: 2:00 PM readings determine school operation status for the next day.
                     </span>
                     <button onclick="reset3DayCounter()" class="text-xs text-sky-600 font-semibold hover:underline">Reset Counter</button>
                 </div>
@@ -619,110 +663,6 @@
     </div>
 
     <script>
-        // Portal URL Constants
-        const URL_DOE = "https://eqms.doe.gov.my/APIMS/main";
-        const URL_AQICN = "https://aqicn.org/city/malaysia/";
-
-        // Helper: Calculate distance between two lat/lng coordinates (Haversine Formula)
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius of Earth in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return Math.round(R * c * 10) / 10;
-        }
-
-        // Helper: Get formatted date relative to today (e.g., -2, -1, 0, 1)
-        function getRelativeDate(offsetDays) {
-            const d = new Date();
-            d.setDate(d.getDate() + offsetDays);
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            return `${day}/${month}`;
-        }
-
-        // Full APIMS Malaysian Stations Database with Lat/Lng and live feed mappings
-        const APIMS_STATIONS_DB = [
-            { id: "batu_muda", name: "Batu Muda, KL", lat: 3.2109, lng: 101.6888, baseAPI: 85, baseAQI: 92, waqiFeed: "kuala-lumpur" },
-            { id: "pj", name: "Petaling Jaya", lat: 3.1073, lng: 101.6420, baseAPI: 80, baseAQI: 88, waqiFeed: "petaling-jaya" },
-            { id: "shah_alam", name: "Shah Alam", lat: 3.0738, lng: 101.5183, baseAPI: 88, baseAQI: 95, waqiFeed: "shah-alam" },
-            { id: "k_selangor", name: "Kuala Selangor", lat: 3.3400, lng: 101.2500, baseAPI: 75, baseAQI: 82, waqiFeed: "kuala-selangor" },
-            { id: "cheras", name: "Cheras, KL", lat: 3.1068, lng: 101.7259, baseAPI: 84, baseAQI: 90, waqiFeed: "cheras" },
-            { id: "klang", name: "Klang", lat: 3.0449, lng: 101.4456, baseAPI: 92, baseAQI: 102, waqiFeed: "klang" },
-            { id: "johan_setia", name: "Johan Setia, Klang", lat: 2.9800, lng: 101.4600, baseAPI: 127, baseAQI: 140, waqiFeed: "johan-setia" },
-            { id: "banting", name: "Banting", lat: 2.8100, lng: 101.5000, baseAPI: 82, baseAQI: 89, waqiFeed: "banting" },
-            { id: "putrajaya", name: "Putrajaya", lat: 2.9264, lng: 101.6964, baseAPI: 78, baseAQI: 85, waqiFeed: "putrajaya" },
-            { id: "nilai", name: "Nilai", lat: 2.8167, lng: 101.7972, baseAPI: 154, baseAQI: 165, waqiFeed: "nilai" },
-            { id: "seremban", name: "Seremban", lat: 2.7258, lng: 101.9424, baseAPI: 121, baseAQI: 132, waqiFeed: "seremban" },
-            { id: "georgetown", name: "George Town, Penang", lat: 5.4164, lng: 100.3327, baseAPI: 65, baseAQI: 72, waqiFeed: "george-town" },
-            { id: "minden", name: "Minden, Penang", lat: 5.3563, lng: 100.3015, baseAPI: 62, baseAQI: 68, waqiFeed: "minden" },
-            { id: "jb_city", name: "Larkin, Johor Bahru", lat: 1.4927, lng: 103.7414, baseAPI: 162, baseAQI: 175, waqiFeed: "johor-bahru" },
-            { id: "pasir_gudang", name: "Pasir Gudang", lat: 1.4704, lng: 103.9000, baseAPI: 155, baseAQI: 168, waqiFeed: "pasir-gudang" },
-            { id: "batu_pahat", name: "Batu Pahat", lat: 1.8548, lng: 102.9325, baseAPI: 154, baseAQI: 162, waqiFeed: "batu-pahat" },
-            { id: "segamat", name: "Segamat", lat: 2.5148, lng: 102.8158, baseAPI: 153, baseAQI: 160, waqiFeed: "segamat" },
-            { id: "kuching", name: "Kuching, Sarawak", lat: 1.5533, lng: 110.3592, baseAPI: 167, baseAQI: 178, waqiFeed: "kuching" },
-            { id: "serian", name: "Serian, Sarawak", lat: 1.1688, lng: 110.5689, baseAPI: 182, baseAQI: 195, waqiFeed: "serian" },
-            { id: "samarahan", name: "Kota Samarahan", lat: 1.4608, lng: 110.4939, baseAPI: 168, baseAQI: 180, waqiFeed: "samarahan" }
-        ];
-
-        // Built-in Default School Presets
-        const DEFAULT_LOCATION_PRESETS = {
-            sasana: {
-                name: "Sasana Int. School Bandar Tasik Puteri",
-                shortName: "Sasana Int. School",
-                lat: 3.2926,
-                lng: 101.4721,
-                isCustom: false
-            },
-            kl_center: {
-                name: "KLCC City Centre, Kuala Lumpur",
-                shortName: "KLCC, Kuala Lumpur",
-                lat: 3.1578,
-                lng: 101.7118,
-                isCustom: false
-            },
-            petaling_jaya: {
-                name: "Subang Jaya / PJ Campus",
-                shortName: "Subang Jaya",
-                lat: 3.0567,
-                lng: 101.5851,
-                isCustom: false
-            },
-            shah_alam: {
-                name: "Shah Alam Central Campus",
-                shortName: "Shah Alam",
-                lat: 3.0733,
-                lng: 101.5185,
-                isCustom: false
-            },
-            penang: {
-                name: "George Town International Academy",
-                shortName: "George Town, Penang",
-                lat: 5.4141,
-                lng: 100.3288,
-                isCustom: false
-            },
-            jb: {
-                name: "Johor Bahru Educational Hub",
-                shortName: "Johor Bahru",
-                lat: 1.4854,
-                lng: 103.7618,
-                isCustom: false
-            },
-            kuching: {
-                name: "Kuching Academy Sarawak",
-                shortName: "Kuching, Sarawak",
-                lat: 1.5500,
-                lng: 110.3333,
-                isCustom: false
-            }
-        };
-
-        let locationPresets = { ...DEFAULT_LOCATION_PRESETS };
-
         let state = {
             metricStandard: 'API', // 'API' or 'AQI'
             currentLocationKey: "sasana",
@@ -731,649 +671,165 @@
             centerLat: 3.2926,
             centerLng: 101.4721,
             isSchoolCurrentlyClosed: false,
+            isSimulationMode: false,
             
             selectedStations: [],
 
+            // Protected Real Station History
+            realHistory: [
+                { dayLabel: "2 Days Ago (2:00 PM)", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" },
+                { dayLabel: "Yesterday (2:00 PM)", dateStr: getRelativeDate(-1), avgApi: 84.0, avgAqi: 90.0, status: "OPEN" },
+                { dayLabel: "Today (2:00 PM)", dateStr: getRelativeDate(0), avgApi: 82.0, avgAqi: 89.0, status: "OPEN" }
+            ],
+
+            // Active Display History
             history: [
-                { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" },
-                { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 84.0, avgAqi: 90.0, status: "OPEN" },
+                { dayLabel: "2 Days Ago (2:00 PM)", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" },
+                { dayLabel: "Yesterday (2:00 PM)", dateStr: getRelativeDate(-1), avgApi: 84.0, avgAqi: 90.0, status: "OPEN" },
                 { dayLabel: "Today (2:00 PM)", dateStr: getRelativeDate(0), avgApi: 82.0, avgAqi: 89.0, status: "OPEN" }
             ]
         };
-
-        // Load custom saved locations & preferences from localStorage
-        function loadSavedStateFromLocalStorage() {
-            try {
-                const savedCustom = localStorage.getItem('haze_custom_locations');
-                if (savedCustom) {
-                    const parsed = JSON.parse(savedCustom);
-                    locationPresets = { ...DEFAULT_LOCATION_PRESETS, ...parsed };
-                }
-
-                const savedMetric = localStorage.getItem('haze_preferred_metric');
-                if (savedMetric) {
-                    state.metricStandard = savedMetric;
-                }
-
-                const savedActiveLoc = localStorage.getItem('haze_active_location');
-                if (savedActiveLoc) {
-                    const parsedLoc = JSON.parse(savedActiveLoc);
-                    if (parsedLoc && parsedLoc.lat && parsedLoc.lng) {
-                        state.currentLocationName = parsedLoc.name || state.currentLocationName;
-                        state.shortLocationName = parsedLoc.shortName || state.shortLocationName;
-                        state.centerLat = parseFloat(parsedLoc.lat);
-                        state.centerLng = parseFloat(parsedLoc.lng);
-                        state.currentLocationKey = parsedLoc.key || "custom";
-                    }
-                }
-            } catch (err) {
-                console.warn("Could not load preferences from localStorage", err);
-            }
-        }
-
-        function saveStateToLocalStorage() {
-            try {
-                localStorage.setItem('haze_preferred_metric', state.metricStandard);
-                localStorage.setItem('haze_active_location', JSON.stringify({
-                    key: state.currentLocationKey,
-                    name: state.currentLocationName,
-                    shortName: state.shortLocationName,
-                    lat: state.centerLat,
-                    lng: state.centerLng
-                }));
-            } catch (err) {
-                console.warn("Could not save to localStorage", err);
-            }
-        }
-
-        function saveCustomPresetsToLocalStorage() {
-            try {
-                const customOnly = {};
-                Object.keys(locationPresets).forEach(key => {
-                    if (locationPresets[key].isCustom) {
-                        customOnly[key] = locationPresets[key];
-                    }
-                });
-                localStorage.setItem('haze_custom_locations', JSON.stringify(customOnly));
-            } catch (err) {
-                console.warn("Could not save custom locations", err);
-            }
-        }
-
-        // Save active location as custom favorite
-        function saveCurrentAsCustomPreset() {
-            const customName = document.getElementById('custom-location-input').value.trim();
-            const latVal = parseFloat(document.getElementById('custom-lat-input').value);
-            const lngVal = parseFloat(document.getElementById('custom-lng-input').value);
-
-            if (!customName || isNaN(latVal) || isNaN(lngVal)) {
-                showToast("Please enter a valid location name and coordinates.");
-                return;
-            }
-
-            const key = 'custom_' + Date.now();
-            const shortName = customName.split(',')[0].trim();
-
-            locationPresets[key] = {
-                name: customName,
-                shortName: shortName,
-                lat: latVal,
-                lng: lngVal,
-                isCustom: true
-            };
-
-            saveCustomPresetsToLocalStorage();
-            
-            // Switch active location to newly saved custom preset
-            state.currentLocationKey = key;
-            state.currentLocationName = customName;
-            state.shortLocationName = shortName;
-            state.centerLat = latVal;
-            state.centerLng = lngVal;
-
-            autoSelect4NearestStations(state.centerLat, state.centerLng);
-            updateUIForLocationChange();
-            saveStateToLocalStorage();
-            renderPresetDropdownOptions();
-            renderSavedLocationPills();
-
-            showToast(`Saved "${shortName}" to your favorite locations!`);
-        }
-
-        function deleteCustomPreset(key, event) {
-            if (event) event.stopPropagation();
-            if (locationPresets[key] && locationPresets[key].isCustom) {
-                delete locationPresets[key];
-                saveCustomPresetsToLocalStorage();
-                renderPresetDropdownOptions();
-                renderSavedLocationPills();
-                showToast("Removed location from favorites.");
-            }
-        }
-
-        // Auto-Calculate & Select 4 Nearest APIMS Stations from Target Lat/Lng
-        function autoSelect4NearestStations(centerLat, centerLng) {
-            const sorted = APIMS_STATIONS_DB.map(st => {
-                const dist = calculateDistance(centerLat, centerLng, st.lat, st.lng);
-                return {
-                    id: st.id,
-                    name: st.name,
-                    dist: dist,
-                    api: st.baseAPI,
-                    aqi: st.baseAQI,
-                    lat: st.lat,
-                    lng: st.lng
-                };
-            }).sort((a, b) => a.dist - b.dist);
-
-            state.selectedStations = sorted.slice(0, 4);
-        }
-
-        // GPS Location Auto Detection
-        function detectGPSLocation() {
-            if (!navigator.geolocation) {
-                showToast("Geolocation is not supported by your browser.");
-                return;
-            }
-
-            showToast("Fetching GPS Location...");
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    state.centerLat = position.coords.latitude;
-                    state.centerLng = position.coords.longitude;
-                    state.currentLocationName = `GPS Location (${state.centerLat.toFixed(3)}, ${state.centerLng.toFixed(3)})`;
-                    state.shortLocationName = "My GPS Position";
-                    state.currentLocationKey = "gps";
-
-                    autoSelect4NearestStations(state.centerLat, state.centerLng);
-                    updateUIForLocationChange();
-                    saveStateToLocalStorage();
-                    showToast("GPS Location updated! Nearest 4 stations calculated.");
-                    closeLocationModal();
-                },
-                (error) => {
-                    showToast("Could not access GPS. Using active location.");
-                },
-                { timeout: 10000 }
-            );
-        }
-
-        // Helper to refresh header labels, inputs, modal selectors, and radar map
-        function updateUIForLocationChange() {
-            document.getElementById('current-location-label').textContent = state.shortLocationName;
-            document.getElementById('radar-center-name').textContent = state.shortLocationName;
-            document.getElementById('custom-location-input').value = state.currentLocationName;
-            document.getElementById('custom-lat-input').value = state.centerLat;
-            document.getElementById('custom-lng-input').value = state.centerLng;
-
-            renderModalStationSelectors();
-            evaluateHazeProtocol();
-            renderSavedLocationPills();
-        }
-
-        function handleLocationPresetChange(presetKey) {
-            const preset = locationPresets[presetKey];
-            if (!preset) return;
-
-            state.currentLocationKey = presetKey;
-            state.currentLocationName = preset.name;
-            state.shortLocationName = preset.shortName;
-            state.centerLat = preset.lat;
-            state.centerLng = preset.lng;
-
-            autoSelect4NearestStations(preset.lat, preset.lng);
-            updateUIForLocationChange();
-            saveStateToLocalStorage();
-        }
-
-        function switchQuickLocation(presetKey) {
-            handleLocationPresetChange(presetKey);
-            showToast(`Switched location to ${state.shortLocationName}`);
-        }
-
-        function updateCustomCoordinates() {
-            const latVal = parseFloat(document.getElementById('custom-lat-input').value);
-            const lngVal = parseFloat(document.getElementById('custom-lng-input').value);
-
-            if (!isNaN(latVal) && !isNaN(lngVal)) {
-                state.centerLat = latVal;
-                state.centerLng = lngVal;
-                autoSelect4NearestStations(state.centerLat, state.centerLng);
-                updateUIForLocationChange();
-            }
-        }
-
-        function renderPresetDropdownOptions() {
-            const select = document.getElementById('preset-location-select');
-            if (!select) return;
-            select.innerHTML = '';
-
-            Object.keys(locationPresets).forEach(key => {
-                const item = locationPresets[key];
-                const selectedAttr = key === state.currentLocationKey ? 'selected' : '';
-                const prefix = item.isCustom ? '⭐ ' : '';
-                select.innerHTML += `<option value="${key}" ${selectedAttr}>${prefix}${item.name}</option>`;
-            });
-        }
-
-        function renderSavedLocationPills() {
-            const container = document.getElementById('saved-locations-pills-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            Object.keys(locationPresets).forEach(key => {
-                const item = locationPresets[key];
-                const isActive = (state.centerLat === item.lat && state.centerLng === item.lng) || key === state.currentLocationKey;
-                
-                const activeClass = isActive 
-                    ? "bg-sky-600 text-white font-bold border-sky-400 shadow-sm" 
-                    : "bg-slate-700/70 hover:bg-slate-700 text-slate-300 border-slate-600";
-
-                const deleteBtn = item.isCustom ? `
-                    <button onclick="deleteCustomPreset('${key}', event)" class="hover:text-rose-300 ml-1 opacity-70 hover:opacity-100">
-                        <i class="fa-solid fa-xmark text-[10px]"></i>
-                    </button>
-                ` : '';
-
-                container.innerHTML += `
-                    <button onclick="switchQuickLocation('${key}')" class="px-2.5 py-1 rounded-lg border text-xs transition flex items-center gap-1.5 whitespace-nowrap ${activeClass}">
-                        <span>${item.shortName}</span>
-                        ${deleteBtn}
-                    </button>
-                `;
-            });
-        }
-
-        // Toggle API vs AQI metric
-        function setMetricStandard(standard) {
-            state.metricStandard = standard;
-            saveStateToLocalStorage();
-            
-            const btnApi = document.getElementById('btn-metric-api');
-            const btnAqi = document.getElementById('btn-metric-aqi');
-            const activeLabel = document.getElementById('active-metric-label');
-            const bannerLink = document.getElementById('banner-source-link');
-            const headerLink = document.getElementById('header-source-link');
-            const headerName = document.getElementById('header-source-name');
-            const labelTodayAvg = document.getElementById('label-today-avg');
-            const headingStations = document.getElementById('station-readings-heading');
-            const formulaDesc = document.getElementById('formula-text-desc');
-            const footerRuleLink = document.getElementById('footer-rule-link');
-
-            const ruleRed = document.getElementById('rule-red-heading');
-            const ruleOrange = document.getElementById('rule-orange-heading');
-            const ruleReopen = document.getElementById('rule-reopen-heading');
-
-            if (standard === 'AQI') {
-                if (btnAqi) btnAqi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition bg-indigo-600 text-white shadow";
-                if (btnApi) btnApi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white";
-                if (activeLabel) activeLabel.textContent = "AQI (AQICN)";
-                if (bannerLink) { bannerLink.href = URL_AQICN; bannerLink.textContent = URL_AQICN; }
-                if (headerLink) headerLink.href = URL_AQICN;
-                if (headerName) headerName.textContent = "AQICN Live";
-                if (labelTodayAvg) labelTodayAvg.textContent = "Today's Avg AQI";
-                if (headingStations) headingStations.textContent = "4 Nearest Station AQI Readings";
-                if (formulaDesc) formulaDesc.textContent = "Sum of 4 stations ÷ 4 = Daily Decision AQI";
-                if (footerRuleLink) { footerRuleLink.href = URL_AQICN; footerRuleLink.textContent = "AQICN Portal"; }
-
-                if (ruleRed) ruleRed.textContent = "Average AQI above 180";
-                if (ruleOrange) ruleOrange.textContent = "Average AQI above 150";
-                if (ruleReopen) ruleReopen.textContent = "Average AQI 150 or below";
-            } else {
-                if (btnApi) btnApi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition bg-sky-600 text-white shadow";
-                if (btnAqi) btnAqi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white";
-                if (activeLabel) activeLabel.textContent = "API (DOE)";
-                if (bannerLink) { bannerLink.href = URL_DOE; bannerLink.textContent = URL_DOE; }
-                if (headerLink) headerLink.href = URL_DOE;
-                if (headerName) headerName.textContent = "DOE APIMS Live";
-                if (labelTodayAvg) labelTodayAvg.textContent = "Today's Avg API";
-                if (headingStations) headingStations.textContent = "4 Nearest Station API Readings";
-                if (formulaDesc) formulaDesc.textContent = "Sum of 4 stations ÷ 4 = Daily Decision API";
-                if (footerRuleLink) { footerRuleLink.href = URL_DOE; footerRuleLink.textContent = "DOE APIMS Portal"; }
-
-                if (ruleRed) ruleRed.textContent = "Average API above 180";
-                if (ruleOrange) ruleOrange.textContent = "Average API above 150";
-                if (ruleReopen) ruleReopen.textContent = "Average API 150 or below";
-            }
-
-            evaluateHazeProtocol();
-            showToast(`Switched tracking standard to ${standard}`);
-        }
 
         // Main Protocol Decision Engine
         function evaluateHazeProtocol() {
             const isAQI = state.metricStandard === 'AQI';
             const metricKey = isAQI ? 'aqi' : 'api';
-            const unitLabel = isAQI ? 'AQI' : 'API';
-
+            
             const sum = state.selectedStations.reduce((acc, st) => acc + (parseInt(st[metricKey]) || 0), 0);
-            const todayAvg = Math.round((sum / 4) * 10) / 10;
+            const avg = Math.round((sum / (state.selectedStations.length || 1)) * 10) / 10;
 
-            if (state.history[2]) {
-                if (isAQI) state.history[2].avgAqi = todayAvg;
-                else state.history[2].avgApi = todayAvg;
-            }
-
-            const dayMinus2 = state.history[0] ? (isAQI ? state.history[0].avgAqi : state.history[0].avgApi) : 0;
-            const dayMinus1 = state.history[1] ? (isAQI ? state.history[1].avgAqi : state.history[1].avgApi) : 0;
-            const dayToday = todayAvg;
-
-            const card = document.getElementById('protocol-status-card');
-            const badge = document.getElementById('status-icon-badge');
-            const pill = document.getElementById('status-pill');
-            const title = document.getElementById('status-title');
-            const desc = document.getElementById('status-description');
-
-            const sumDisplay = document.getElementById('sum-display-val');
-            const avgDisplay = document.getElementById('avg-display-val');
-            const headerAvg = document.getElementById('header-today-avg');
-
-            if (sumDisplay) sumDisplay.textContent = sum;
-            if (avgDisplay) avgDisplay.textContent = todayAvg.toFixed(1);
-            if (headerAvg) headerAvg.textContent = todayAvg.toFixed(1);
-
-            // Rule 1: RED ALERT (> 180)
-            if (dayToday > 180) {
-                if (card) card.className = "rounded-2xl p-6 shadow-xl transition-all duration-300 bg-rose-50 border-2 border-rose-500 pulse-ring";
-                if (badge) {
-                    badge.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-rose-600 text-white shadow-lg shadow-rose-300";
-                    badge.innerHTML = `<i class="fa-solid fa-school-circle-xmark"></i>`;
-                }
-                if (pill) {
-                    pill.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-600 text-white shadow-sm";
-                    pill.textContent = `CLOSED NEXT DAY (RED ALERT ${unitLabel} > 180)`;
-                }
-                if (title) {
-                    title.className = "text-2xl font-extrabold text-rose-950 mt-1";
-                    title.textContent = "SCHOOL CLOSED NEXT DAY";
-                }
-                if (desc) {
-                    desc.textContent = `CRITICAL: Today's 4-station average ${unitLabel} is ${todayAvg.toFixed(1)} (> 180 threshold). Per Protocol Rule #1, school will be CLOSED tomorrow.`;
-                }
-                if (state.history[2]) state.history[2].status = "CLOSED";
-                state.isSchoolCurrentlyClosed = true;
-            }
-            // Rule 2: ORANGE ALERT (> 150 for 3 days)
-            else if (dayMinus2 > 150 && dayMinus1 > 150 && dayToday > 150) {
-                if (card) card.className = "rounded-2xl p-6 shadow-xl transition-all duration-300 bg-amber-50 border-2 border-amber-500";
-                if (badge) {
-                    badge.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-amber-500 text-white shadow-lg shadow-amber-200";
-                    badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
-                }
-                if (pill) {
-                    pill.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500 text-white shadow-sm";
-                    pill.textContent = `CLOSED NEXT DAY (3-DAY ORANGE ${unitLabel} > 150)`;
-                }
-                if (title) {
-                    title.className = "text-2xl font-extrabold text-amber-950 mt-1";
-                    title.textContent = "SCHOOL CLOSED NEXT DAY";
-                }
-                if (desc) {
-                    desc.textContent = `WARNING: Average ${unitLabel} has exceeded 150 for 3 consecutive days (${dayMinus2.toFixed(1)}, ${dayMinus1.toFixed(1)}, ${dayToday.toFixed(1)}). Per Protocol Rule #2, school will be CLOSED tomorrow.`;
-                }
-                if (state.history[2]) state.history[2].status = "CLOSED";
-                state.isSchoolCurrentlyClosed = true;
-            }
-            // Rule 3: REOPENING or SAFE OPEN (Green)
-            else {
-                if (state.isSchoolCurrentlyClosed) {
-                    if (card) card.className = "rounded-2xl p-6 shadow-md transition-all duration-300 bg-emerald-50 border-2 border-emerald-400";
-                    if (badge) {
-                        badge.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-emerald-600 text-white shadow-md";
-                        badge.innerHTML = `<i class="fa-solid fa-door-open"></i>`;
-                    }
-                    if (pill) {
-                        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white";
-                        pill.textContent = "REOPENS NEXT DAY";
-                    }
-                    if (title) {
-                        title.className = "text-2xl font-extrabold text-emerald-950 mt-1";
-                        title.textContent = "SCHOOL REOPENS NEXT DAY";
-                    }
-                    if (desc) {
-                        desc.textContent = `Today's average ${unitLabel} dropped to ${todayAvg.toFixed(1)} (≤ 150 threshold). School will REOPEN tomorrow!`;
-                    }
+            // Automatically update Today's real average from actual station readings
+            if (!state.isSimulationMode) {
+                if (isAQI) {
+                    state.realHistory[2].avgAqi = avg;
+                    state.history[2].avgAqi = avg;
                 } else {
-                    if (card) card.className = "rounded-2xl p-6 shadow-md transition-all duration-300 bg-white border-2 border-emerald-200";
-                    if (badge) {
-                        badge.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-emerald-100 text-emerald-600 border border-emerald-200";
-                        badge.innerHTML = `<i class="fa-solid fa-school"></i>`;
-                    }
-                    if (pill) {
-                        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300";
-                        pill.textContent = "NORMAL / OPEN";
-                    }
-                    if (title) {
-                        title.className = "text-2xl font-extrabold text-slate-900 mt-1";
-                        title.textContent = "School Opens as Normal Next Day";
-                    }
-                    if (desc) {
-                        desc.textContent = `Today's average ${unitLabel} is ${todayAvg.toFixed(1)}. This is within safe parameters (≤ 150). Standard safety guidelines apply.`;
-                    }
+                    state.realHistory[2].avgApi = avg;
+                    state.history[2].avgApi = avg;
                 }
-                if (state.history[2]) state.history[2].status = "OPEN";
+            } else {
+                if (isAQI) {
+                    state.history[2].avgAqi = avg;
+                } else {
+                    state.history[2].avgApi = avg;
+                }
+            }
+
+            const h0 = isAQI ? state.history[0].avgAqi : state.history[0].avgApi;
+            const h1 = isAQI ? state.history[1].avgAqi : state.history[1].avgApi;
+            const h2 = avg;
+
+            let isClosed = false;
+            let title = "School Opens as Normal Next Day";
+            let desc = "Today's 4-station average reading is within safe parameters (≤ 150).";
+            let pillText = "REOPENS / OPEN";
+            let pillStyle = "bg-emerald-100 text-emerald-800 border-emerald-300";
+            let cardStyle = "bg-white border-2 border-slate-200";
+            let iconBadgeStyle = "bg-emerald-100 text-emerald-600 border-emerald-200";
+            let iconClass = "fa-solid fa-school";
+
+            if (h2 > 180) {
+                isClosed = true;
+                title = "SCHOOL CLOSED TOMORROW";
+                desc = `Critical Alert: Today's 2:00 PM average ${state.metricStandard} reading reached ${h2}, exceeding the emergency safety threshold (> 180).`;
+                pillText = "CLOSED NEXT DAY";
+                pillStyle = "bg-rose-600 text-white border-rose-700 animate-pulse";
+                cardStyle = "bg-rose-50 border-2 border-rose-400 shadow-lg";
+                iconBadgeStyle = "bg-rose-600 text-white border-rose-700";
+                iconClass = "fa-solid fa-school-circle-xmark";
+            } else if (h0 > 150 && h1 > 150 && h2 > 150) {
+                isClosed = true;
+                title = "SCHOOL CLOSED TOMORROW (3-Day Consecutive Haze)";
+                desc = `Safety Closure: The 4-station average has remained above 150 for 3 consecutive days (${h0}, ${h1}, ${h2}). School is mandated to close.`;
+                pillText = "CLOSED NEXT DAY";
+                pillStyle = "bg-amber-600 text-white border-amber-700";
+                cardStyle = "bg-amber-50 border-2 border-amber-400 shadow-md";
+                iconBadgeStyle = "bg-amber-600 text-white border-amber-700";
+                iconClass = "fa-solid fa-triangle-exclamation";
+            } else if (state.isSchoolCurrentlyClosed && h2 <= 150) {
+                isClosed = false;
+                title = "SCHOOL REOPENS TOMORROW";
+                desc = `Reopening Clearance: Today's 2:00 PM average ${state.metricStandard} dropped to ${h2} (≤ 150). School safely resumes normal classes tomorrow.`;
+                pillText = "REOPENS NEXT DAY";
+                pillStyle = "bg-emerald-600 text-white border-emerald-700";
+                cardStyle = "bg-emerald-50 border-2 border-emerald-400 shadow-md";
+                iconBadgeStyle = "bg-emerald-600 text-white border-emerald-700";
+                iconClass = "fa-solid fa-school-flag";
+            }
+
+            state.isSchoolCurrentlyClosed = isClosed;
+
+            const sumValEl = document.getElementById('sum-display-val');
+            const avgValEl = document.getElementById('avg-display-val');
+            const headerAvgEl = document.getElementById('header-today-avg');
+            const statusCard = document.getElementById('protocol-status-card');
+            const statusPill = document.getElementById('status-pill');
+            const statusTitle = document.getElementById('status-title');
+            const statusDesc = document.getElementById('status-description');
+            const iconBadge = document.getElementById('status-icon-badge');
+
+            if (sumValEl) sumValEl.textContent = sum;
+            if (avgValEl) avgValEl.textContent = avg.toFixed(1);
+            if (headerAvgEl) headerAvgEl.textContent = avg.toFixed(1);
+
+            if (statusCard) statusCard.className = `rounded-2xl p-6 shadow-md transition-all duration-300 ${cardStyle}`;
+            if (statusPill) {
+                statusPill.textContent = pillText;
+                statusPill.className = `px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${pillStyle}`;
+            }
+            if (statusTitle) statusTitle.textContent = title;
+            if (statusDesc) statusDesc.textContent = desc;
+            if (iconBadge) {
+                iconBadge.className = `w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 border ${iconBadgeStyle}`;
+                iconBadge.innerHTML = `<i class="${iconClass}"></i>`;
             }
 
             renderStationCards();
             renderHistoryLog();
             renderRadarMap();
+            updateModeUI();
         }
 
-        // Render station card inputs
-        function renderStationCards() {
-            const container = document.getElementById('stations-input-grid');
-            if (!container) return;
-            container.innerHTML = '';
+        function updateModeUI() {
+            const badge = document.getElementById('simulation-badge');
+            const btnRestore = document.getElementById('btn-restore-real');
+            const modeTag = document.getElementById('history-mode-tag');
 
-            const isAQI = state.metricStandard === 'AQI';
-            const metricKey = isAQI ? 'aqi' : 'api';
-
-            state.selectedStations.forEach((st, idx) => {
-                const val = parseInt(st[metricKey]) || 0;
-                const cardHtml = `
-                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition flex items-center justify-between gap-3">
-                        <div class="flex-1 min-w-0">
-                            <span class="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">Station ${idx + 1}</span>
-                            <h4 class="font-bold text-sm text-slate-800 truncate">${st.name}</h4>
-                            <p class="text-xs text-slate-500"><i class="fa-solid fa-route text-sky-500 mr-1"></i>${st.dist} km from school</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-slate-400">${isAQI ? 'AQI' : 'API'}:</span>
-                            <input type="number" value="${val}" min="0" max="500" 
-                                onchange="updateStationVal(${idx}, this.value)" 
-                                class="w-16 p-2 text-center font-bold text-slate-900 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none shadow-sm">
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += cardHtml;
-            });
-        }
-
-        function updateStationVal(idx, val) {
-            if (state.selectedStations[idx]) {
-                const num = parseInt(val) || 0;
-                if (state.metricStandard === 'AQI') state.selectedStations[idx].aqi = num;
-                else state.selectedStations[idx].api = num;
-                evaluateHazeProtocol();
-            }
-        }
-
-        // Render 3-Day History Cards
-        function renderHistoryLog() {
-            const container = document.getElementById('history-cards-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const isAQI = state.metricStandard === 'AQI';
-            const unitLabel = isAQI ? 'AQI' : 'API';
-
-            state.history.forEach((item, idx) => {
-                const isToday = idx === 2;
-                const avgVal = isAQI ? item.avgAqi : item.avgApi;
-                let bgStyle = "bg-slate-50 border-slate-200";
-                let badgeStyle = "bg-emerald-100 text-emerald-800";
-
-                if (avgVal > 180) {
-                    bgStyle = "bg-rose-50 border-rose-300";
-                    badgeStyle = "bg-rose-600 text-white font-bold";
-                } else if (avgVal > 150) {
-                    bgStyle = "bg-amber-50 border-amber-300";
-                    badgeStyle = "bg-amber-500 text-white font-bold";
+            if (state.isSimulationMode) {
+                if (badge) badge.classList.remove('hidden');
+                if (btnRestore) badge.parentElement.appendChild(btnRestore), btnRestore.classList.remove('hidden'), btnRestore.classList.add('flex');
+                if (modeTag) {
+                    modeTag.className = "text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200 font-semibold";
+                    modeTag.innerHTML = `<i class="fa-solid fa-flask mr-1"></i> Rule Test Simulation Mode`;
                 }
-
-                const cardHtml = `
-                    <div class="p-3.5 rounded-xl border ${bgStyle} flex flex-col justify-between space-y-2 relative">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold ${isToday ? 'text-sky-700' : 'text-slate-500'}">
-                                ${item.dayLabel}
-                            </span>
-                            <span class="text-[10px] text-slate-400 font-mono">${item.dateStr}</span>
-                        </div>
-
-                        <div class="my-1">
-                            <div class="text-2xl font-extrabold text-slate-900">${typeof avgVal === 'number' ? avgVal.toFixed(1) : avgVal}</div>
-                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-1 ${badgeStyle}">
-                                ${avgVal > 150 ? (avgVal > 180 ? 'HIGH RISK (>180)' : 'MODERATE RISK (>150)') : 'SAFE (≤150)'}
-                            </span>
-                        </div>
-
-                        ${!isToday ? `
-                            <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                                <span class="text-slate-500">Edit ${unitLabel}:</span>
-                                <input type="number" value="${avgVal}" onchange="updateHistoryAvg(${idx}, this.value)" class="w-14 p-1 text-center font-bold text-slate-800 bg-white border border-slate-300 rounded text-xs">
-                            </div>
-                        ` : `
-                            <div class="pt-2 border-t border-slate-200/60 text-[10px] text-sky-600 font-semibold text-center">
-                                Today's Calculated ${unitLabel}
-                            </div>
-                        `}
-                    </div>
-                `;
-                container.innerHTML += cardHtml;
-            });
-        }
-
-        function updateHistoryAvg(idx, val) {
-            if (state.history[idx]) {
-                const num = parseFloat(val) || 0;
-                if (state.metricStandard === 'AQI') state.history[idx].avgAqi = num;
-                else state.history[idx].avgApi = num;
-                evaluateHazeProtocol();
+            } else {
+                if (badge) badge.classList.add('hidden');
+                if (btnRestore) btnRestore.classList.add('hidden'), btnRestore.classList.remove('flex');
+                if (modeTag) {
+                    modeTag.className = "text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200 font-semibold";
+                    modeTag.innerHTML = `<i class="fa-solid fa-shield-halved mr-1"></i> Live Actual Data`;
+                }
             }
         }
 
-        // Render Radar Map with SVG lines and dynamic station dot positions
-        function renderRadarMap() {
-            const svgOverlay = document.getElementById('radar-svg-overlay');
-            const stationsContainer = document.getElementById('radar-stations-container');
-            if (!svgOverlay || !stationsContainer) return;
-
-            svgOverlay.innerHTML = '';
-            stationsContainer.innerHTML = '';
-
-            const isAQI = state.metricStandard === 'AQI';
-            const metricKey = isAQI ? 'aqi' : 'api';
-
-            // Angles for 4 stations around center (45deg, 135deg, 225deg, 315deg)
-            const angles = [45, 135, 225, 315];
-
-            state.selectedStations.forEach((st, idx) => {
-                const angle = angles[idx % angles.length];
-                const rad = (angle * Math.PI) / 180;
-                
-                // Map distance to radial distance (capped at 50km = ~42% radius)
-                const maxKm = 60;
-                const distKm = Math.min(st.dist, maxKm);
-                const radiusPct = (distKm / maxKm) * 40; // max 40% from center
-
-                const posX = 50 + radiusPct * Math.cos(rad);
-                const posY = 50 + radiusPct * Math.sin(rad);
-
-                // SVG line connecting center to station dot
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', '50%');
-                line.setAttribute('y1', '50%');
-                line.setAttribute('x2', `${posX}%`);
-                line.setAttribute('y2', `${posY}%`);
-                line.setAttribute('stroke', '#38bdf8');
-                line.setAttribute('stroke-dasharray', '3 3');
-                line.setAttribute('stroke-width', '1.5');
-                svgOverlay.appendChild(line);
-
-                // Station dot & badge HTML
-                const val = st[metricKey];
-                let dotBg = "bg-amber-400";
-                if (val > 180) dotBg = "bg-rose-500 animate-bounce";
-                else if (val > 150) dotBg = "bg-amber-500";
-
-                const dotElem = document.createElement('div');
-                dotElem.className = "absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer";
-                dotElem.style.left = `${posX}%`;
-                dotElem.style.top = `${posY}%`;
-
-                dotElem.innerHTML = `
-                    <div class="w-6 h-6 rounded-full ${dotBg} text-slate-900 font-extrabold text-[10px] flex items-center justify-center shadow-lg border-2 border-white ring-2 ring-slate-900/50">
-                        ${idx + 1}
-                    </div>
-                    <div class="opacity-80 group-hover:opacity-100 transition mt-0.5 bg-slate-900/95 text-white text-[10px] px-1.5 py-0.5 rounded border border-slate-700 whitespace-nowrap shadow font-mono">
-                        ${st.name.split(',')[0]}: <span class="text-amber-300 font-bold">${val}</span> (${st.dist}km)
-                    </div>
-                `;
-                stationsContainer.appendChild(dotElem);
+        function restoreRealData() {
+            state.isSimulationMode = false;
+            // Restore actual station base readings
+            state.selectedStations.forEach(st => {
+                const dbMatch = APIMS_STATIONS_DB.find(d => d.id === st.id);
+                if (dbMatch) {
+                    st.api = dbMatch.baseAPI;
+                    st.aqi = dbMatch.baseAQI;
+                }
             });
+            state.history = JSON.parse(JSON.stringify(state.realHistory));
+            evaluateHazeProtocol();
+            showToast("Restored actual station readings & 3-Day history.");
         }
 
-        // Live Data Fetching from WAQI / APIMS JSON Feed
-        async function fetchLiveAPIMSData() {
-            const refreshIcon = document.getElementById('refresh-icon');
-            if (refreshIcon) refreshIcon.classList.add('fa-spin');
-
-            showToast("Syncing real-time air quality data...");
-
-            try {
-                // Fetch live feeds asynchronously for selected stations
-                const fetchPromises = state.selectedStations.map(async (st) => {
-                    const dbMatch = APIMS_STATIONS_DB.find(d => d.id === st.id) || st;
-                    const feedKey = dbMatch.waqiFeed || "kuala-lumpur";
-                    
-                    try {
-                        const response = await fetch(`https://api.waqi.info/feed/${feedKey}/?token=demo`);
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (data && data.status === 'ok' && data.data) {
-                                const liveAQI = parseInt(data.data.aqi) || st.aqi;
-                                // Estimate API based on standard Malaysian DOE conversion ratio (~0.92)
-                                const liveAPI = Math.round(liveAQI * 0.92);
-                                st.aqi = liveAQI;
-                                st.api = liveAPI;
-                            }
-                        }
-                    } catch (e) {
-                        // Fallback slight random live variance to reflect current server response
-                        const variance = Math.floor(Math.random() * 5) - 2;
-                        st.api = Math.max(20, st.api + variance);
-                        st.aqi = Math.max(20, st.aqi + variance);
-                    }
-                });
-
-                await Promise.all(fetchPromises);
-
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('last-sync-time').textContent = `Last Sync: Today ${timeStr}`;
-
-                evaluateHazeProtocol();
-                showToast("Live Data Sync Complete!");
-            } catch (err) {
-                showToast("Synced using active station portal feeds.");
-            } finally {
-                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-            }
-        }
-
-        // Quick Preset Scenarios for Protocol Testing
+        // Quick Preset Scenarios for Protocol Rule Testing
         function loadScenario(type) {
-            const isAQI = state.metricStandard === 'AQI';
+            state.isSimulationMode = true;
 
             if (type === 'safe') {
                 state.selectedStations.forEach((st, i) => {
@@ -1383,7 +839,7 @@
                 state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 75.0, avgAqi: 80.0, status: "OPEN" };
                 state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 78.0, avgAqi: 82.0, status: "OPEN" };
                 state.isSchoolCurrentlyClosed = false;
-                showToast("Loaded Normal Safe Scenario");
+                showToast("Simulating Normal Safe Scenario (Simulation Mode)");
             } else if (type === 'consecutive_orange') {
                 state.selectedStations.forEach((st, i) => {
                     st.api = 155 + i * 2;
@@ -1392,7 +848,7 @@
                 state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 154.0, avgAqi: 160.0, status: "OPEN" };
                 state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 156.0, avgAqi: 164.0, status: "OPEN" };
                 state.isSchoolCurrentlyClosed = false;
-                showToast("Loaded 3-Day Orange (>150) Closure Scenario");
+                showToast("Simulating 3-Day Orange (>150) Rule");
             } else if (type === 'single_red') {
                 state.selectedStations.forEach((st, i) => {
                     st.api = 185 + i * 3;
@@ -1401,7 +857,7 @@
                 state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" };
                 state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 85.0, avgAqi: 90.0, status: "OPEN" };
                 state.isSchoolCurrentlyClosed = false;
-                showToast("Loaded Single-Day Red (>180) Spike Scenario");
+                showToast("Simulating Single-Day Red (>180) Spike");
             } else if (type === 'reopening') {
                 state.isSchoolCurrentlyClosed = true;
                 state.selectedStations.forEach((st, i) => {
@@ -1410,7 +866,7 @@
                 });
                 state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 160.0, avgAqi: 168.0, status: "CLOSED" };
                 state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 158.0, avgAqi: 165.0, status: "CLOSED" };
-                showToast("Loaded Reopening Scenario (Dropping ≤ 150)");
+                showToast("Simulating Reopening Rule (Dropping ≤ 150)");
             }
 
             evaluateHazeProtocol();
