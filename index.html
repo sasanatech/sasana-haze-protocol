@@ -102,6 +102,14 @@
         </div>
     </header>
 
+    <!-- Quick Location Shortcuts Bar -->
+    <div id="quick-locations-bar" class="bg-slate-800/80 border-b border-slate-700/60 px-4 py-2 text-xs flex items-center gap-2 overflow-x-auto text-slate-300">
+        <span class="font-bold text-slate-400 uppercase text-[10px] tracking-wider whitespace-nowrap"><i class="fa-solid fa-bookmark text-amber-400 mr-1"></i>Saved Locations:</span>
+        <div id="saved-locations-pills-container" class="flex items-center gap-1.5">
+            <!-- Dynamic location shortcut pills rendered via JS -->
+        </div>
+    </div>
+
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         <!-- Banner showing active metric & source -->
@@ -264,7 +272,7 @@
                             <i class="fa-solid fa-calculator text-amber-400 text-base"></i>
                             <div>
                                 <p class="font-semibold text-slate-200">Daily Protocol Formula</p>
-                                <p id="formula-text-desc" class="text-slate-400">Sum of 4 stations $\div$ 4 = Daily Decision API</p>
+                                <p id="formula-text-desc" class="text-slate-400">Sum of 4 stations &divide; 4 = Daily Decision API</p>
                             </div>
                         </div>
                         <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-center font-mono text-sm w-full sm:w-auto">
@@ -373,7 +381,7 @@
                                     <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-600 text-white">REOPENS NEXT DAY</span>
                                 </div>
                                 <p id="rule-reopen-heading" class="text-sm font-bold text-emerald-950 mt-0.5">Average API 150 or below</p>
-                                <p class="text-xs text-emerald-700 mt-0.5">While school is closed, dropping to $\le$ 150 reopens school next day.</p>
+                                <p class="text-xs text-emerald-700 mt-0.5">While school is closed, dropping to &le; 150 reopens school next day.</p>
                             </div>
                         </div>
                     </div>
@@ -451,7 +459,7 @@
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <i class="fa-solid fa-map-location-dot text-sky-600"></i>
-                    Location & Auto 4 Nearest Stations
+                    Location & Saved Favorites
                 </h3>
                 <button onclick="closeLocationModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
@@ -471,27 +479,41 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Preset Malaysian School Locations</label>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Select Location Preset (Built-in & Saved)</label>
                     <select id="preset-location-select" onchange="handleLocationPresetChange(this.value)" class="w-full rounded-xl border border-slate-300 p-2.5 text-sm bg-white focus:ring-2 focus:ring-sky-500 font-medium text-slate-800">
-                        <option value="sasana">Sasana Int. School (Bandar Tasik Puteri, Rawang)</option>
-                        <option value="kl_center">Kuala Lumpur City Centre (KLCC)</option>
-                        <option value="petaling_jaya">Petaling Jaya / Subang Jaya</option>
-                        <option value="shah_alam">Shah Alam / Klang</option>
-                        <option value="penang">George Town, Penang</option>
-                        <option value="jb">Johor Bahru, Johor</option>
-                        <option value="kuching">Kuching / Serian, Sarawak</option>
+                        <!-- Populated by JS -->
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Custom School Name</label>
-                    <input type="text" id="custom-location-input" value="Sasana Int. School Bandar Tasik Puteri" class="w-full rounded-xl border border-slate-300 p-2.5 text-sm focus:ring-2 focus:ring-sky-500">
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Custom Location Details</label>
+                        <button onclick="saveCurrentAsCustomPreset()" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded-lg shadow-sm transition flex items-center gap-1">
+                            <i class="fa-solid fa-floppy-disk"></i> Save to My Favorites
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <span class="text-[11px] text-slate-500 block mb-1">Location Name:</span>
+                        <input type="text" id="custom-location-input" value="Sasana Int. School Bandar Tasik Puteri" class="w-full rounded-lg border border-slate-300 p-2 text-xs focus:ring-2 focus:ring-sky-500 font-medium">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <span class="text-[11px] text-slate-500 block mb-1">Latitude (°N):</span>
+                            <input type="number" step="0.0001" id="custom-lat-input" value="3.2926" onchange="updateCustomCoordinates()" class="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono">
+                        </div>
+                        <div>
+                            <span class="text-[11px] text-slate-500 block mb-1">Longitude (°E):</span>
+                            <input type="number" step="0.0001" id="custom-lng-input" value="101.4721" onchange="updateCustomCoordinates()" class="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="border-t border-slate-100 pt-3">
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-xs font-bold text-slate-700 uppercase">Selected 4 Nearest Monitoring Stations</label>
-                        <span class="text-[11px] text-sky-600 font-semibold">Auto-Sorted by Radius</span>
+                        <span class="text-[11px] text-sky-600 font-semibold">Auto-Sorted by Distance</span>
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="modal-station-selectors">
@@ -597,6 +619,31 @@
     </div>
 
     <script>
+        // Portal URL Constants
+        const URL_DOE = "https://eqms.doe.gov.my/APIMS/main";
+        const URL_AQICN = "https://aqicn.org/city/malaysia/";
+
+        // Helper: Calculate distance between two lat/lng coordinates (Haversine Formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of Earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return Math.round(R * c * 10) / 10;
+        }
+
+        // Helper: Get formatted date relative to today (e.g., -2, -1, 0, 1)
+        function getRelativeDate(offsetDays) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            return `${day}/${month}`;
+        }
+
         // Full APIMS Malaysian Stations Database with Lat/Lng and live feed mappings
         const APIMS_STATIONS_DB = [
             { id: "batu_muda", name: "Batu Muda, KL", lat: 3.2109, lng: 101.6888, baseAPI: 85, baseAQI: 92, waqiFeed: "kuala-lumpur" },
@@ -621,54 +668,64 @@
             { id: "samarahan", name: "Kota Samarahan", lat: 1.4608, lng: 110.4939, baseAPI: 168, baseAQI: 180, waqiFeed: "samarahan" }
         ];
 
-        // Known School Presets with coordinates
-        const LOCATION_PRESETS = {
+        // Built-in Default School Presets
+        const DEFAULT_LOCATION_PRESETS = {
             sasana: {
                 name: "Sasana Int. School Bandar Tasik Puteri",
                 shortName: "Sasana Int. School",
                 lat: 3.2926,
-                lng: 101.4721
+                lng: 101.4721,
+                isCustom: false
             },
             kl_center: {
                 name: "KLCC City Centre, Kuala Lumpur",
                 shortName: "KLCC, Kuala Lumpur",
                 lat: 3.1578,
-                lng: 101.7118
+                lng: 101.7118,
+                isCustom: false
             },
             petaling_jaya: {
                 name: "Subang Jaya / PJ Campus",
                 shortName: "Subang Jaya",
                 lat: 3.0567,
-                lng: 101.5851
+                lng: 101.5851,
+                isCustom: false
             },
             shah_alam: {
                 name: "Shah Alam Central Campus",
                 shortName: "Shah Alam",
                 lat: 3.0733,
-                lng: 101.5185
+                lng: 101.5185,
+                isCustom: false
             },
             penang: {
                 name: "George Town International Academy",
                 shortName: "George Town, Penang",
                 lat: 5.4141,
-                lng: 100.3288
+                lng: 100.3288,
+                isCustom: false
             },
             jb: {
                 name: "Johor Bahru Educational Hub",
                 shortName: "Johor Bahru",
                 lat: 1.4854,
-                lng: 103.7618
+                lng: 103.7618,
+                isCustom: false
             },
             kuching: {
                 name: "Kuching Academy Sarawak",
                 shortName: "Kuching, Sarawak",
                 lat: 1.5500,
-                lng: 110.3333
+                lng: 110.3333,
+                isCustom: false
             }
         };
 
+        let locationPresets = { ...DEFAULT_LOCATION_PRESETS };
+
         let state = {
             metricStandard: 'API', // 'API' or 'AQI'
+            currentLocationKey: "sasana",
             currentLocationName: "Sasana Int. School Bandar Tasik Puteri",
             shortLocationName: "Sasana Int. School",
             centerLat: 3.2926,
@@ -684,25 +741,114 @@
             ]
         };
 
-        const URL_DOE = "https://eqms.doe.gov.my/APIMS/main";
-        const URL_AQICN = "https://aqicn.org/network/my.apims/";
+        // Load custom saved locations & preferences from localStorage
+        function loadSavedStateFromLocalStorage() {
+            try {
+                const savedCustom = localStorage.getItem('haze_custom_locations');
+                if (savedCustom) {
+                    const parsed = JSON.parse(savedCustom);
+                    locationPresets = { ...DEFAULT_LOCATION_PRESETS, ...parsed };
+                }
 
-        // Haversine Distance Formula in Kilometers
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return Math.round(R * c);
+                const savedMetric = localStorage.getItem('haze_preferred_metric');
+                if (savedMetric) {
+                    state.metricStandard = savedMetric;
+                }
+
+                const savedActiveLoc = localStorage.getItem('haze_active_location');
+                if (savedActiveLoc) {
+                    const parsedLoc = JSON.parse(savedActiveLoc);
+                    if (parsedLoc && parsedLoc.lat && parsedLoc.lng) {
+                        state.currentLocationName = parsedLoc.name || state.currentLocationName;
+                        state.shortLocationName = parsedLoc.shortName || state.shortLocationName;
+                        state.centerLat = parseFloat(parsedLoc.lat);
+                        state.centerLng = parseFloat(parsedLoc.lng);
+                        state.currentLocationKey = parsedLoc.key || "custom";
+                    }
+                }
+            } catch (err) {
+                console.warn("Could not load preferences from localStorage", err);
+            }
         }
 
-        function getRelativeDate(offset) {
-            const d = new Date();
-            d.setDate(d.getDate() + offset);
-            return d.toLocaleDateString('en-MY', { day: 'numeric', month: 'short' });
+        function saveStateToLocalStorage() {
+            try {
+                localStorage.setItem('haze_preferred_metric', state.metricStandard);
+                localStorage.setItem('haze_active_location', JSON.stringify({
+                    key: state.currentLocationKey,
+                    name: state.currentLocationName,
+                    shortName: state.shortLocationName,
+                    lat: state.centerLat,
+                    lng: state.centerLng
+                }));
+            } catch (err) {
+                console.warn("Could not save to localStorage", err);
+            }
+        }
+
+        function saveCustomPresetsToLocalStorage() {
+            try {
+                const customOnly = {};
+                Object.keys(locationPresets).forEach(key => {
+                    if (locationPresets[key].isCustom) {
+                        customOnly[key] = locationPresets[key];
+                    }
+                });
+                localStorage.setItem('haze_custom_locations', JSON.stringify(customOnly));
+            } catch (err) {
+                console.warn("Could not save custom locations", err);
+            }
+        }
+
+        // Save active location as custom favorite
+        function saveCurrentAsCustomPreset() {
+            const customName = document.getElementById('custom-location-input').value.trim();
+            const latVal = parseFloat(document.getElementById('custom-lat-input').value);
+            const lngVal = parseFloat(document.getElementById('custom-lng-input').value);
+
+            if (!customName || isNaN(latVal) || isNaN(lngVal)) {
+                showToast("Please enter a valid location name and coordinates.");
+                return;
+            }
+
+            const key = 'custom_' + Date.now();
+            const shortName = customName.split(',')[0].trim();
+
+            locationPresets[key] = {
+                name: customName,
+                shortName: shortName,
+                lat: latVal,
+                lng: lngVal,
+                isCustom: true
+            };
+
+            saveCustomPresetsToLocalStorage();
+            
+            // Switch active location to newly saved custom preset
+            state.currentLocationKey = key;
+            state.currentLocationName = customName;
+            state.shortLocationName = shortName;
+            state.centerLat = latVal;
+            state.centerLng = lngVal;
+
+            autoSelect4NearestStations(state.centerLat, state.centerLng);
+            updateUIForLocationChange();
+            saveStateToLocalStorage();
+            renderPresetDropdownOptions();
+            renderSavedLocationPills();
+
+            showToast(`Saved "${shortName}" to your favorite locations!`);
+        }
+
+        function deleteCustomPreset(key, event) {
+            if (event) event.stopPropagation();
+            if (locationPresets[key] && locationPresets[key].isCustom) {
+                delete locationPresets[key];
+                saveCustomPresetsToLocalStorage();
+                renderPresetDropdownOptions();
+                renderSavedLocationPills();
+                showToast("Removed location from favorites.");
+            }
         }
 
         // Auto-Calculate & Select 4 Nearest APIMS Stations from Target Lat/Lng
@@ -736,27 +882,112 @@
                     state.centerLat = position.coords.latitude;
                     state.centerLng = position.coords.longitude;
                     state.currentLocationName = `GPS Location (${state.centerLat.toFixed(3)}, ${state.centerLng.toFixed(3)})`;
-                    state.shortLocationName = "GPS Position";
-
-                    document.getElementById('current-location-label').textContent = state.shortLocationName;
-                    document.getElementById('radar-center-name').textContent = state.shortLocationName;
-                    document.getElementById('custom-location-input').value = state.currentLocationName;
+                    state.shortLocationName = "My GPS Position";
+                    state.currentLocationKey = "gps";
 
                     autoSelect4NearestStations(state.centerLat, state.centerLng);
-                    evaluateHazeProtocol();
+                    updateUIForLocationChange();
+                    saveStateToLocalStorage();
                     showToast("GPS Location updated! Nearest 4 stations calculated.");
                     closeLocationModal();
                 },
                 (error) => {
-                    showToast("Could not access GPS. Using fallback location.");
+                    showToast("Could not access GPS. Using active location.");
                 },
                 { timeout: 10000 }
             );
         }
 
+        // Helper to refresh header labels, inputs, modal selectors, and radar map
+        function updateUIForLocationChange() {
+            document.getElementById('current-location-label').textContent = state.shortLocationName;
+            document.getElementById('radar-center-name').textContent = state.shortLocationName;
+            document.getElementById('custom-location-input').value = state.currentLocationName;
+            document.getElementById('custom-lat-input').value = state.centerLat;
+            document.getElementById('custom-lng-input').value = state.centerLng;
+
+            renderModalStationSelectors();
+            evaluateHazeProtocol();
+            renderSavedLocationPills();
+        }
+
+        function handleLocationPresetChange(presetKey) {
+            const preset = locationPresets[presetKey];
+            if (!preset) return;
+
+            state.currentLocationKey = presetKey;
+            state.currentLocationName = preset.name;
+            state.shortLocationName = preset.shortName;
+            state.centerLat = preset.lat;
+            state.centerLng = preset.lng;
+
+            autoSelect4NearestStations(preset.lat, preset.lng);
+            updateUIForLocationChange();
+            saveStateToLocalStorage();
+        }
+
+        function switchQuickLocation(presetKey) {
+            handleLocationPresetChange(presetKey);
+            showToast(`Switched location to ${state.shortLocationName}`);
+        }
+
+        function updateCustomCoordinates() {
+            const latVal = parseFloat(document.getElementById('custom-lat-input').value);
+            const lngVal = parseFloat(document.getElementById('custom-lng-input').value);
+
+            if (!isNaN(latVal) && !isNaN(lngVal)) {
+                state.centerLat = latVal;
+                state.centerLng = lngVal;
+                autoSelect4NearestStations(state.centerLat, state.centerLng);
+                updateUIForLocationChange();
+            }
+        }
+
+        function renderPresetDropdownOptions() {
+            const select = document.getElementById('preset-location-select');
+            if (!select) return;
+            select.innerHTML = '';
+
+            Object.keys(locationPresets).forEach(key => {
+                const item = locationPresets[key];
+                const selectedAttr = key === state.currentLocationKey ? 'selected' : '';
+                const prefix = item.isCustom ? '⭐ ' : '';
+                select.innerHTML += `<option value="${key}" ${selectedAttr}>${prefix}${item.name}</option>`;
+            });
+        }
+
+        function renderSavedLocationPills() {
+            const container = document.getElementById('saved-locations-pills-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(locationPresets).forEach(key => {
+                const item = locationPresets[key];
+                const isActive = (state.centerLat === item.lat && state.centerLng === item.lng) || key === state.currentLocationKey;
+                
+                const activeClass = isActive 
+                    ? "bg-sky-600 text-white font-bold border-sky-400 shadow-sm" 
+                    : "bg-slate-700/70 hover:bg-slate-700 text-slate-300 border-slate-600";
+
+                const deleteBtn = item.isCustom ? `
+                    <button onclick="deleteCustomPreset('${key}', event)" class="hover:text-rose-300 ml-1 opacity-70 hover:opacity-100">
+                        <i class="fa-solid fa-xmark text-[10px]"></i>
+                    </button>
+                ` : '';
+
+                container.innerHTML += `
+                    <button onclick="switchQuickLocation('${key}')" class="px-2.5 py-1 rounded-lg border text-xs transition flex items-center gap-1.5 whitespace-nowrap ${activeClass}">
+                        <span>${item.shortName}</span>
+                        ${deleteBtn}
+                    </button>
+                `;
+            });
+        }
+
         // Toggle API vs AQI metric
         function setMetricStandard(standard) {
             state.metricStandard = standard;
+            saveStateToLocalStorage();
             
             const btnApi = document.getElementById('btn-metric-api');
             const btnAqi = document.getElementById('btn-metric-aqi');
@@ -1205,26 +1436,13 @@
 
         // Location Modal & Presets
         function openLocationModal() {
+            renderPresetDropdownOptions();
             renderModalStationSelectors();
             document.getElementById('location-modal').classList.remove('hidden');
         }
 
         function closeLocationModal() {
             document.getElementById('location-modal').classList.add('hidden');
-        }
-
-        function handleLocationPresetChange(presetKey) {
-            const preset = LOCATION_PRESETS[presetKey];
-            if (!preset) return;
-
-            state.currentLocationName = preset.name;
-            state.shortLocationName = preset.shortName;
-            state.centerLat = preset.lat;
-            state.centerLng = preset.lng;
-
-            document.getElementById('custom-location-input').value = preset.name;
-            autoSelect4NearestStations(preset.lat, preset.lng);
-            renderModalStationSelectors();
         }
 
         function renderModalStationSelectors() {
@@ -1261,6 +1479,7 @@
                     lat: dbSt.lat,
                     lng: dbSt.lng
                 };
+                evaluateHazeProtocol();
             }
         }
 
@@ -1268,13 +1487,12 @@
             const customName = document.getElementById('custom-location-input').value.trim();
             if (customName) {
                 state.currentLocationName = customName;
-                state.shortLocationName = customName.split(' ')[0] + ' School';
+                state.shortLocationName = customName.split(',')[0].trim();
             }
 
-            document.getElementById('current-location-label').textContent = state.shortLocationName;
-            document.getElementById('radar-center-name').textContent = state.shortLocationName;
+            updateCustomCoordinates();
+            saveStateToLocalStorage();
 
-            evaluateHazeProtocol();
             closeLocationModal();
             showToast("Location and station selection applied!");
         }
@@ -1384,7 +1602,10 @@
 
         // Initial setup on window load
         window.onload = function() {
+            loadSavedStateFromLocalStorage();
             autoSelect4NearestStations(state.centerLat, state.centerLng);
+            renderPresetDropdownOptions();
+            renderSavedLocationPills();
             evaluateHazeProtocol();
         };
     </script>
