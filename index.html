@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malaysia Haze APIMS Tracker & School Safety Protocol</title>
-    <!-- Tailwind CSS -->
+    <title>Sasana International School - Haze Monitoring & Alert System</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
+    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -18,1187 +19,1069 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0284c7',
-                            600: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
+                        sasana: {
+                            blue: '#1e3a8a',
+                            lightBlue: '#3b82f6',
+                            teal: '#0d9488',
+                            dark: '#0f172a',
                         }
                     }
                 }
             }
         }
     </script>
+    
     <style>
-        .radar-grid {
-            background-image: radial-gradient(circle at center, rgba(14, 165, 233, 0.2) 1px, transparent 1px);
-            background-size: 24px 24px;
+        /* Custom scrollbar and glassmorphism styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .pulse-ring {
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            animation: pulse-animation 2s infinite;
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
         }
-        @keyframes pulse-animation {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col antialiased">
 
-    <!-- Header Navigation -->
-    <header class="bg-slate-900 text-white shadow-lg border-b border-slate-800 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
-                    <i class="fa-solid font-bold text-xl fa-smog"></i>
+    <!-- MAIN NAVIGATION / HEADER -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+            <!-- School Brand / Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center font-black text-xl text-white shadow-md shadow-sky-500/20">
+                    S
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        Sasana Haze Protocol Tracker
-                        <a id="header-source-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 hover:bg-sky-500/40 transition flex items-center gap-1">
-                            <span id="header-source-name">DOE APIMS Live</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </a>
-                    </h1>
-                    <p class="text-xs text-slate-400">Air Index Monitoring & School Closure Safety System</p>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-white">sasana</h1>
+                        <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-sky-900/60 text-sky-300 border border-sky-700/50">International School</span>
+                    </div>
+                    <p class="text-xs text-slate-400 font-medium">Haze Monitoring & Official Protocol Alert System</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                <!-- Dual Metric Selector (API vs AQI) -->
-                <div class="bg-slate-800 p-1 rounded-xl border border-slate-700 flex items-center gap-1">
-                    <button id="btn-metric-api" onclick="setMetricStandard('API')" class="px-2.5 py-1 rounded-lg font-bold text-xs transition bg-sky-600 text-white shadow">
-                        API (DOE)
-                    </button>
-                    <button id="btn-metric-aqi" onclick="setMetricStandard('AQI')" class="px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white">
-                        AQI (AQICN)
-                    </button>
-                </div>
-
-                <!-- GPS Auto-Detect Button -->
-                <button onclick="detectGPSLocation()" class="px-3 py-1.5 rounded-lg bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/60 flex items-center gap-2 transition font-medium">
-                    <i class="fa-solid fa-location-crosshairs text-emerald-400"></i>
-                    <span class="hidden sm:inline">Auto GPS</span>
+            <!-- View Switcher Toggle Button -->
+            <div class="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700 shadow-inner">
+                <button id="viewParentBtn" onclick="switchView('parent')" class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-sky-600 text-white shadow-sm">
+                    <i class="fa-solid fa-users text-xs"></i>
+                    <span>Parent View</span>
                 </button>
-
-                <button onclick="openApimsViewerModal()" class="px-3 py-1.5 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700/60 flex items-center gap-2 transition font-medium">
-                    <i class="fa-solid fa-globe text-sky-400"></i>
-                    <span class="hidden sm:inline">View Official</span> Portal
-                </button>
-                <button onclick="openLocationModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-2 transition">
-                    <i class="fa-solid fa-location-dot text-sky-400"></i>
-                    <span id="current-location-label" class="font-medium truncate max-w-[130px] sm:max-w-none">Sasana Int. School</span>
-                    <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                <button id="viewAdminBtn" onclick="switchView('admin')" class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-user-gear text-xs"></i>
+                    <span>Admin Control Panel</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Quick Location Shortcuts Bar -->
-    <div id="quick-locations-bar" class="bg-slate-800/80 border-b border-slate-700/60 px-4 py-2 text-xs flex items-center gap-2 overflow-x-auto text-slate-300">
-        <span class="font-bold text-slate-400 uppercase text-[10px] tracking-wider whitespace-nowrap"><i class="fa-solid fa-bookmark text-amber-400 mr-1"></i>Saved Locations:</span>
-        <div id="saved-locations-pills-container" class="flex items-center gap-1.5">
-            <!-- Dynamic location shortcut pills rendered via JS -->
-        </div>
-    </div>
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <!-- PARENT DASHBOARD VIEW -->
+        <section id="parentDashboardView" class="space-y-6">
 
-        <!-- Banner showing active metric & source -->
-        <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white rounded-2xl p-4 shadow-sm border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div class="flex items-center gap-3">
-                <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
-                <div>
-                    <span class="font-bold text-slate-200">Active Metric & Live Feed:</span>
-                    <span id="active-metric-label" class="bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded font-bold border border-sky-500/30 ml-1">API (DOE)</span>
-                    <a id="banner-source-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="underline text-sky-300 font-mono ml-2 hover:text-sky-200 break-all">
-                        https://eqms.doe.gov.my/APIMS/main
-                    </a>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span id="last-sync-time" class="text-slate-400 font-mono">Last Sync: Today (Latest Reading)</span>
-                <button onclick="fetchLiveAPIMSData()" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition flex items-center gap-1.5 shadow">
-                    <i class="fa-solid fa-rotate-right" id="refresh-icon"></i>
-                    <span>Sync Live Data</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Protocol Status Card -->
-        <div id="protocol-status-card" class="rounded-2xl p-6 shadow-md transition-all duration-300 bg-white border-2 border-slate-200">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="flex items-start gap-4">
-                    <div id="status-icon-badge" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-emerald-100 text-emerald-600 border border-emerald-200">
+            <!-- Primary Status Banner -->
+            <div id="statusBanner" class="rounded-2xl p-6 sm:p-8 transition-all duration-300 shadow-sm border flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-emerald-50 border-emerald-200 text-emerald-950">
+                <div class="flex items-start gap-4 sm:gap-5">
+                    <div id="statusBadgeIcon" class="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-2xl flex-shrink-0 shadow-md">
                         <i class="fa-solid fa-school"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span id="status-pill" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
-                                REOPENS / OPEN
+                            <span id="statusTag" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-200 text-emerald-800">
+                                🟢 Current Operational Status
                             </span>
-                            <span class="text-xs text-slate-500 flex items-center gap-1">
-                                <i class="fa-regular fa-clock"></i> 2:00 PM Evaluation Window
+                            <span class="text-xs text-slate-500 font-medium flex items-center gap-1">
+                                <i class="fa-regular fa-clock"></i> Updated Today at 2:00 PM
                             </span>
                         </div>
-                        <h2 id="status-title" class="text-2xl font-extrabold text-slate-900 mt-1">School Opens as Normal Next Day</h2>
-                        <p id="status-description" class="text-sm text-slate-600 mt-1 max-w-2xl">
-                            Today's 4-station average reading is within safe parameters.
+                        <h2 id="statusTitle" class="text-2xl sm:text-3xl font-black mt-1 text-slate-900 tracking-tight">
+                            SCHOOL IS OPEN
+                        </h2>
+                        <p id="statusDesc" class="text-sm mt-1 text-slate-600 max-w-2xl leading-relaxed">
+                            Classes and standard school operations are running normally. Outdoor activities are regulated according to the haze protocol guidelines below.
                         </p>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center min-w-[120px]">
-                        <span id="label-today-avg" class="text-xs text-slate-500 uppercase tracking-wide font-semibold block">Today's Avg API</span>
-                        <span id="header-today-avg" class="text-2xl font-extrabold text-slate-900">82.0</span>
+                <!-- Operational Summary Box -->
+                <div class="w-full md:w-auto bg-white/80 backdrop-blur rounded-xl p-4 border border-emerald-100 shadow-sm min-w-[240px]">
+                    <div class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Today's Protocol Reading</div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="currentAvgApiDisplay" class="text-3xl font-black text-slate-900">158</span>
+                        <span class="text-xs font-semibold text-slate-500">Average API (4 Stations)</span>
                     </div>
-                    <button onclick="openWhatsAppShare()" class="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition">
-                        <i class="fa-brands fa-whatsapp text-lg"></i>
-                        <span>Copy Parent Announcement</span>
+                    <div class="mt-2 text-xs font-medium text-slate-600 flex items-center gap-1.5 pt-2 border-t border-slate-100">
+                        <i class="fa-solid fa-bullhorn text-amber-500"></i>
+                        <span id="announcementStatusText">No closures scheduled for tomorrow.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRACKING PROGRESS & DOE STATIONS GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- 3-Day Consecutive Tracking Progress Card -->
+                <div class="lg:col-span-5 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-chart-line text-sm"></i>
+                                </div>
+                                <h3 class="font-bold text-slate-900">Haze API Threshold Tracker</h3>
+                            </div>
+                            <span class="text-xs bg-slate-100 font-semibold px-2.5 py-1 rounded-md text-slate-600">Protocol Rules</span>
+                        </div>
+
+                        <!-- Progress Bar & Day Counter -->
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-slate-700">Consecutive Days API &gt; 150</span>
+                                <span id="trackerCounterLabel" class="text-xs font-black text-amber-600">Day 2 of 3</span>
+                            </div>
+                            <!-- Visual Segments -->
+                            <div class="grid grid-cols-3 gap-2 my-2">
+                                <div id="day1Segment" class="h-3 rounded-full bg-amber-500 shadow-sm relative group cursor-pointer">
+                                    <div class="opacity-0 group-hover:opacity-100 transition duration-200 absolute bottom-full mb-1 left-1/2 -translate-x-1/2 text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded whitespace-nowrap z-10">Day 1: Fri 09/10/26 (API: 162)</div>
+                                </div>
+                                <div id="day2Segment" class="h-3 rounded-full bg-amber-500 shadow-sm relative group cursor-pointer">
+                                    <div class="opacity-0 group-hover:opacity-100 transition duration-200 absolute bottom-full mb-1 left-1/2 -translate-x-1/2 text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded whitespace-nowrap z-10">Day 2: Sat 10/10/26 (API: 158)</div>
+                                </div>
+                                <div id="day3Segment" class="h-3 rounded-full bg-slate-200 relative group cursor-pointer">
+                                    <div class="opacity-0 group-hover:opacity-100 transition duration-200 absolute bottom-full mb-1 left-1/2 -translate-x-1/2 text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded whitespace-nowrap z-10">Day 3: Sun 11/10/26 (Pending 2PM read)</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-[11px] text-slate-500 font-medium mt-2">
+                                <span>Day 1 (Fri 09/10)</span>
+                                <span>Day 2 (Sat 10/10)</span>
+                                <span>Day 3 (Sun 11/10)</span>
+                            </div>
+                        </div>
+
+                        <!-- Rule Summary Bullets -->
+                        <div class="space-y-2 text-xs text-slate-600">
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-info text-sky-500 mt-0.5"></i>
+                                <span><strong>Single-Day Closure Rule:</strong> Immediate school closure if average API exceeds <strong>180</strong> at 2:00 PM.</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-info text-sky-500 mt-0.5"></i>
+                                <span><strong>3-Consecutive-Day Rule:</strong> Closure takes effect if API stays above <strong>150</strong> for 3 consecutive days.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 bg-amber-50/70 p-3 rounded-lg border border-amber-100/60 flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-rotate text-amber-600"></i>
+                        <span><strong>Reset Policy:</strong> When school reopens, the count of consecutive days resets back to 0.</span>
+                    </div>
+                </div>
+
+                <!-- DOE Station Readings (4 Nearest Stations) -->
+                <div class="lg:col-span-7 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-900">Department of Environment (DOE) Stations</h3>
+                            <p class="text-xs text-slate-500">Official readings taken daily at 2:00 PM across 4 nearest stations</p>
+                        </div>
+                        <span class="text-xs text-slate-400 font-mono bg-slate-50 px-2 py-1 rounded">2:00 PM Average</span>
+                    </div>
+
+                    <!-- Grid of 4 stations -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Station 1 -->
+                        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/80 hover:bg-slate-50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Batu Muda, KL</h4>
+                                    <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 19 km from school
+                                    </span>
+                                </div>
+                                <span id="stVal-0" class="text-2xl font-black text-amber-600">160</span>
+                            </div>
+                        </div>
+
+                        <!-- Station 2 -->
+                        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/80 hover:bg-slate-50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Petaling Jaya</h4>
+                                    <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 22 km from school
+                                    </span>
+                                </div>
+                                <span id="stVal-1" class="text-2xl font-black text-amber-600">155</span>
+                            </div>
+                        </div>
+
+                        <!-- Station 3 -->
+                        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/80 hover:bg-slate-50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Shah Alam</h4>
+                                    <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 24 km from school
+                                    </span>
+                                </div>
+                                <span id="stVal-2" class="text-2xl font-black text-amber-600">162</span>
+                            </div>
+                        </div>
+
+                        <!-- Station 4 -->
+                        <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/80 hover:bg-slate-50 transition">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Kuala Selangor</h4>
+                                    <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 33 km from school
+                                    </span>
+                                </div>
+                                <span id="stVal-3" class="text-2xl font-black text-amber-600">155</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mathematical Formula Notice -->
+                    <div class="mt-4 p-3 bg-sky-50 rounded-xl border border-sky-100 text-xs text-sky-900 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-sky-600"></i>
+                            <span>Average API Formula: <strong>(Station 1 + 2 + 3 + 4) / 4</strong></span>
+                        </div>
+                        <span id="calculatedAvgBadge" class="font-bold bg-sky-200 text-sky-900 px-2.5 py-0.5 rounded-full text-xs">
+                            Avg = 158
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAP & SAFETY GUIDELINES SECTION -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Visual Interactive Radar Distance Map -->
+                <div class="lg:col-span-6 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-slate-900">DOE Monitoring Radar Distance Map</h3>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Radius Rings</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-4">Straight-line distance from Sasana Int. School (Bandar Tasik Puteri)</p>
+                        
+                        <!-- SVG Radar Canvas -->
+                        <div class="relative w-full aspect-square max-w-[380px] mx-auto bg-slate-900 rounded-2xl p-4 overflow-hidden border border-slate-800 shadow-inner flex items-center justify-center">
+                            
+                            <!-- Radar Rings SVG -->
+                            <svg id="radarMapSvg" viewBox="0 0 400 400" class="w-full h-full">
+                                <!-- Grid rings -->
+                                <circle cx="200" cy="200" r="45" fill="none" stroke="#334155" stroke-dasharray="3,3" stroke-width="1.5" />
+                                <text x="200" y="150" fill="#64748b" font-size="10" text-anchor="middle">10 km</text>
+
+                                <circle cx="200" cy="200" r="90" fill="none" stroke="#334155" stroke-dasharray="3,3" stroke-width="1.5" />
+                                <text x="200" y="105" fill="#64748b" font-size="10" text-anchor="middle">20 km</text>
+
+                                <circle cx="200" cy="200" r="135" fill="none" stroke="#334155" stroke-dasharray="3,3" stroke-width="1.5" />
+                                <text x="200" y="60" fill="#64748b" font-size="10" text-anchor="middle">30 km</text>
+
+                                <!-- Crosshairs -->
+                                <line x1="200" y1="20" x2="200" y2="380" stroke="#1e293b" stroke-width="1" />
+                                <line x1="20" y1="200" x2="380" y2="200" stroke="#1e293b" stroke-width="1" />
+                                <text x="200" y="32" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="middle">N</text>
+
+                                <!-- Connection lines from center to stations -->
+                                <line x1="200" y1="200" x2="275" y2="255" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,2"/>
+                                <line x1="200" y1="200" x2="255" y2="285" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,2"/>
+                                <line x1="200" y1="200" x2="190" y2="300" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,2"/>
+                                <line x1="200" y1="200" x2="55" y2="180" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,2"/>
+
+                                <!-- Center School Star -->
+                                <g transform="translate(200, 200)">
+                                    <circle r="12" fill="#2563eb" fill-opacity="0.2" class="animate-ping"/>
+                                    <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="#38bdf8"/>
+                                </g>
+                                <text x="200" y="222" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">Sasana Int. School</text>
+
+                                <!-- Station 1: Batu Muda (19km, ~135deg) -->
+                                <g transform="translate(275, 255)" class="cursor-pointer group">
+                                    <circle r="8" fill="#f59e0b" />
+                                    <text x="12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold">Batu Muda (19km)</text>
+                                    <text x="12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" id="mapPinApi0">API 160</text>
+                                </g>
+
+                                <!-- Station 2: PJ (22km, ~155deg) -->
+                                <g transform="translate(255, 285)" class="cursor-pointer group">
+                                    <circle r="8" fill="#f59e0b" />
+                                    <text x="12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold">Petaling Jaya (22km)</text>
+                                    <text x="12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" id="mapPinApi1">API 155</text>
+                                </g>
+
+                                <!-- Station 3: Shah Alam (24km, ~185deg) -->
+                                <g transform="translate(190, 300)" class="cursor-pointer group">
+                                    <circle r="8" fill="#f59e0b" />
+                                    <text x="-12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold" text-anchor="end">Shah Alam (24km)</text>
+                                    <text x="-12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" text-anchor="end" id="mapPinApi2">API 162</text>
+                                </g>
+
+                                <!-- Station 4: Kuala Selangor (33km, ~275deg) -->
+                                <g transform="translate(55, 180)" class="cursor-pointer group">
+                                    <circle r="8" fill="#f59e0b" />
+                                    <text x="0" y="-12" fill="#f1f5f9" font-size="10" font-weight="bold" text-anchor="middle">Kuala Selangor (33km)</text>
+                                    <text x="0" y="22" fill="#f59e0b" font-size="9" font-weight="bold" text-anchor="middle" id="mapPinApi3">API 155</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Safety Measures (While School Stays Open) -->
+                <div class="lg:col-span-6 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                                <i class="fa-solid fa-shield-halved text-sm"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900">Safety Measures While School Stays Open</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-4">Mandatory health and safety protocols enforced on campus during elevated API levels:</p>
+
+                        <div class="space-y-3">
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
+                                <div class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-ban"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800">Outdoor Activities Suspended</h4>
+                                    <p class="text-xs text-slate-600 mt-0.5">All outdoor PE, woodwork, sports training, and outdoor co-curricular activities are completely suspended.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
+                                <div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-head-side-mask"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800">Mandatory Face Masks</h4>
+                                    <p class="text-xs text-slate-600 mt-0.5">Students and staff must wear protective face masks when moving outdoors or walking between classroom blocks.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
+                                <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-building"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800">Indoor Dismissal Waiting</h4>
+                                    <p class="text-xs text-slate-600 mt-0.5">At dismissal, students wait safely inside designated indoor halls. Waiting outside in open air is prohibited.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
+                                <div class="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-car-side"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800">Prompt Parent Pick-Up</h4>
+                                    <p class="text-xs text-slate-600 mt-0.5">Parents are advised to collect children promptly at dismissal and proceed directly to vehicles.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OFFICIAL ANNOUNCEMENT LOG FOR PARENTS -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900">Official School Announcement Log</h3>
+                        <p class="text-xs text-slate-500">Announcements are issued strictly before 3:00 PM when closures or reopenings take effect</p>
+                    </div>
+                    <span class="text-xs bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-md">WhatsApp / Email Sync</span>
+                </div>
+
+                <div id="announcementListFeed" class="space-y-3">
+                    <!-- Dynamic Announcements rendered via JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ADMIN CONTROL PANEL VIEW -->
+        <section id="adminControlView" class="hidden space-y-6">
+
+            <!-- Admin Notice Header -->
+            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span class="bg-sky-500/20 text-sky-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-sky-400/30">
+                        Admin Protocol Portal
+                    </span>
+                    <h2 class="text-2xl font-black mt-2">Daily API Entry & Decision Logic Engine</h2>
+                    <p class="text-slate-400 text-xs mt-1">
+                        Input 2:00 PM station readings to calculate exact API average and evaluate automated closure / reopening criteria.
+                    </p>
+                </div>
+                <!-- Quick Test Preset Simulation Buttons -->
+                <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 w-full md:w-auto">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Test Simulation Scenarios:</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="loadScenario(1)" class="px-2.5 py-1 text-xs rounded bg-red-900/60 text-red-200 hover:bg-red-800 border border-red-700 transition">
+                            Scenario 1: API &gt; 180 (Close)
+                        </button>
+                        <button onclick="loadScenario(2)" class="px-2.5 py-1 text-xs rounded bg-amber-900/60 text-amber-200 hover:bg-amber-800 border border-amber-700 transition">
+                            Scenario 2: Day 3 &gt; 150 (Close)
+                        </button>
+                        <button onclick="loadScenario(3)" class="px-2.5 py-1 text-xs rounded bg-emerald-900/60 text-emerald-200 hover:bg-emerald-800 border border-emerald-700 transition">
+                            Scenario 3: API &lt;= 150 (Reopen)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- 2:00 PM Station Data Input Form -->
+                <div class="lg:col-span-6 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-sky-600"></i>
+                            2:00 PM DOE Station Readings
+                        </h3>
+                        <span class="text-xs bg-slate-100 font-mono px-2 py-1 rounded">Date: Sat, 10/10/2026</span>
+                    </div>
+
+                    <form id="apiInputForm" onsubmit="handleApiSubmit(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Station 1 -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Batu Muda, KL (19 km)
+                                </label>
+                                <input type="number" id="inputStation0" value="160" min="0" max="500" required
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
+                            </div>
+
+                            <!-- Station 2 -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Petaling Jaya (22 km)
+                                </label>
+                                <input type="number" id="inputStation1" value="155" min="0" max="500" required
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
+                            </div>
+
+                            <!-- Station 3 -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Shah Alam (24 km)
+                                </label>
+                                <input type="number" id="inputStation2" value="162" min="0" max="500" required
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
+                            </div>
+
+                            <!-- Station 4 -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">
+                                    Kuala Selangor (33 km)
+                                </label>
+                                <input type="number" id="inputStation3" value="155" min="0" max="500" required
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="w-full py-3 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-calculator"></i>
+                                Calculate Average & Evaluate Protocol Rules
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Logic Evaluation & Status Determination Box -->
+                <div class="lg:col-span-6 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-gears text-indigo-600"></i>
+                            Protocol Rule Evaluation Breakdown
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4">Automatic decision outcome generated by system rules:</p>
+
+                        <!-- Evaluation Results Box -->
+                        <div id="evaluationOutputBox" class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                                <span class="text-xs font-semibold text-slate-600">Calculated Average API:</span>
+                                <span id="evalCalculatedAvg" class="text-xl font-black text-amber-600">158</span>
+                            </div>
+
+                            <div class="space-y-2 text-xs">
+                                <div id="ruleCheck1" class="flex justify-between items-center p-2 rounded bg-white border border-slate-200">
+                                    <span>Condition 1: Average API &gt; 180 (Single Day)</span>
+                                    <span class="font-bold text-slate-400">FALSE</span>
+                                </div>
+
+                                <div id="ruleCheck2" class="flex justify-between items-center p-2 rounded bg-amber-50 border border-amber-200">
+                                    <span>Condition 2: Average API &gt; 150 for 3 Consecutive Days</span>
+                                    <span class="font-bold text-amber-700">Day 2 of 3 (Pending Day 3)</span>
+                                </div>
+
+                                <div id="ruleCheck3" class="flex justify-between items-center p-2 rounded bg-white border border-slate-200">
+                                    <span>Condition 3: Reopen (API &lt;= 150 while closed)</span>
+                                    <span class="font-bold text-slate-400">N/A (School Open)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommended Action Box -->
+                    <div id="evalActionBox" class="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                        <div class="text-xs font-bold uppercase tracking-wider text-emerald-800">Evaluated Action:</div>
+                        <div id="evalActionTitle" class="text-base font-black text-emerald-950 mt-0.5">
+                            Keep School OPEN Tomorrow
+                        </div>
+                        <div id="evalActionDetail" class="text-xs text-emerald-800 mt-1">
+                            Average API is 158. Today is Day 2 of consecutive readings &gt; 150. School remains OPEN tomorrow. Count will reach Day 3 tomorrow if readings stay &gt; 150.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANNOUNCEMENT GENERATOR TOOL -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-bullhorn text-amber-600"></i>
+                            Official Parent Broadcast Announcement Generator
+                        </h3>
+                        <p class="text-xs text-slate-500">
+                            Drafts are automatically formatted according to school guidelines. Announcements are strictly made before 3:00 PM.
+                        </p>
+                    </div>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700">
+                        Deadline: 3:00 PM
+                    </span>
+                </div>
+
+                <!-- Preview tabs / drafts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- WhatsApp Draft -->
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> Class WhatsApp Draft Preview
+                                </span>
+                                <button onclick="copyToClipboard('whatsappText')" class="text-xs font-semibold text-sky-600 hover:text-sky-800">
+                                    <i class="fa-regular fa-copy"></i> Copy Text
+                                </button>
+                            </div>
+                            <textarea id="whatsappText" readonly rows="8"
+                                class="w-full text-xs font-mono p-3 bg-white rounded-lg border border-slate-200 text-slate-800 leading-relaxed resize-none"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Email Draft -->
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-indigo-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-envelope text-sm"></i> Official Email Broadcast Preview
+                                </span>
+                                <button onclick="copyToClipboard('emailText')" class="text-xs font-semibold text-sky-600 hover:text-sky-800">
+                                    <i class="fa-regular fa-copy"></i> Copy Text
+                                </button>
+                            </div>
+                            <textarea id="emailText" readonly rows="8"
+                                class="w-full text-xs font-mono p-3 bg-white rounded-lg border border-slate-200 text-slate-800 leading-relaxed resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Publish Button -->
+                <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-xs text-slate-500 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                        <span>Announcement will only be broadcast if school status changes (Closed / Reopened).</span>
+                    </div>
+                    <button id="publishAnnouncementBtn" onclick="publishAnnouncement()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        Publish Announcement to Parents
                     </button>
                 </div>
             </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            <!-- Left Column: Visual Radar Map -->
-            <div class="lg:col-span-5 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <div>
-                            <h3 class="font-bold text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-compass text-sky-600"></i> 4-Station Radius Radar Map
-                            </h3>
-                            <p class="text-xs text-slate-500">Auto-calculated distance from target location</p>
-                        </div>
-                        <button onclick="detectGPSLocation()" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-300 px-2 py-1 rounded font-semibold transition flex items-center gap-1">
-                            <i class="fa-solid fa-location-crosshairs"></i> Auto GPS
-                        </button>
-                    </div>
-
-                    <!-- Canvas/SVG Distance Concentric Circles -->
-                    <div class="relative w-full aspect-square max-w-[380px] mx-auto bg-slate-900 rounded-2xl radar-grid overflow-hidden border border-slate-800 shadow-inner flex items-center justify-center p-4">
-                        
-                        <!-- Concentric Rings -->
-                        <div class="absolute inset-8 rounded-full border border-dashed border-slate-700/80 pointer-events-none flex items-start justify-center pt-1">
-                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">50 km</span>
-                        </div>
-                        <div class="absolute inset-16 rounded-full border border-dashed border-slate-700/80 pointer-events-none flex items-start justify-center pt-1">
-                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">30 km</span>
-                        </div>
-                        <div class="absolute inset-28 rounded-full border border-dashed border-slate-700/80 pointer-events-none flex items-start justify-center pt-1">
-                            <span class="text-[10px] font-mono text-slate-500 bg-slate-900/80 px-1 rounded">15 km</span>
-                        </div>
-
-                        <!-- Compass North Arrow -->
-                        <div class="absolute top-3 left-3 text-slate-400 flex flex-col items-center text-xs">
-                            <i class="fa-solid fa-arrow-up text-sky-400"></i>
-                            <span class="text-[10px] font-bold">N</span>
-                        </div>
-
-                        <!-- Dynamic SVG Lines Overlay -->
-                        <svg id="radar-svg-overlay" class="absolute inset-0 w-full h-full pointer-events-none z-10">
-                            <!-- Lines rendered via JS -->
-                        </svg>
-
-                        <!-- Center Location Pin -->
-                        <div class="relative z-20 flex flex-col items-center group cursor-pointer" onclick="openLocationModal()">
-                            <div class="w-8 h-8 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/50 ring-4 ring-sky-500/20">
-                                <i class="fa-solid fa-star text-sm"></i>
-                            </div>
-                            <span id="radar-center-name" class="mt-1 text-xs font-bold text-white bg-slate-900/90 px-2 py-0.5 rounded border border-slate-700 shadow max-w-[130px] truncate text-center">
-                                Sasana Int. School
-                            </span>
-                        </div>
-
-                        <!-- Station Dots container -->
-                        <div id="radar-stations-container" class="absolute inset-0 z-20 pointer-events-auto">
-                            <!-- Populated via JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                    <span class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Target Location
-                    </span>
-                    <span class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Auto 4 Nearest Nodes
-                    </span>
-                </div>
-            </div>
-
-            <!-- Right Column: 4 Station Readings & Formula -->
-            <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
-                <div>
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">1</span>
-                                <h3 id="station-readings-heading" class="font-bold text-slate-900 text-base">4 Nearest Station Current API Readings</h3>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-0.5 ml-8">Real-time hourly API (IPU) from DOE APIMS • 2:00 PM Decision Window</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="detectGPSLocation()" class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-semibold flex items-center gap-1.5 transition">
-                                <i class="fa-solid fa-location-crosshairs"></i>
-                                <span>Recalculate Nearest 4</span>
-                            </button>
-                            <button onclick="openApimsViewerModal()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition">
-                                <i class="fa-solid fa-list-check"></i>
-                                <span>Official Web Portal</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 4 Station Cards Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4" id="stations-input-grid">
-                        <!-- Populated by JS -->
-                    </div>
-
-                    <!-- Formula Bar -->
-                    <div class="bg-slate-900 text-white p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
-                        <div class="text-xs text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-calculator text-amber-400 text-base"></i>
-                            <div>
-                                <p class="font-semibold text-slate-200">Daily Protocol Formula</p>
-                                <p id="formula-text-desc" class="text-slate-400">Sum of 4 stations &divide; 4 = Daily Decision API</p>
-                            </div>
-                        </div>
-                        <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-center font-mono text-sm w-full sm:w-auto">
-                            <span class="text-slate-400">(</span>
-                            <span id="sum-display-val" class="text-sky-300 font-bold">328</span>
-                            <span class="text-slate-400"> / 4) = </span>
-                            <span id="avg-display-val" class="text-amber-400 font-extrabold text-base">82.0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Closure & Reopening Criteria -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">2</span>
-                <h3 class="font-bold text-slate-900 text-base">Closure & Reopening Criteria</h3>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Rule 1: Red Alert -->
-                <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3">
-                    <div class="w-3 h-3 rounded-full bg-rose-500 mt-1 flex-shrink-0"></div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-xs text-rose-900 uppercase">Single-Day Spike</span>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-600 text-white">CLOSED NEXT DAY</span>
-                        </div>
-                        <p id="rule-red-heading" class="text-sm font-bold text-rose-950 mt-0.5">Average API above 180</p>
-                        <p class="text-xs text-rose-700 mt-0.5">Triggers immediate closure on any single day evaluated at 2:00 PM.</p>
-                    </div>
-                </div>
-
-                <!-- Rule 2: Orange Alert -->
-                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
-                    <div class="w-3 h-3 rounded-full bg-amber-500 mt-1 flex-shrink-0"></div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-xs text-amber-900 uppercase">3-Day Cumulative</span>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-600 text-white">CLOSED NEXT DAY</span>
-                        </div>
-                        <p id="rule-orange-heading" class="text-sm font-bold text-amber-950 mt-0.5">Average API above 150</p>
-                        <p class="text-xs text-amber-700 mt-0.5">When average remains above 150 for 3 consecutive days.</p>
-                    </div>
-                </div>
-
-                <!-- Rule 3: Reopening -->
-                <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
-                    <div class="w-3 h-3 rounded-full bg-emerald-500 mt-1 flex-shrink-0"></div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-xs text-emerald-900 uppercase">Reopening Condition</span>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-600 text-white">REOPENS NEXT DAY</span>
-                        </div>
-                        <p id="rule-reopen-heading" class="text-sm font-bold text-emerald-950 mt-0.5">Average API 150 or below</p>
-                        <p class="text-xs text-emerald-700 mt-0.5">While school is closed, dropping to &le; 150 reopens school next day.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500">
-                <p class="italic"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Verify readings on <a id="footer-rule-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-600 underline">DOE APIMS Portal</a></p>
-            </div>
-        </div>
-
-        <!-- Safety Guidelines Section -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-            <div class="flex items-center gap-2 mb-4">
-                <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">3</span>
-                <h3 class="font-bold text-slate-900 text-base">Safety Precautions While School Stays Open</h3>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-lg flex-shrink-0">
-                        <i class="fa-solid fa-child-reaching"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-xs text-slate-900 uppercase">Outdoor Activities</h4>
-                        <p class="text-xs text-slate-600 mt-1">PE, woodwork, co-curricular and outdoor sports are completely suspended.</p>
-                    </div>
-                </div>
-
-                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-lg flex-shrink-0">
-                        <i class="fa-solid fa-head-side-mask"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-xs text-slate-900 uppercase">Mask Requirement</h4>
-                        <p class="text-xs text-slate-600 mt-1">Students must wear protective face masks when walking between blocks.</p>
-                    </div>
-                </div>
-
-                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-lg flex-shrink-0">
-                        <i class="fa-solid fa-building"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-xs text-slate-900 uppercase">Indoor Dismissal</h4>
-                        <p class="text-xs text-slate-600 mt-1">At dismissal, students remain strictly indoors. No waiting outside.</p>
-                    </div>
-                </div>
-
-                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg flex-shrink-0">
-                        <i class="fa-solid fa-car"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-xs text-slate-900 uppercase">Parent Pick-Up</h4>
-                        <p class="text-xs text-slate-600 mt-1">Parents must collect children promptly and proceed straight to vehicles.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </section>
 
     </main>
 
-    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-8">
-        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
-            <p class="font-medium text-slate-300">Malaysia Haze API & AQI Tracking System — Department of Environment (DOE) APIMS & WAQI Network</p>
-            <p>Official Portal Reference: <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-400 underline font-mono">https://eqms.doe.gov.my/APIMS/main</a> • Sasana International School Protocol</p>
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 mt-12 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-white">Sasana International School</span>
+                <span>• Haze Protocol Management System</span>
+            </div>
+            <div class="text-slate-500">
+                Official Department of Environment (DOE) Station Data Monitoring
+            </div>
         </div>
     </footer>
 
-    <!-- Location Settings Modal -->
-    <div id="location-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <i class="fa-solid fa-map-location-dot text-sky-600"></i>
-                    Location & Saved Favorites
-                </h3>
-                <button onclick="closeLocationModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="py-4 space-y-4">
-                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-emerald-900">GPS Auto Detection</p>
-                        <p class="text-xs text-emerald-700">Find nearest APIMS stations based on device GPS</p>
-                    </div>
-                    <button onclick="detectGPSLocation()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shadow flex items-center gap-1.5">
-                        <i class="fa-solid fa-location-crosshairs"></i>
-                        <span>Use My GPS</span>
-                    </button>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Select Location Preset (Built-in & Saved)</label>
-                    <select id="preset-location-select" onchange="handleLocationPresetChange(this.value)" class="w-full rounded-xl border border-slate-300 p-2.5 text-sm bg-white focus:ring-2 focus:ring-sky-500 font-medium text-slate-800">
-                        <!-- Populated by JS -->
-                    </select>
-                </div>
-
-                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-xs font-bold text-slate-700 uppercase">Custom Location Details</label>
-                        <button onclick="saveCurrentAsCustomPreset()" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded-lg shadow-sm transition flex items-center gap-1">
-                            <i class="fa-solid fa-floppy-disk"></i> Save to My Favorites
-                        </button>
-                    </div>
-                    
-                    <div>
-                        <span class="text-[11px] text-slate-500 block mb-1">Location Name:</span>
-                        <input type="text" id="custom-location-input" value="Sasana Int. School Bandar Tasik Puteri" class="w-full rounded-lg border border-slate-300 p-2 text-xs focus:ring-2 focus:ring-sky-500 font-medium">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <span class="text-[11px] text-slate-500 block mb-1">Latitude (°N):</span>
-                            <input type="number" step="0.0001" id="custom-lat-input" value="3.2926" onchange="updateCustomCoordinates()" class="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono">
-                        </div>
-                        <div>
-                            <span class="text-[11px] text-slate-500 block mb-1">Longitude (°E):</span>
-                            <input type="number" step="0.0001" id="custom-lng-input" value="101.4721" onchange="updateCustomCoordinates()" class="w-full rounded-lg border border-slate-300 p-1.5 text-xs font-mono">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border-t border-slate-100 pt-3">
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase">Selected 4 Nearest Monitoring Stations</label>
-                        <span class="text-[11px] text-sky-600 font-semibold">Auto-Sorted by Distance</span>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="modal-station-selectors">
-                        <!-- Select 1 to 4 generated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                <button onclick="closeLocationModal()" class="px-4 py-2 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-medium text-sm">Cancel</button>
-                <button onclick="applyLocationSettings()" class="px-5 py-2 rounded-xl text-white bg-sky-600 hover:bg-sky-700 font-bold text-sm shadow">Apply & Recalculate</button>
-            </div>
-        </div>
+    <!-- Toast Message Container -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 text-xs font-semibold">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toastMessage">Notification action completed successfully.</span>
     </div>
 
-    <!-- Parent WhatsApp Modal -->
-    <div id="whatsapp-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i>
-                    Parent WhatsApp Broadcast Message
-                </h3>
-                <button onclick="closeWhatsAppModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="py-4">
-                <label class="block text-xs font-bold text-slate-600 uppercase mb-2">Formatted Announcement Text:</label>
-                <textarea id="whatsapp-text-area" rows="10" readonly class="w-full font-mono text-xs p-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-800 leading-relaxed resize-none focus:outline-none"></textarea>
-            </div>
-
-            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-                <span id="copy-toast" class="text-xs text-emerald-600 font-bold opacity-0 transition-opacity">
-                    <i class="fa-solid fa-check mr-1"></i> Copied to Clipboard!
-                </span>
-                <div class="flex gap-2">
-                    <button onclick="closeWhatsAppModal()" class="px-4 py-2 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-medium text-sm">Close</button>
-                    <button onclick="copyToClipboardText()" class="px-5 py-2 rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 font-bold text-sm shadow flex items-center gap-2">
-                        <i class="fa-regular fa-copy"></i>
-                        Copy Text
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Official Portal Viewer Modal -->
-    <div id="apims-viewer-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-white rounded-2xl max-w-5xl w-full h-[90vh] flex flex-col shadow-2xl border border-slate-700 overflow-hidden">
-            <div class="bg-slate-900 text-white p-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                        <i class="fa-solid fa-globe"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
-                            Live Air Quality Network Portal
-                        </h3>
-                        <p id="modal-portal-url-display" class="text-xs text-slate-400 font-mono">https://eqms.doe.gov.my/APIMS/main</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <div class="bg-slate-800 p-1 rounded-xl border border-slate-700 flex items-center gap-1">
-                        <button id="modal-tab-api" onclick="switchPortalTab('API')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white">
-                            DOE APIMS (API)
-                        </button>
-                        <button id="modal-tab-aqi" onclick="switchPortalTab('AQI')" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
-                            AQICN (AQI)
-                        </button>
-                    </div>
-
-                    <a id="modal-external-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
-                        <span>Open Tab</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
-                    <button onclick="closeApimsViewerModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex-1 bg-slate-100 relative">
-                <iframe id="portal-iframe" src="https://eqms.doe.gov.my/APIMS/main" class="w-full h-full border-0" title="Official Air Quality Portal"></iframe>
-                
-                <div class="absolute bottom-4 left-4 right-4 bg-slate-900/90 text-white p-3 rounded-xl backdrop-blur border border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-sky-400 text-base"></i>
-                        <span>Check real-time readings from the live web portal, then sync or fine-tune station values in the engine.</span>
-                    </div>
-                    <button onclick="closeApimsViewerModal()" class="px-3 py-1 bg-sky-600 text-white rounded font-bold hover:bg-sky-500">Back to App Engine</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notification Toast -->
-    <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3 text-sm">
-        <i id="toast-icon" class="fa-solid fa-circle-info text-sky-400 text-lg"></i>
-        <span id="toast-msg">Settings saved!</span>
-    </div>
-
+    <!-- APPLICATION JAVASCRIPT LOGIC -->
     <script>
-        // Constants
-        const URL_DOE = "https://eqms.doe.gov.my/APIMS/main";
-        const URL_AQICN = "https://aqicn.org/network/my.apims/";
-
-        // APIMS Station Database (Malaysia)
-        const APIMS_STATIONS_DB = [
-            { id: "st_kualaselangor", name: "Kuala Selangor", state: "Selangor", lat: 3.3330, lng: 101.2500, baseAPI: 68, baseAQI: 72 },
-            { id: "st_shahalam", name: "Shah Alam", state: "Selangor", lat: 3.0733, lng: 101.5185, baseAPI: 85, baseAQI: 92 },
-            { id: "st_petalingjaya", name: "Petaling Jaya", state: "Selangor", lat: 3.1083, lng: 101.6067, baseAPI: 88, baseAQI: 95 },
-            { id: "st_batumuda", name: "Batu Muda (KL)", state: "W.P. Kuala Lumpur", lat: 3.2103, lng: 101.6811, baseAPI: 82, baseAQI: 89 },
-            { id: "st_cheras", name: "Cheras (KL)", state: "W.P. Kuala Lumpur", lat: 3.1064, lng: 101.7253, baseAPI: 79, baseAQI: 84 },
-            { id: "st_klang", name: "Klang", state: "Selangor", lat: 3.0450, lng: 101.4470, baseAPI: 91, baseAQI: 98 },
-            { id: "st_banting", name: "Banting", state: "Selangor", lat: 2.8211, lng: 101.5031, baseAPI: 76, baseAQI: 80 },
-            { id: "st_putrajaya", name: "Putrajaya", state: "W.P. Putrajaya", lat: 2.9264, lng: 101.6964, baseAPI: 74, baseAQI: 78 },
-            { id: "st_nilai", name: "Nilai", state: "Negeri Sembilan", lat: 2.8183, lng: 101.7972, baseAPI: 72, baseAQI: 76 },
-            { id: "st_seremban", name: "Seremban", state: "Negeri Sembilan", lat: 2.7258, lng: 101.9378, baseAPI: 65, baseAQI: 70 },
-            { id: "st_portdickson", name: "Port Dickson", state: "Negeri Sembilan", lat: 2.5228, lng: 101.7958, baseAPI: 58, baseAQI: 62 },
-            { id: "st_ipoh", name: "Ipoh (Pegoh)", state: "Perak", lat: 4.5975, lng: 101.0901, baseAPI: 62, baseAQI: 65 },
-            { id: "st_taiping", name: "Taiping", state: "Perak", lat: 4.8517, lng: 100.7408, baseAPI: 54, baseAQI: 58 },
-            { id: "st_seberangjaya", name: "Seberang Jaya", state: "Pulau Pinang", lat: 5.3942, lng: 100.3986, baseAPI: 61, baseAQI: 64 },
-            { id: "st_alorstar", name: "Alor Setar", state: "Kedah", lat: 6.1211, lng: 100.3601, baseAPI: 50, baseAQI: 52 },
-            { id: "st_johorbahru", name: "Larkin (Johor Bahru)", state: "Johor", lat: 1.4927, lng: 103.7414, baseAPI: 66, baseAQI: 70 },
-            { id: "st_kuantan", name: "Indera Mahkota (Kuantan)", state: "Pahang", lat: 3.8167, lng: 103.3000, baseAPI: 52, baseAQI: 55 },
-            { id: "st_kualaterengganu", name: "Kuala Terengganu", state: "Terengganu", lat: 5.3302, lng: 103.1408, baseAPI: 48, baseAQI: 50 }
-        ];
-
-        const LOCATION_PRESETS = [
-            { key: "sasana", name: "Sasana Int. School Bandar Tasik Puteri", shortName: "Sasana Int. School", lat: 3.2926, lng: 101.4721 },
-            { key: "klcc", name: "KLCC Twin Towers, Kuala Lumpur", shortName: "KLCC, KL", lat: 3.1579, lng: 101.7116 },
-            { key: "shahalam", name: "Shah Alam City Centre, Selangor", shortName: "Shah Alam", lat: 3.0738, lng: 101.5183 },
-            { key: "putrajaya", name: "Precinct 1, Putrajaya", shortName: "Putrajaya", lat: 2.9264, lng: 101.6964 },
-            { key: "rawang", name: "Rawang Town, Selangor", shortName: "Rawang", lat: 3.3214, lng: 101.5768 }
-        ];
-
-        let state = {
-            metricStandard: 'API', // 'API' or 'AQI'
-            currentLocationKey: "sasana",
-            currentLocationName: "Sasana Int. School Bandar Tasik Puteri",
-            shortLocationName: "Sasana Int. School",
-            centerLat: 3.2926,
-            centerLng: 101.4721,
-            selectedStations: []
+        // Default application state matching initial prompt conditions
+        const defaultState = {
+            currentDateStr: "Saturday, 10/10/2026",
+            lastUpdatedTime: "2:00 PM",
+            schoolOperationalStatus: "OPEN", // "OPEN", "CLOSED"
+            pendingAnnouncementType: "NONE", // "NONE", "CLOSED_NEXT_DAY", "REOPEN_NEXT_DAY"
+            consecutiveDaysAbove150: 2, // Friday (162) = Day 1, Saturday (158) = Day 2
+            trackingHistory: [
+                { date: "Friday, 09/10/2026", dayNum: 1, avgApi: 162, status: "Above 150" },
+                { date: "Saturday, 10/10/2026", dayNum: 2, avgApi: 158, status: "Above 150" },
+            ],
+            stationReadings: [160, 155, 162, 155], // Batu Muda, PJ, Shah Alam, Kuala Selangor
+            announcements: [
+                {
+                    id: 1,
+                    date: "Friday, 09/10/2026",
+                    time: "2:30 PM",
+                    type: "INFO",
+                    title: "Haze Monitoring Initiated (Day 1)",
+                    body: "Average API measured at 162 (exceeds 150 threshold). Day 1 of 3 tracking counter initiated. School remains OPEN with enhanced outdoor safety precautions."
+                }
+            ]
         };
 
-        // Distance Calculation (Haversine Formula)
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // radius of Earth in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return Math.round(R * c * 10) / 10;
+        // Application State loaded from localStorage or default
+        let appState = JSON.parse(localStorage.getItem('sasanaHazeAppState')) || defaultState;
+
+        // Save current state to localStorage
+        function saveState() {
+            localStorage.setItem('sasanaHazeAppState', JSON.stringify(appState));
         }
 
-        // Auto Select 4 Nearest Stations
-        function autoSelect4NearestStations(lat, lng) {
-            const sorted = [...APIMS_STATIONS_DB].map(st => {
-                const dist = calculateDistance(lat, lng, st.lat, st.lng);
-                return {
-                    id: st.id,
-                    name: st.name,
-                    state: st.state,
-                    dist: dist,
-                    api: st.baseAPI,
-                    aqi: st.baseAQI,
-                    lat: st.lat,
-                    lng: st.lng
-                };
-            }).sort((a, b) => a.dist - b.dist);
+        // View Mode Switcher
+        function switchView(mode) {
+            const parentView = document.getElementById('parentDashboardView');
+            const adminView = document.getElementById('adminControlView');
+            const parentBtn = document.getElementById('viewParentBtn');
+            const adminBtn = document.getElementById('viewAdminBtn');
 
-            state.selectedStations = sorted.slice(0, 4);
-        }
-
-        // Main Protocol Decision Engine
-        function evaluateHazeProtocol() {
-            const isAQI = state.metricStandard === 'AQI';
-            const metricKey = isAQI ? 'aqi' : 'api';
-            
-            const sum = state.selectedStations.reduce((acc, st) => acc + (parseInt(st[metricKey]) || 0), 0);
-            const avg = Math.round((sum / (state.selectedStations.length || 1)) * 10) / 10;
-
-            let title = "School Opens as Normal Next Day";
-            let desc = `Latest 4-station average ${state.metricStandard} reading is within safe parameters (≤ 150).`;
-            let pillText = "REOPENS / OPEN";
-            let pillStyle = "bg-emerald-100 text-emerald-800 border-emerald-300";
-            let cardStyle = "bg-white border-2 border-slate-200";
-            let iconBadgeStyle = "bg-emerald-100 text-emerald-600 border-emerald-200";
-            let iconClass = "fa-solid fa-school";
-
-            if (avg > 180) {
-                title = "SCHOOL CLOSED TOMORROW";
-                desc = `Critical Alert: Latest average ${state.metricStandard} reading reached ${avg}, exceeding the emergency safety threshold (> 180).`;
-                pillText = "CLOSED NEXT DAY";
-                pillStyle = "bg-rose-600 text-white border-rose-700 animate-pulse";
-                cardStyle = "bg-rose-50 border-2 border-rose-400 shadow-lg";
-                iconBadgeStyle = "bg-rose-600 text-white border-rose-700";
-                iconClass = "fa-solid fa-school-circle-xmark";
-            } else if (avg > 150) {
-                title = "HIGH HAZE ALERT (Above 150 Threshold)";
-                desc = `Caution: Latest average ${state.metricStandard} is ${avg}. Outdoor activities suspended; school remains on high alert.`;
-                pillText = "HAZE WARNING";
-                pillStyle = "bg-amber-600 text-white border-amber-700";
-                cardStyle = "bg-amber-50 border-2 border-amber-400 shadow-md";
-                iconBadgeStyle = "bg-amber-600 text-white border-amber-700";
-                iconClass = "fa-solid fa-triangle-exclamation";
-            }
-
-            const sumValEl = document.getElementById('sum-display-val');
-            const avgValEl = document.getElementById('avg-display-val');
-            const headerAvgEl = document.getElementById('header-today-avg');
-            const statusCard = document.getElementById('protocol-status-card');
-            const statusPill = document.getElementById('status-pill');
-            const statusTitle = document.getElementById('status-title');
-            const statusDesc = document.getElementById('status-description');
-            const iconBadge = document.getElementById('status-icon-badge');
-
-            if (sumValEl) sumValEl.textContent = sum;
-            if (avgValEl) avgValEl.textContent = avg.toFixed(1);
-            if (headerAvgEl) headerAvgEl.textContent = avg.toFixed(1);
-
-            if (statusCard) statusCard.className = `rounded-2xl p-6 shadow-md transition-all duration-300 ${cardStyle}`;
-            if (statusPill) {
-                statusPill.textContent = pillText;
-                statusPill.className = `px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${pillStyle}`;
-            }
-            if (statusTitle) statusTitle.textContent = title;
-            if (statusDesc) statusDesc.textContent = desc;
-            if (iconBadge) {
-                iconBadge.className = `w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 border ${iconBadgeStyle}`;
-                iconBadge.innerHTML = `<i class="${iconClass}"></i>`;
-            }
-
-            renderStationCards();
-            renderRadarMap();
-        }
-
-        // Render Station Cards
-        function renderStationCards() {
-            const container = document.getElementById('stations-input-grid');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const isAQI = state.metricStandard === 'AQI';
-
-            state.selectedStations.forEach((st, idx) => {
-                const val = isAQI ? st.aqi : st.api;
-                let badgeBg = "bg-emerald-100 text-emerald-800 border-emerald-300";
-                if (val > 180) {
-                    badgeBg = "bg-rose-100 text-rose-800 border-rose-300 font-bold";
-                } else if (val > 150) {
-                    badgeBg = "bg-amber-100 text-amber-800 border-amber-300 font-bold";
-                } else if (val > 100) {
-                    badgeBg = "bg-yellow-100 text-yellow-800 border-yellow-300";
-                }
-
-                container.innerHTML += `
-                    <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-white hover:shadow-md transition flex items-center justify-between gap-2">
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-1.5 mb-1">
-                                <span class="w-5 h-5 rounded-full bg-slate-800 text-white font-bold text-[10px] flex items-center justify-center flex-shrink-0">${idx + 1}</span>
-                                <h4 class="font-bold text-slate-900 text-xs truncate" title="${st.name}">${st.name}</h4>
-                            </div>
-                            <p class="text-[11px] text-slate-500 font-medium">
-                                <i class="fa-solid fa-location-arrow text-sky-500 mr-1 text-[10px]"></i>${st.dist} km away
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                            <div class="text-right">
-                                <span class="text-[10px] uppercase font-bold text-slate-400 block">${state.metricStandard}</span>
-                                <input type="number" value="${val}" min="0" max="500" onchange="updateStationReading(${idx}, this.value)" class="w-16 px-2 py-1 text-center text-sm font-bold rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500 bg-white text-slate-900 shadow-sm">
-                            </div>
-                            <span class="px-2 py-1 rounded-md text-xs font-extrabold border ${badgeBg}">
-                                ${val}
-                            </span>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function updateStationReading(idx, val) {
-            const num = parseInt(val) || 0;
-            if (state.selectedStations[idx]) {
-                if (state.metricStandard === 'AQI') {
-                    state.selectedStations[idx].aqi = num;
-                } else {
-                    state.selectedStations[idx].api = num;
-                }
-                evaluateHazeProtocol();
-            }
-        }
-
-        // Render Visual Radar Map
-        function renderRadarMap() {
-            const stationsContainer = document.getElementById('radar-stations-container');
-            const svgOverlay = document.getElementById('radar-svg-overlay');
-            const centerNameEl = document.getElementById('radar-center-name');
-
-            if (centerNameEl) {
-                centerNameEl.textContent = state.shortLocationName || "Target Location";
-            }
-
-            if (!stationsContainer || !svgOverlay) return;
-
-            stationsContainer.innerHTML = '';
-            svgOverlay.innerHTML = '';
-
-            const maxRadiusKm = 60; // Outer circle edge scale
-
-            state.selectedStations.forEach((st, idx) => {
-                const dLat = (st.lat - state.centerLat);
-                const dLng = (st.lng - state.centerLng);
-                
-                const dY = dLat * 111; // ~111km per deg lat
-                const dX = dLng * 111 * Math.cos(state.centerLat * Math.PI / 180);
-
-                const maxOffsetPx = 40; 
-                const xPercent = 50 + Math.max(-42, Math.min(42, (dX / maxRadiusKm) * maxOffsetPx));
-                const yPercent = 50 - Math.max(-42, Math.min(42, (dY / maxRadiusKm) * maxOffsetPx));
-
-                const val = state.metricStandard === 'AQI' ? st.aqi : st.api;
-
-                const dot = document.createElement('div');
-                dot.className = "absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer transition-all duration-300 z-20";
-                dot.style.left = `${xPercent}%`;
-                dot.style.top = `${yPercent}%`;
-
-                dot.innerHTML = `
-                    <div class="relative">
-                        <div class="w-6 h-6 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center font-extrabold text-[10px] shadow-lg border-2 border-slate-900 group-hover:scale-125 transition-transform">
-                            ${val}
-                        </div>
-                        <div class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-sky-500 text-white text-[9px] font-bold flex items-center justify-center border border-slate-900">
-                            ${idx + 1}
-                        </div>
-                    </div>
-                    <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-1 px-2 py-1 bg-slate-900 text-white text-[10px] rounded shadow-lg whitespace-nowrap z-30 pointer-events-none">
-                        <span class="font-bold">${st.name}</span> (${st.dist} km) — ${state.metricStandard}: ${val}
-                    </div>
-                `;
-
-                stationsContainer.appendChild(dot);
-
-                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                line.setAttribute("x1", "50%");
-                line.setAttribute("y1", "50%");
-                line.setAttribute("x2", `${xPercent}%`);
-                line.setAttribute("y2", `${yPercent}%`);
-                line.setAttribute("stroke", "rgba(245, 158, 11, 0.4)");
-                line.setAttribute("stroke-width", "1.5");
-                line.setAttribute("stroke-dasharray", "3,3");
-                svgOverlay.appendChild(line);
-            });
-        }
-
-        // Render History Log
-        function renderHistoryLog() {
-            const container = document.getElementById('history-cards-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const isAQI = state.metricStandard === 'AQI';
-
-            state.history.forEach((h, idx) => {
-                const val = isAQI ? h.avgAqi : h.avgApi;
-                let badgeBg = "bg-emerald-100 text-emerald-800 border-emerald-300";
-                let statusText = "OPEN";
-                
-                if (val > 180) {
-                    badgeBg = "bg-rose-100 text-rose-800 border-rose-300 font-bold";
-                    statusText = "CLOSED";
-                } else if (val > 150) {
-                    badgeBg = "bg-amber-100 text-amber-800 border-amber-300 font-bold";
-                    statusText = "WARNING";
-                }
-
-                const isToday = idx === 2;
-
-                container.innerHTML += `
-                    <div class="p-3.5 rounded-xl border ${isToday ? 'border-sky-300 bg-sky-50/50 shadow-sm' : 'border-slate-200 bg-slate-50/60'} relative flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${h.dayLabel}</span>
-                                ${isToday ? '<span class="text-[9px] font-bold bg-sky-600 text-white px-1.5 py-0.5 rounded">Active Today</span>' : ''}
-                            </div>
-                            <p class="text-xs font-semibold text-slate-700 mb-2">${h.dateStr}</p>
-                        </div>
-                        <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-xl font-extrabold text-slate-900">${val.toFixed(1)}</span>
-                                <span class="text-[10px] font-bold text-slate-400">${state.metricStandard}</span>
-                            </div>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeBg}">
-                                ${statusText}
-                            </span>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // Preset & Favorite Locations UI Renderers
-        function renderPresetDropdownOptions() {
-            const select = document.getElementById('preset-location-select');
-            if (!select) return;
-
-            let html = `<option value="">-- Choose Preset Location --</option>`;
-            LOCATION_PRESETS.forEach(p => {
-                const isSelected = state.currentLocationKey === p.key;
-                html += `<option value="${p.key}" ${isSelected ? 'selected' : ''}>${p.name}</option>`;
-            });
-
-            const saved = getSavedCustomLocations();
-            if (saved.length > 0) {
-                html += `<optgroup label="Your Saved Favorites">`;
-                saved.forEach(s => {
-                    html += `<option value="custom_${s.id}">${s.name}</option>`;
-                });
-                html += `</optgroup>`;
-            }
-
-            select.innerHTML = html;
-        }
-
-        function renderSavedLocationPills() {
-            const container = document.getElementById('saved-locations-pills-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            LOCATION_PRESETS.forEach(p => {
-                const isActive = state.currentLocationKey === p.key;
-                container.innerHTML += `
-                    <button onclick="handleLocationPresetChange('${p.key}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${isActive ? 'bg-sky-500 text-white font-bold shadow' : 'bg-slate-700/80 hover:bg-slate-700 text-slate-200 border border-slate-600'}">
-                        ${p.shortName}
-                    </button>
-                `;
-            });
-        }
-
-        // Metric Standard Selector
-        function setMetricStandard(standard) {
-            state.metricStandard = standard;
-            
-            const btnApi = document.getElementById('btn-metric-api');
-            const btnAqi = document.getElementById('btn-metric-aqi');
-            const activeLabel = document.getElementById('active-metric-label');
-            const bannerLink = document.getElementById('banner-source-link');
-            const headerName = document.getElementById('header-source-name');
-            const headerLink = document.getElementById('header-source-link');
-            const footerLink = document.getElementById('footer-rule-link');
-
-            if (standard === 'AQI') {
-                if (btnAqi) btnAqi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition bg-indigo-600 text-white shadow";
-                if (btnApi) btnApi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white";
-                if (activeLabel) activeLabel.textContent = "AQI (AQICN)";
-                if (bannerLink) {
-                    bannerLink.href = URL_AQICN;
-                    bannerLink.textContent = URL_AQICN;
-                }
-                if (headerName) headerName.textContent = "WAQI / AQICN Live";
-                if (headerLink) headerLink.href = URL_AQICN;
-                if (footerLink) footerLink.href = URL_AQICN;
+            if (mode === 'parent') {
+                parentView.classList.remove('hidden');
+                adminView.classList.add('hidden');
+                parentBtn.className = "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-sky-600 text-white shadow-sm";
+                adminBtn.className = "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white";
             } else {
-                if (btnApi) btnApi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition bg-sky-600 text-white shadow";
-                if (btnAqi) btnAqi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white";
-                if (activeLabel) activeLabel.textContent = "API (DOE)";
-                if (bannerLink) {
-                    bannerLink.href = URL_DOE;
-                    bannerLink.textContent = URL_DOE;
-                }
-                if (headerName) headerName.textContent = "DOE APIMS Live";
-                if (headerLink) headerLink.href = URL_DOE;
-                if (footerLink) footerLink.href = URL_DOE;
-            }
-
-            evaluateHazeProtocol();
-        }
-
-        function fetchLiveAPIMSData() {
-            const icon = document.getElementById('refresh-icon');
-            if (icon) icon.classList.add('animate-spin');
-
-            const isAQI = state.metricStandard === 'AQI';
-            const sourceName = isAQI ? 'AQICN (https://aqicn.org/network/my.apims/)' : 'DOE APIMS (https://eqms.doe.gov.my/APIMS/main)';
-
-            showToast(`Syncing latest live readings from ${sourceName}...`);
-
-            setTimeout(() => {
-                if (icon) icon.classList.remove('animate-spin');
-                
-                state.selectedStations.forEach(st => {
-                    const dbMatch = APIMS_STATIONS_DB.find(d => d.id === st.id);
-                    if (dbMatch) {
-                        const delta = Math.floor(Math.random() * 5) - 2;
-                        st.api = Math.max(20, dbMatch.baseAPI + delta);
-                        st.aqi = Math.max(20, dbMatch.baseAQI + delta);
-                    }
-                });
-
-                const syncEl = document.getElementById('last-sync-time');
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                if (syncEl) syncEl.textContent = `Last Sync: ${timeStr} (Latest Reading)`;
-
-                evaluateHazeProtocol();
-                showToast(`Latest ${state.metricStandard} station readings synced from source!`);
-            }, 800);
-        }
-
-        function handleLocationPresetChange(presetKey) {
-            if (!presetKey) return;
-
-            if (presetKey.startsWith('custom_')) {
-                const customId = presetKey.replace('custom_', '');
-                const saved = getSavedCustomLocations();
-                const match = saved.find(s => s.id === customId);
-                if (match) {
-                    state.centerLat = match.lat;
-                    state.centerLng = match.lng;
-                    state.currentLocationName = match.name;
-                    state.shortLocationName = match.name.split(',')[0].trim();
-                    state.currentLocationKey = presetKey;
-                }
-            } else {
-                const p = LOCATION_PRESETS.find(x => x.key === presetKey);
-                if (p) {
-                    state.centerLat = p.lat;
-                    state.centerLng = p.lng;
-                    state.currentLocationName = p.name;
-                    state.shortLocationName = p.shortName;
-                    state.currentLocationKey = p.key;
-                }
-            }
-
-            const labelEl = document.getElementById('current-location-label');
-            if (labelEl) labelEl.textContent = state.shortLocationName;
-
-            const latInput = document.getElementById('custom-lat-input');
-            const lngInput = document.getElementById('custom-lng-input');
-            const nameInput = document.getElementById('custom-location-input');
-            if (latInput) latInput.value = state.centerLat.toFixed(4);
-            if (lngInput) lngInput.value = state.centerLng.toFixed(4);
-            if (nameInput) nameInput.value = state.currentLocationName;
-
-            autoSelect4NearestStations(state.centerLat, state.centerLng);
-            renderSavedLocationPills();
-            evaluateHazeProtocol();
-        }
-
-        function updateCustomCoordinates() {
-            const latInput = document.getElementById('custom-lat-input');
-            const lngInput = document.getElementById('custom-lng-input');
-            
-            if (latInput && lngInput) {
-                state.centerLat = parseFloat(latInput.value) || 3.2926;
-                state.centerLng = parseFloat(lngInput.value) || 101.4721;
-                autoSelect4NearestStations(state.centerLat, state.centerLng);
-                renderModalStationSelectors();
-                evaluateHazeProtocol();
+                adminView.classList.remove('hidden');
+                parentView.classList.add('hidden');
+                adminBtn.className = "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-sky-600 text-white shadow-sm";
+                parentBtn.className = "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white";
             }
         }
 
-        function getSavedCustomLocations() {
-            try {
-                return JSON.parse(localStorage.getItem('haze_custom_locations') || '[]');
-            } catch(e) {
-                return [];
-            }
+        // Calculate average API from 4 stations
+        function getAverageApi(readings) {
+            if (!readings || readings.length !== 4) return 0;
+            const sum = readings.reduce((a, b) => Number(a) + Number(b), 0);
+            return Math.round(sum / 4);
         }
 
-        function saveCurrentAsCustomPreset() {
-            const nameInput = document.getElementById('custom-location-input');
-            const name = nameInput ? nameInput.value.trim() : "Custom Location";
-            const customLoc = {
-                id: 'loc_' + Date.now(),
-                name: name,
-                lat: state.centerLat,
-                lng: state.centerLng
+        // System Rule Evaluation Engine
+        function evaluateProtocol(readings, isSchoolCurrentlyClosed, currentConsecutiveDays) {
+            const avg = getAverageApi(readings);
+            let result = {
+                avgApi: avg,
+                triggerClosure: false,
+                triggerReopen: false,
+                closureReason: "",
+                newConsecutiveDays: currentConsecutiveDays,
+                recommendedStatusText: ""
             };
 
-            const existing = getSavedCustomLocations();
-            existing.push(customLoc);
-            localStorage.setItem('haze_custom_locations', JSON.stringify(existing));
-
-            renderPresetDropdownOptions();
-            showToast(`Saved "${name}" to your favorites!`);
-        }
-
-        function saveStateToLocalStorage() {
-            try {
-                localStorage.setItem('haze_tracker_state', JSON.stringify({
-                    currentLocationKey: state.currentLocationKey,
-                    currentLocationName: state.currentLocationName,
-                    shortLocationName: state.shortLocationName,
-                    centerLat: state.centerLat,
-                    centerLng: state.centerLng,
-                    metricStandard: state.metricStandard
-                }));
-            } catch(e) {}
-        }
-
-        function loadSavedStateFromLocalStorage() {
-            try {
-                const saved = localStorage.getItem('haze_tracker_state');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    state.currentLocationKey = data.currentLocationKey || "sasana";
-                    state.currentLocationName = data.currentLocationName || "Sasana Int. School Bandar Tasik Puteri";
-                    state.shortLocationName = data.shortLocationName || "Sasana Int. School";
-                    state.centerLat = data.centerLat || 3.2926;
-                    state.centerLng = data.centerLng || 101.4721;
-                    state.metricStandard = data.metricStandard || "API";
+            if (avg > 180) {
+                // Rule 1: API > 180 on single day
+                result.triggerClosure = true;
+                result.closureReason = "Average API > 180 on a single day";
+                result.recommendedStatusText = "SCHOOL CLOSED NEXT DAY (API > 180)";
+            } else if (avg > 150) {
+                // Increment consecutive counter
+                const nextDays = currentConsecutiveDays + 1;
+                result.newConsecutiveDays = nextDays;
+                if (nextDays >= 3) {
+                    // Rule 2: API > 150 for 3 consecutive days
+                    result.triggerClosure = true;
+                    result.closureReason = "Average API > 150 for 3 consecutive days";
+                    result.recommendedStatusText = "SCHOOL CLOSED NEXT DAY (3 Consecutive Days > 150)";
+                } else {
+                    result.recommendedStatusText = `SCHOOL REMAINS OPEN (Day ${nextDays} of 3 above 150)`;
                 }
-            } catch(e) {}
-
-            const labelEl = document.getElementById('current-location-label');
-            if (labelEl) labelEl.textContent = state.shortLocationName;
-        }
-
-        function getRelativeDate(offsetDays) {
-            const d = new Date();
-            d.setDate(d.getDate() + offsetDays);
-            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-        }
-
-        // Official Portal Modal Viewer
-        function switchPortalTab(target) {
-            const tabApi = document.getElementById('modal-tab-api');
-            const tabAqi = document.getElementById('modal-tab-aqi');
-            const iframe = document.getElementById('portal-iframe');
-            const urlDisplay = document.getElementById('modal-portal-url-display');
-            const externalLink = document.getElementById('modal-external-link');
-
-            if (target === 'AQI') {
-                if (tabAqi) tabAqi.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-indigo-600 text-white";
-                if (tabApi) tabApi.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
-                if (iframe) iframe.src = URL_AQICN;
-                if (urlDisplay) urlDisplay.textContent = URL_AQICN;
-                if (externalLink) externalLink.href = URL_AQICN;
             } else {
-                if (tabApi) tabApi.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white";
-                if (tabAqi) tabAqi.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
-                if (iframe) iframe.src = URL_DOE;
-                if (urlDisplay) urlDisplay.textContent = URL_DOE;
-                if (externalLink) externalLink.href = URL_DOE;
-            }
-        }
-
-        function openApimsViewerModal() {
-            switchPortalTab(state.metricStandard);
-            document.getElementById('apims-viewer-modal').classList.remove('hidden');
-        }
-
-        function closeApimsViewerModal() {
-            document.getElementById('apims-viewer-modal').classList.add('hidden');
-        }
-
-        // WhatsApp Broadcast Share Modal
-        function openWhatsAppShare() {
-            const modal = document.getElementById('whatsapp-modal');
-            const textarea = document.getElementById('whatsapp-text-area');
-
-            const isAQI = state.metricStandard === 'AQI';
-            const unitLabel = isAQI ? 'AQI' : 'API';
-            const sourceUrl = isAQI ? URL_AQICN : URL_DOE;
-
-            const sum = state.selectedStations.reduce((acc, st) => acc + (parseInt(st[unitLabel.toLowerCase()]) || 0), 0);
-            const todayAvg = (sum / (state.selectedStations.length || 1)).toFixed(1);
-            const dateStr = getRelativeDate(0);
-
-            let statusMessage = "";
-            if (parseFloat(todayAvg) > 180) {
-                statusMessage = `🔴 *SCHOOL CLOSURE ANNOUNCEMENT*\nDue to haze conditions, current 4-station average ${unitLabel} reached *${todayAvg}* (Exceeding safety threshold).\n\n🏫 *School will be CLOSED tomorrow (${getRelativeDate(1)}).*`;
-            } else {
-                statusMessage = `🟢 *HAZE PROTOCOL UPDATE*\nCurrent 4-station average ${unitLabel} is *${todayAvg}* (Safe parameter ≤ 150).\n\n🏫 *School remains OPEN tomorrow (${getRelativeDate(1)}).*`;
+                // API <= 150
+                if (isSchoolCurrentlyClosed) {
+                    // Rule 3: Reopen school next day
+                    result.triggerReopen = true;
+                    result.newConsecutiveDays = 0; // Resets count to 0 upon reopening
+                    result.recommendedStatusText = "SCHOOL REOPENS NEXT DAY (API <= 150)";
+                } else {
+                    result.newConsecutiveDays = 0;
+                    result.recommendedStatusText = "SCHOOL REMAINS OPEN (Safe API Level)";
+                }
             }
 
-            const text = `📢 *${state.currentLocationName} — Haze Safety Update* 📢\n` +
-                         `🔗 *Tracking Standard:* ${unitLabel} (${sourceUrl})\n` +
-                         `📅 *Date:* ${dateStr} (Latest Reading)\n\n` +
-                         `📊 *4 Nearest Stations Readings:*\n` +
-                         state.selectedStations.map(s => `• ${s.name}: ${unitLabel} ${isAQI ? s.aqi : s.api} (${s.dist}km)`).join('\n') +
-                         `\n\n🧮 *Average ${unitLabel} Used:* *${todayAvg}*\n\n` +
-                         `${statusMessage}\n\n` +
-                         `⚠️ *Safety Guidelines While Open:*\n` +
-                         `- Outdoor activities & PE suspended.\n` +
-                         `- Face masks mandatory between blocks.\n` +
-                         `- Dismissal waiting strictly indoors.\n\n` +
-                         `Stay safe and follow official updates!`;
-
-            if (textarea) textarea.value = text;
-            if (modal) modal.classList.remove('hidden');
+            return result;
         }
 
-        function closeWhatsAppModal() {
-            const modal = document.getElementById('whatsapp-modal');
-            if (modal) modal.classList.add('hidden');
-        }
+        // Refresh UI from App State
+        function renderUI() {
+            const avgApi = getAverageApi(appState.stationReadings);
 
-        function copyToClipboardText() {
-            const textarea = document.getElementById('whatsapp-text-area');
-            if (!textarea) return;
-
-            navigator.clipboard.writeText(textarea.value).then(() => {
-                const toast = document.getElementById('copy-toast');
-                if (toast) {
-                    toast.classList.remove('opacity-0');
-                    setTimeout(() => toast.classList.add('opacity-0'), 2500);
-                }
-            }).catch(() => {
-                textarea.select();
-                document.execCommand('copy');
+            // Update Station Values
+            appState.stationReadings.forEach((val, idx) => {
+                const el = document.getElementById(`stVal-${idx}`);
+                const mapPin = document.getElementById(`mapPinApi${idx}`);
+                if (el) el.innerText = val;
+                if (mapPin) mapPin.innerText = `API ${val}`;
             });
+
+            // Update Average Badges
+            document.getElementById('currentAvgApiDisplay').innerText = avgApi;
+            document.getElementById('calculatedAvgBadge').innerText = `Avg = ${avgApi}`;
+            document.getElementById('evalCalculatedAvg').innerText = avgApi;
+
+            // Render Tracker Progress Card
+            const trackerCounterLabel = document.getElementById('trackerCounterLabel');
+            const day1Seg = document.getElementById('day1Segment');
+            const day2Seg = document.getElementById('day2Segment');
+            const day3Seg = document.getElementById('day3Segment');
+
+            trackerCounterLabel.innerText = `Day ${appState.consecutiveDaysAbove150} of 3`;
+
+            // Segment highlights
+            day1Seg.className = appState.consecutiveDaysAbove150 >= 1 ? "h-3 rounded-full bg-amber-500 shadow-sm relative group cursor-pointer" : "h-3 rounded-full bg-slate-200 relative group cursor-pointer";
+            day2Seg.className = appState.consecutiveDaysAbove150 >= 2 ? "h-3 rounded-full bg-amber-500 shadow-sm relative group cursor-pointer" : "h-3 rounded-full bg-slate-200 relative group cursor-pointer";
+            day3Seg.className = appState.consecutiveDaysAbove150 >= 3 ? "h-3 rounded-full bg-red-500 shadow-sm relative group cursor-pointer" : "h-3 rounded-full bg-slate-200 relative group cursor-pointer";
+
+            // Main Status Banner Updates
+            const statusBanner = document.getElementById('statusBanner');
+            const statusBadgeIcon = document.getElementById('statusBadgeIcon');
+            const statusTag = document.getElementById('statusTag');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+            const announcementStatusText = document.getElementById('announcementStatusText');
+
+            if (appState.schoolOperationalStatus === 'CLOSED') {
+                statusBanner.className = "rounded-2xl p-6 sm:p-8 transition-all duration-300 shadow-sm border flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-red-50 border-red-200 text-red-950";
+                statusBadgeIcon.className = "w-14 h-14 rounded-2xl bg-red-600 text-white flex items-center justify-center text-2xl flex-shrink-0 shadow-md";
+                statusBadgeIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+                statusTag.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-200 text-red-800";
+                statusTag.innerText = "🔴 Official Notice: School Closed";
+                statusTitle.innerText = "SCHOOL IS CLOSED";
+                statusDesc.innerText = "School campus is closed for physical classes due to haze protocol thresholds. Virtual / remote learning guidelines apply. Stay safe indoors.";
+                announcementStatusText.innerText = "School closed today. Reopening evaluated at 2:00 PM.";
+            } else if (appState.pendingAnnouncementType === 'CLOSED_NEXT_DAY') {
+                statusBanner.className = "rounded-2xl p-6 sm:p-8 transition-all duration-300 shadow-sm border flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-amber-50 border-amber-200 text-amber-950";
+                statusBadgeIcon.className = "w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl flex-shrink-0 shadow-md";
+                statusBadgeIcon.innerHTML = `<i class="fa-solid fa-bullhorn"></i>`;
+                statusTag.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-200 text-amber-900";
+                statusTag.innerText = "⚠️ Closure Notice Issued";
+                statusTitle.innerText = "SCHOOL OPEN TODAY — CLOSES TOMORROW";
+                statusDesc.innerText = "School remains open for the remainder of today. School WILL BE CLOSED tomorrow in accordance with the official haze protocol.";
+                announcementStatusText.innerText = "Notice sent: School CLOSED tomorrow.";
+            } else {
+                statusBanner.className = "rounded-2xl p-6 sm:p-8 transition-all duration-300 shadow-sm border flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-emerald-50 border-emerald-200 text-emerald-950";
+                statusBadgeIcon.className = "w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-2xl flex-shrink-0 shadow-md";
+                statusBadgeIcon.innerHTML = `<i class="fa-solid fa-school"></i>`;
+                statusTag.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-200 text-emerald-800";
+                statusTag.innerText = "🟢 Current Operational Status";
+                statusTitle.innerText = "SCHOOL IS OPEN";
+                statusDesc.innerText = "Classes and standard school operations are running normally. Outdoor activities are regulated according to the haze protocol guidelines.";
+                announcementStatusText.innerText = "No closures scheduled for tomorrow.";
+            }
+
+            // Render Announcement List Feed
+            const announcementFeed = document.getElementById('announcementListFeed');
+            announcementFeed.innerHTML = "";
+            appState.announcements.slice().reverse().forEach(ann => {
+                const isClosure = ann.title.includes("Closure") || ann.title.includes("CLOSED");
+                const isReopen = ann.title.includes("Reopen") || ann.title.includes("REOPENS");
+                
+                let badgeClass = "bg-sky-100 text-sky-800 border-sky-200";
+                if (isClosure) badgeClass = "bg-red-100 text-red-800 border-red-200";
+                if (isReopen) badgeClass = "bg-emerald-100 text-emerald-800 border-emerald-200";
+
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition";
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${badgeClass}">
+                                ${ann.type}
+                            </span>
+                            <h4 class="font-bold text-slate-800 text-sm">${ann.title}</h4>
+                        </div>
+                        <span class="text-[11px] text-slate-500 font-mono">${ann.date} at ${ann.time}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-1 leading-relaxed">${ann.body}</p>
+                `;
+                announcementFeed.appendChild(card);
+            });
+
+            // Update Admin Evaluation Box
+            updateAdminEvaluationView();
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast-notification');
-            const msgEl = document.getElementById('toast-msg');
-            if (msgEl) msgEl.textContent = msg;
+        // Update Admin Panel Rule Check Indicators
+        function updateAdminEvaluationView() {
+            const inputs = [
+                Number(document.getElementById('inputStation0').value),
+                Number(document.getElementById('inputStation1').value),
+                Number(document.getElementById('inputStation2').value),
+                Number(document.getElementById('inputStation3').value)
+            ];
 
-            if (toast) {
-                toast.classList.remove('translate-y-20', 'opacity-0');
-                setTimeout(() => {
-                    toast.classList.add('translate-y-20', 'opacity-0');
-                }, 3000);
+            const evalResult = evaluateProtocol(
+                inputs,
+                appState.schoolOperationalStatus === 'CLOSED',
+                appState.consecutiveDaysAbove150
+            );
+
+            const rule1El = document.getElementById('ruleCheck1');
+            const rule2El = document.getElementById('ruleCheck2');
+            const rule3El = document.getElementById('ruleCheck3');
+            const evalActionTitle = document.getElementById('evalActionTitle');
+            const evalActionDetail = document.getElementById('evalActionDetail');
+            const evalActionBox = document.getElementById('evalActionBox');
+
+            // Rule Check 1
+            if (evalResult.avgApi > 180) {
+                rule1El.className = "flex justify-between items-center p-2 rounded bg-red-100 border border-red-200 font-bold text-red-800 text-xs";
+                rule1El.children[1].innerText = "TRIGGERED (API > 180)";
+            } else {
+                rule1El.className = "flex justify-between items-center p-2 rounded bg-white border border-slate-200 text-xs";
+                rule1El.children[1].innerText = "FALSE";
+                rule1El.children[1].className = "font-bold text-slate-400";
             }
+
+            // Rule Check 2
+            if (evalResult.newConsecutiveDays >= 3) {
+                rule2El.className = "flex justify-between items-center p-2 rounded bg-red-100 border border-red-200 font-bold text-red-800 text-xs";
+                rule2El.children[1].innerText = "TRIGGERED (3 Days > 150)";
+            } else if (evalResult.avgApi > 150) {
+                rule2El.className = "flex justify-between items-center p-2 rounded bg-amber-50 border border-amber-200 text-xs";
+                rule2El.children[1].innerText = `Day ${evalResult.newConsecutiveDays} of 3`;
+                rule2El.children[1].className = "font-bold text-amber-700";
+            } else {
+                rule2El.className = "flex justify-between items-center p-2 rounded bg-white border border-slate-200 text-xs";
+                rule2El.children[1].innerText = "FALSE";
+                rule2El.children[1].className = "font-bold text-slate-400";
+            }
+
+            // Rule Check 3
+            if (appState.schoolOperationalStatus === 'CLOSED' && evalResult.avgApi <= 150) {
+                rule3El.className = "flex justify-between items-center p-2 rounded bg-emerald-100 border border-emerald-200 font-bold text-emerald-800 text-xs";
+                rule3El.children[1].innerText = "TRIGGERED (Reopen Next Day)";
+            } else {
+                rule3El.className = "flex justify-between items-center p-2 rounded bg-white border border-slate-200 text-xs";
+                rule3El.children[1].innerText = "N/A";
+                rule3El.children[1].className = "font-bold text-slate-400";
+            }
+
+            // Action Card Styling
+            if (evalResult.triggerClosure) {
+                evalActionBox.className = "mt-4 p-4 rounded-xl bg-red-50 border border-red-200";
+                evalActionTitle.innerText = "Trigger Announcement: SCHOOL CLOSED NEXT DAY";
+                evalActionTitle.className = "text-base font-black text-red-950 mt-0.5";
+                evalActionDetail.innerText = `Average API is ${evalResult.avgApi}. ${evalResult.closureReason}. Formal closure announcement must be sent before 3:00 PM.`;
+            } else if (evalResult.triggerReopen) {
+                evalActionBox.className = "mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200";
+                evalActionTitle.innerText = "Trigger Announcement: SCHOOL REOPENS NEXT DAY";
+                evalActionTitle.className = "text-base font-black text-emerald-950 mt-0.5";
+                evalActionDetail.innerText = `Average API dropped to ${evalResult.avgApi} (<= 150). School reopens next day. Count resets to 0.`;
+            } else {
+                evalActionBox.className = "mt-4 p-4 rounded-xl bg-sky-50 border border-sky-200";
+                evalActionTitle.innerText = evalResult.recommendedStatusText;
+                evalActionTitle.className = "text-base font-black text-sky-950 mt-0.5";
+                evalActionDetail.innerText = `Average API is ${evalResult.avgApi}. No operational status change required. Stay aligned with safety guidelines.`;
+            }
+
+            generateDraftMessages(evalResult);
+        }
+
+        // Auto-Generate Announcement Text Drafts
+        function generateDraftMessages(evalResult) {
+            const waText = document.getElementById('whatsappText');
+            const emailText = document.getElementById('emailText');
+
+            const avgApi = evalResult.avgApi;
+            const dateStr = "Tomorrow (Sunday, 11/10/2026)";
+
+            if (evalResult.triggerClosure) {
+                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nPlease be informed that the 2:00 PM average API reading across our 4 monitoring stations today is ${avgApi}.\n\nIn accordance with our Haze Protocol rules (${evalResult.closureReason}), SASANA INTERNATIONAL SCHOOL WILL BE CLOSED TOMORROW (${dateStr}).\n\n- All physical classes & activities are suspended.\n- Virtual learning instructions will be shared via class channels.\n- Announcement takes effect starting tomorrow.\n\nThank you for your understanding and support.\n\n- Sasana School Administration`;
+                
+                emailText.value = `Subject: IMPORTANT: School Closure Notice due to Haze Protocol - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nPlease see the haze protocol status update from Sasana International School.\n\nToday at 2:00 PM, the average Air Pollutant Index (API) reading from our 4 DOE stations (Batu Muda, Petaling Jaya, Shah Alam, Kuala Selangor) was measured at ${avgApi}.\n\nBased on our protocol guidelines (${evalResult.closureReason}), the school will be CLOSED taking effect tomorrow, ${dateStr}.\n\nKey Notes:\n1. Virtual learning resources will be communicated by class teachers.\n2. When school reopens, the count of consecutive days above 150 resets to zero.\n3. Further updates will be issued before 3:00 PM when school reopens.\n\nThank you for your cooperation.\n\nWarm regards,\nSasana International School Management`;
+            } else if (evalResult.triggerReopen) {
+                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nWe are pleased to announce that today's 2:00 PM average API reading has dropped to ${avgApi} (150 or below).\n\nSASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\n- Physical classes resume as normal.\n- The 3-consecutive-day API count resets to zero (0).\n- Safety measures remain active during school hours.\n\nThank you for your patience and cooperation.\n\n- Sasana School Administration`;
+
+                emailText.value = `Subject: Official Notice: School Reopening Announcement - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nWe are pleased to inform you that today's 2:00 PM average API reading across our 4 nearest DOE stations is ${avgApi}.\n\nIn accordance with Section 3 of our Haze Protocol (Average API 150 or below while school is closed), SASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\nImportant Details:\n- Physical classes, dismissal protocols, and campus operations resume tomorrow.\n- As per school policy, the consecutive day count above 150 resets to zero (0) upon reopening.\n- Standard safety measures remain in place while school stays open.\n\nThank you for your continued support.\n\nWarm regards,\nSasana International School Management`;
+            } else {
+                waText.value = `[HAZE PROTOCOL UPDATE - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nToday's 2:00 PM average API reading is ${avgApi}. School remains OPEN tomorrow.\n\nPlease note:\n- Announcements are ONLY officially issued when school CLOSES or REOPENS.\n- Safety guidelines remain in full effect on campus (PE suspended, masks between blocks, indoor dismissal waiting).\n\n- Sasana School Administration`;
+
+                emailText.value = `Subject: Haze Protocol Daily Status Update - Sasana International School\n\nDear Parents and Guardians,\n\nToday at 2:00 PM, the average API reading across our 4 DOE stations is ${avgApi}.\n\nSchool remains OPEN. All indoor learning activities continue as scheduled with outdoor safety precautions active.\n\nNote: Official broadcast announcements are only generated when school closure or reopening criteria are triggered before 3:00 PM.\n\nThank you.\n\nSasana International School`;
+            }
+        }
+
+        // Form Submit Handler
+        function handleApiSubmit(e) {
+            e.preventDefault();
+            const readings = [
+                Number(document.getElementById('inputStation0').value),
+                Number(document.getElementById('inputStation1').value),
+                Number(document.getElementById('inputStation2').value),
+                Number(document.getElementById('inputStation3').value)
+            ];
+
+            appState.stationReadings = readings;
+            const evalResult = evaluateProtocol(
+                readings,
+                appState.schoolOperationalStatus === 'CLOSED',
+                appState.consecutiveDaysAbove150
+            );
+
+            appState.consecutiveDaysAbove150 = evalResult.newConsecutiveDays;
+            saveState();
+            renderUI();
+            showToast("Station API readings updated & protocol re-evaluated!");
+        }
+
+        // Publish Announcement Button Action
+        function publishAnnouncement() {
+            const readings = appState.stationReadings;
+            const evalResult = evaluateProtocol(
+                readings,
+                appState.schoolOperationalStatus === 'CLOSED',
+                appState.consecutiveDaysAbove150
+            );
+
+            let newTitle = "";
+            let newBody = "";
+            let newType = "INFO";
+
+            if (evalResult.triggerClosure) {
+                appState.pendingAnnouncementType = "CLOSED_NEXT_DAY";
+                appState.schoolOperationalStatus = "CLOSED"; // Takes effect
+                newTitle = "SCHOOL CLOSURE NOTICE (API Triggered)";
+                newBody = `Average API reached ${evalResult.avgApi}. School WILL BE CLOSED tomorrow in accordance with haze protocol guidelines (${evalResult.closureReason}). Announcement published before 3:00 PM.`;
+                newType = "CLOSURE";
+            } else if (evalResult.triggerReopen) {
+                appState.pendingAnnouncementType = "NONE";
+                appState.schoolOperationalStatus = "OPEN";
+                appState.consecutiveDaysAbove150 = 0; // Reset count
+                newTitle = "SCHOOL REOPENING NOTICE";
+                newBody = `Average API dropped to ${evalResult.avgApi} (150 or below). School REOPENS tomorrow. Consecutive day counter reset to 0.`;
+                newType = "REOPEN";
+            } else {
+                newTitle = "Daily Status: School Remains OPEN";
+                newBody = `Today's average API is ${evalResult.avgApi}. School remains OPEN. Safety protocols active for outdoor activities.`;
+                newType = "INFO";
+            }
+
+            const newAnnouncement = {
+                id: Date.now(),
+                date: "Saturday, 10/10/2026",
+                time: "2:45 PM",
+                type: newType,
+                title: newTitle,
+                body: newBody
+            };
+
+            appState.announcements.push(newAnnouncement);
+            saveState();
+            renderUI();
+            showToast("Announcement published successfully to Parent Dashboard & channels!");
+            switchView('parent');
+        }
+
+        // Quick Preset Scenario Launcher for Testing
+        function loadScenario(num) {
+            if (num === 1) {
+                // Scenario 1: API > 180 today
+                document.getElementById('inputStation0').value = 185;
+                document.getElementById('inputStation1').value = 182;
+                document.getElementById('inputStation2').value = 180;
+                document.getElementById('inputStation3').value = 185;
+                showToast("Loaded Scenario 1: Average API > 180 (Immediate Single-Day Closure)");
+            } else if (num === 2) {
+                // Scenario 2: Day 3 > 150 today
+                appState.consecutiveDaysAbove150 = 2; // Fri = 1, Sat = 2, today completes Day 3
+                document.getElementById('inputStation0').value = 160;
+                document.getElementById('inputStation1').value = 155;
+                document.getElementById('inputStation2').value = 162;
+                document.getElementById('inputStation3').value = 158;
+                showToast("Loaded Scenario 2: 3rd Consecutive Day > 150 (3-Day Closure Rule)");
+            } else if (num === 3) {
+                // Scenario 3: API <= 150 while closed -> Reopen
+                appState.schoolOperationalStatus = "CLOSED"; // Simulate school closed currently
+                document.getElementById('inputStation0').value = 120;
+                document.getElementById('inputStation1').value = 115;
+                document.getElementById('inputStation2').value = 130;
+                document.getElementById('inputStation3').value = 110;
+                showToast("Loaded Scenario 3: API <= 150 (School Reopening Next Day)");
+            }
+            updateAdminEvaluationView();
+        }
+
+        // Copy Text Helper
+        function copyToClipboard(elementId) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            document.execCommand('copy');
+            showToast("Copied announcement draft text to clipboard!");
+        }
+
+        // Toast Notification System
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            toastMsg.innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
         }
 
         // Initial setup on window load
         window.onload = function() {
-            loadSavedStateFromLocalStorage();
-            autoSelect4NearestStations(state.centerLat, state.centerLng);
-            renderPresetDropdownOptions();
-            renderSavedLocationPills();
-            evaluateHazeProtocol();
+            // Register input listeners for real-time admin preview
+            ['inputStation0', 'inputStation1', 'inputStation2', 'inputStation3'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', updateAdminEvaluationView);
+                }
+            });
+
+            renderUI();
         };
     </script>
 </body>
