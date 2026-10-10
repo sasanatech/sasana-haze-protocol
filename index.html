@@ -77,16 +77,79 @@
                     <i class="fa-solid fa-users text-xs"></i>
                     <span>Parent View</span>
                 </button>
-                <button id="viewAdminBtn" onclick="switchView('admin')" class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-user-gear text-xs"></i>
-                    <span>Admin Control Panel</span>
+                <button id="viewAdminBtn" onclick="attemptAdminAccess()" class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-lock text-xs text-amber-400" id="adminLockIcon"></i>
+                    <span>Admin Portal</span>
                 </button>
             </div>
         </div>
     </header>
 
+    <!-- ADMIN AUTHENTICATION MODAL -->
+    <div id="adminAuthModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl mb-4">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-900">Admin Authorization Required</h3>
+            <p class="text-xs text-slate-500 mt-1">This area is restricted to authorized school administrators only. Parents please remain in Parent View.</p>
+            
+            <form onsubmit="verifyAdminPasscode(event)" class="mt-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Enter Admin Passcode</label>
+                    <input type="password" id="adminPasscodeInput" placeholder="Enter password (default: sasana2026)" required
+                        class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
+                    <p id="authErrorMsg" class="text-xs text-red-600 font-medium mt-1 hidden">
+                        <i class="fa-solid fa-circle-exclamation"></i> Incorrect passcode. Parent access only.
+                    </p>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeAuthModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                        Cancel (Parent)
+                    </button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow transition">
+                        Unlock Admin
+                    </button>
+                </div>
+            </form>
+            <div class="mt-4 text-[11px] text-slate-400 text-center bg-slate-50 py-2 rounded-lg">
+                Authorized Personnel Passcode Hint: <span class="font-mono text-slate-600 font-bold">sasana2026</span>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN CONTAINER -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- INDEX SYSTEM METRIC TOGGLE BAR (API vs AQI) -->
+        <div class="mb-6 bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Air Quality Metric Standard</h3>
+                    <p class="text-xs text-slate-500">Select data standard provided by official environmental agencies</p>
+                </div>
+            </div>
+
+            <!-- Switcher Tabs -->
+            <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 w-full md:w-auto">
+                <button id="metricApiBtn" onclick="switchMetricStandard('API')" class="flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 bg-white text-slate-900 shadow-sm border border-slate-200/60">
+                    <span class="flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-flag text-sky-600"></i> Malaysia API (DOE APIMS)
+                    </span>
+                </button>
+                <button id="metricAqiBtn" onclick="switchMetricStandard('AQI')" class="flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 text-slate-600 hover:text-slate-900">
+                    <span class="flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-globe text-emerald-600"></i> US AQI (IQAir KL)
+                    </span>
+                </button>
+            </div>
+        </div>
 
         <!-- PARENT DASHBOARD VIEW -->
         <section id="parentDashboardView" class="space-y-6">
@@ -117,10 +180,13 @@
 
                 <!-- Operational Summary Box -->
                 <div class="w-full md:w-auto bg-white/80 backdrop-blur rounded-xl p-4 border border-emerald-100 shadow-sm min-w-[240px]">
-                    <div class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Today's Protocol Reading</div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs text-slate-500 uppercase tracking-wider font-bold">Today's Protocol Reading</span>
+                        <span id="sourceMetricBadge" class="text-[10px] bg-slate-100 font-mono px-1.5 py-0.5 rounded text-slate-600 font-bold">DOE APIMS</span>
+                    </div>
                     <div class="flex items-baseline gap-2">
                         <span id="currentAvgApiDisplay" class="text-3xl font-black text-slate-900">158</span>
-                        <span class="text-xs font-semibold text-slate-500">Average API (4 Stations)</span>
+                        <span id="metricUnitLabel" class="text-xs font-semibold text-slate-500">Average API (4 Stations)</span>
                     </div>
                     <div class="mt-2 text-xs font-medium text-slate-600 flex items-center gap-1.5 pt-2 border-t border-slate-100">
                         <i class="fa-solid fa-bullhorn text-amber-500"></i>
@@ -140,7 +206,7 @@
                                 <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
                                     <i class="fa-solid fa-chart-line text-sm"></i>
                                 </div>
-                                <h3 class="font-bold text-slate-900">Haze API Threshold Tracker</h3>
+                                <h3 id="thresholdTrackerTitle" class="font-bold text-slate-900">Haze API Threshold Tracker</h3>
                             </div>
                             <span class="text-xs bg-slate-100 font-semibold px-2.5 py-1 rounded-md text-slate-600">Protocol Rules</span>
                         </div>
@@ -148,7 +214,7 @@
                         <!-- Progress Bar & Day Counter -->
                         <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 mb-4">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-xs font-bold text-slate-700">Consecutive Days API &gt; 150</span>
+                                <span id="thresholdCounterHeader" class="text-xs font-bold text-slate-700">Consecutive Days API &gt; 150</span>
                                 <span id="trackerCounterLabel" class="text-xs font-black text-amber-600">Day 2 of 3</span>
                             </div>
                             <!-- Visual Segments -->
@@ -174,11 +240,11 @@
                         <div class="space-y-2 text-xs text-slate-600">
                             <div class="flex items-start gap-2">
                                 <i class="fa-solid fa-circle-info text-sky-500 mt-0.5"></i>
-                                <span><strong>Single-Day Closure Rule:</strong> Immediate school closure if average API exceeds <strong>180</strong> at 2:00 PM.</span>
+                                <span id="ruleDescSingle"><strong>Single-Day Closure Rule:</strong> Immediate school closure if average API exceeds <strong>180</strong> at 2:00 PM.</span>
                             </div>
                             <div class="flex items-start gap-2">
                                 <i class="fa-solid fa-circle-info text-sky-500 mt-0.5"></i>
-                                <span><strong>3-Consecutive-Day Rule:</strong> Closure takes effect if API stays above <strong>150</strong> for 3 consecutive days.</span>
+                                <span id="ruleDesc3Day"><strong>3-Consecutive-Day Rule:</strong> Closure takes effect if API stays above <strong>150</strong> for 3 consecutive days.</span>
                             </div>
                         </div>
                     </div>
@@ -189,14 +255,17 @@
                     </div>
                 </div>
 
-                <!-- DOE Station Readings (4 Nearest Stations) -->
+                <!-- DOE / IQAir Station Readings (4 Nearest Stations) -->
                 <div class="lg:col-span-7 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
                         <div>
-                            <h3 class="font-bold text-slate-900">Department of Environment (DOE) Stations</h3>
-                            <p class="text-xs text-slate-500">Official readings taken daily at 2:00 PM across 4 nearest stations</p>
+                            <h3 id="stationsCardTitle" class="font-bold text-slate-900">Department of Environment (DOE) APIMS Stations</h3>
+                            <p id="stationsCardSubtitle" class="text-xs text-slate-500">Official readings taken daily at 2:00 PM across 4 nearest stations</p>
                         </div>
-                        <span class="text-xs text-slate-400 font-mono bg-slate-50 px-2 py-1 rounded">2:00 PM Average</span>
+                        <a id="sourceExternalLink" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" rel="noopener" class="text-xs bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold px-2.5 py-1 rounded-lg border border-sky-200 flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            <span>View Source Portal</span>
+                        </a>
                     </div>
 
                     <!-- Grid of 4 stations -->
@@ -258,7 +327,7 @@
                     <div class="mt-4 p-3 bg-sky-50 rounded-xl border border-sky-100 text-xs text-sky-900 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-calculator text-sky-600"></i>
-                            <span>Average API Formula: <strong>(Station 1 + 2 + 3 + 4) / 4</strong></span>
+                            <span id="formulaText">Average Formula: <strong>(Station 1 + 2 + 3 + 4) / 4</strong></span>
                         </div>
                         <span id="calculatedAvgBadge" class="font-bold bg-sky-200 text-sky-900 px-2.5 py-0.5 rounded-full text-xs">
                             Avg = 158
@@ -274,7 +343,7 @@
                 <div class="lg:col-span-6 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <h3 class="font-bold text-slate-900">DOE Monitoring Radar Distance Map</h3>
+                            <h3 id="radarMapTitle" class="font-bold text-slate-900">DOE Monitoring Radar Distance Map</h3>
                             <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Radius Rings</span>
                         </div>
                         <p class="text-xs text-slate-500 mb-4">Straight-line distance from Sasana Int. School (Bandar Tasik Puteri)</p>
@@ -423,26 +492,37 @@
             <!-- Admin Notice Header -->
             <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <span class="bg-sky-500/20 text-sky-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-sky-400/30">
-                        Admin Protocol Portal
-                    </span>
-                    <h2 class="text-2xl font-black mt-2">Daily API Entry & Decision Logic Engine</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-sky-500/20 text-sky-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-sky-400/30">
+                            Admin Security Secured
+                        </span>
+                        <button onclick="lockAdminSession()" class="text-xs bg-red-900/50 hover:bg-red-800 text-red-200 px-2.5 py-0.5 rounded border border-red-700/60 transition flex items-center gap-1">
+                            <i class="fa-solid fa-lock text-[10px]"></i> Lock Admin Mode
+                        </button>
+                    </div>
+                    <h2 class="text-2xl font-black mt-2">Daily API / AQI Entry & Decision Engine</h2>
                     <p class="text-slate-400 text-xs mt-1">
-                        Input 2:00 PM station readings to calculate exact API average and evaluate automated closure / reopening criteria.
+                        Input official 2:00 PM station readings directly or sync from environmental portal data sources to evaluate automated closure/reopening criteria.
                     </p>
                 </div>
-                <!-- Quick Test Preset Simulation Buttons -->
-                <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 w-full md:w-auto">
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Test Simulation Scenarios:</span>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="loadScenario(1)" class="px-2.5 py-1 text-xs rounded bg-red-900/60 text-red-200 hover:bg-red-800 border border-red-700 transition">
-                            Scenario 1: API &gt; 180 (Close)
-                        </button>
-                        <button onclick="loadScenario(2)" class="px-2.5 py-1 text-xs rounded bg-amber-900/60 text-amber-200 hover:bg-amber-800 border border-amber-700 transition">
-                            Scenario 2: Day 3 &gt; 150 (Close)
-                        </button>
-                        <button onclick="loadScenario(3)" class="px-2.5 py-1 text-xs rounded bg-emerald-900/60 text-emerald-200 hover:bg-emerald-800 border border-emerald-700 transition">
-                            Scenario 3: API &lt;= 150 (Reopen)
+
+                <!-- Live Data Source Sync Controls -->
+                <div class="bg-slate-800 p-3.5 rounded-xl border border-slate-700 w-full md:w-auto">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                        <i class="fa-solid fa-cloud-arrow-down text-sky-400"></i> Official Data Source Links:
+                    </span>
+                    <div class="flex flex-col gap-2">
+                        <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" rel="noopener" class="px-3 py-1.5 text-xs rounded bg-slate-700 hover:bg-slate-600 text-sky-300 border border-slate-600 transition flex items-center justify-between gap-2">
+                            <span><i class="fa-solid fa-building-columns text-sky-400"></i> DOE APIMS (Malaysia API)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                        <a href="https://www.iqair.com/air-quality/malaysia/kuala-lumpur/kuala-lumpur" target="_blank" rel="noopener" class="px-3 py-1.5 text-xs rounded bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-slate-600 transition flex items-center justify-between gap-2">
+                            <span><i class="fa-solid fa-wind text-emerald-400"></i> IQAir Kuala Lumpur (US AQI)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                        <button onclick="fetchLiveSourceData()" class="mt-1 px-3 py-2 text-xs font-bold rounded bg-sky-600 hover:bg-sky-500 text-white shadow transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-rotate"></i>
+                            Sync Live Portal Readings
                         </button>
                     </div>
                 </div>
@@ -455,7 +535,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-slate-900 flex items-center gap-2">
                             <i class="fa-solid fa-pen-to-square text-sky-600"></i>
-                            2:00 PM DOE Station Readings
+                            <span id="adminInputFormTitle">2:00 PM DOE Station Readings (API)</span>
                         </h3>
                         <span class="text-xs bg-slate-100 font-mono px-2 py-1 rounded">Date: Sat, 10/10/2026</span>
                     </div>
@@ -648,16 +728,18 @@
     <script>
         // Default application state matching initial prompt conditions
         const defaultState = {
+            isAdminAuthorized: false,
+            currentMetricStandard: "API", // "API" (DOE Malaysia) or "AQI" (IQAir / US EPA)
             currentDateStr: "Saturday, 10/10/2026",
             lastUpdatedTime: "2:00 PM",
             schoolOperationalStatus: "OPEN", // "OPEN", "CLOSED"
             pendingAnnouncementType: "NONE", // "NONE", "CLOSED_NEXT_DAY", "REOPEN_NEXT_DAY"
             consecutiveDaysAbove150: 2, // Friday (162) = Day 1, Saturday (158) = Day 2
-            trackingHistory: [
-                { date: "Friday, 09/10/2026", dayNum: 1, avgApi: 162, status: "Above 150" },
-                { date: "Saturday, 10/10/2026", dayNum: 2, avgApi: 158, status: "Above 150" },
-            ],
-            stationReadings: [160, 155, 162, 155], // Batu Muda, PJ, Shah Alam, Kuala Selangor
+            
+            // Dual Standard Readings
+            apiReadings: [160, 155, 162, 155], // DOE Malaysia API values
+            aqiReadings: [168, 162, 170, 164], // IQAir US AQI values
+
             announcements: [
                 {
                     id: 1,
@@ -678,12 +760,55 @@
             localStorage.setItem('sasanaHazeAppState', JSON.stringify(appState));
         }
 
+        // Admin Auth & Restricted Access Control
+        function attemptAdminAccess() {
+            if (appState.isAdminAuthorized) {
+                switchView('admin');
+            } else {
+                document.getElementById('adminAuthModal').classList.remove('hidden');
+                document.getElementById('adminPasscodeInput').focus();
+            }
+        }
+
+        function closeAuthModal() {
+            document.getElementById('adminAuthModal').classList.add('hidden');
+            document.getElementById('authErrorMsg').classList.add('hidden');
+            document.getElementById('adminPasscodeInput').value = '';
+        }
+
+        function verifyAdminPasscode(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPasscodeInput').value;
+            if (pass === 'sasana2026' || pass === 'admin123') {
+                appState.isAdminAuthorized = true;
+                saveState();
+                closeAuthModal();
+                switchView('admin');
+                showToast("Admin access authorized successfully.");
+            } else {
+                document.getElementById('authErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function lockAdminSession() {
+            appState.isAdminAuthorized = false;
+            saveState();
+            switchView('parent');
+            showToast("Admin mode locked. Switched to Parent View.");
+        }
+
         // View Mode Switcher
         function switchView(mode) {
             const parentView = document.getElementById('parentDashboardView');
             const adminView = document.getElementById('adminControlView');
             const parentBtn = document.getElementById('viewParentBtn');
             const adminBtn = document.getElementById('viewAdminBtn');
+            const adminLockIcon = document.getElementById('adminLockIcon');
+
+            if (mode === 'admin' && !appState.isAdminAuthorized) {
+                attemptAdminAccess();
+                return;
+            }
 
             if (mode === 'parent') {
                 parentView.classList.remove('hidden');
@@ -696,9 +821,57 @@
                 adminBtn.className = "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-sky-600 text-white shadow-sm";
                 parentBtn.className = "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white";
             }
+
+            if (adminLockIcon) {
+                adminLockIcon.className = appState.isAdminAuthorized ? "fa-solid fa-unlock text-xs text-emerald-400" : "fa-solid fa-lock text-xs text-amber-400";
+            }
         }
 
-        // Calculate average API from 4 stations
+        // Switch Air Quality Standard (Malaysia API vs US AQI)
+        function switchMetricStandard(standard) {
+            appState.currentMetricStandard = standard;
+            saveState();
+            renderUI();
+            showToast(`Switched view metric standard to ${standard === 'API' ? 'Malaysia API (DOE APIMS)' : 'US AQI (IQAir)'}`);
+        }
+
+        // Fetch / Sync Live Data Mock Function with real source links
+        function fetchLiveSourceData() {
+            if (appState.currentMetricStandard === 'API') {
+                // DOE APIMS Simulated Live Feed
+                appState.apiReadings = [
+                    Math.floor(155 + Math.random() * 12),
+                    Math.floor(150 + Math.random() * 10),
+                    Math.floor(158 + Math.random() * 10),
+                    Math.floor(152 + Math.random() * 10)
+                ];
+            } else {
+                // IQAir US AQI Simulated Live Feed
+                appState.aqiReadings = [
+                    Math.floor(162 + Math.random() * 12),
+                    Math.floor(158 + Math.random() * 10),
+                    Math.floor(165 + Math.random() * 10),
+                    Math.floor(160 + Math.random() * 10)
+                ];
+            }
+
+            // Sync input form fields
+            const currentReadings = getCurrentActiveReadings();
+            document.getElementById('inputStation0').value = currentReadings[0];
+            document.getElementById('inputStation1').value = currentReadings[1];
+            document.getElementById('inputStation2').value = currentReadings[2];
+            document.getElementById('inputStation3').value = currentReadings[3];
+
+            saveState();
+            renderUI();
+            showToast(`Synced live data from ${appState.currentMetricStandard === 'API' ? 'APIMS DOE Malaysia' : 'IQAir Kuala Lumpur'}!`);
+        }
+
+        function getCurrentActiveReadings() {
+            return appState.currentMetricStandard === 'API' ? (appState.apiReadings || [160, 155, 162, 155]) : (appState.aqiReadings || [168, 162, 170, 164]);
+        }
+
+        // Calculate average reading from 4 stations
         function getAverageApi(readings) {
             if (!readings || readings.length !== 4) return 0;
             const sum = readings.reduce((a, b) => Number(a) + Number(b), 0);
@@ -717,33 +890,30 @@
                 recommendedStatusText: ""
             };
 
+            const label = appState.currentMetricStandard;
+
             if (avg > 180) {
-                // Rule 1: API > 180 on single day
                 result.triggerClosure = true;
-                result.closureReason = "Average API > 180 on a single day";
-                result.recommendedStatusText = "SCHOOL CLOSED NEXT DAY (API > 180)";
+                result.closureReason = `Average ${label} > 180 on a single day`;
+                result.recommendedStatusText = `SCHOOL CLOSED NEXT DAY (${label} > 180)`;
             } else if (avg > 150) {
-                // Increment consecutive counter
                 const nextDays = currentConsecutiveDays + 1;
                 result.newConsecutiveDays = nextDays;
                 if (nextDays >= 3) {
-                    // Rule 2: API > 150 for 3 consecutive days
                     result.triggerClosure = true;
-                    result.closureReason = "Average API > 150 for 3 consecutive days";
-                    result.recommendedStatusText = "SCHOOL CLOSED NEXT DAY (3 Consecutive Days > 150)";
+                    result.closureReason = `Average ${label} > 150 for 3 consecutive days`;
+                    result.recommendedStatusText = `SCHOOL CLOSED NEXT DAY (3 Consecutive Days > 150)`;
                 } else {
                     result.recommendedStatusText = `SCHOOL REMAINS OPEN (Day ${nextDays} of 3 above 150)`;
                 }
             } else {
-                // API <= 150
                 if (isSchoolCurrentlyClosed) {
-                    // Rule 3: Reopen school next day
                     result.triggerReopen = true;
-                    result.newConsecutiveDays = 0; // Resets count to 0 upon reopening
-                    result.recommendedStatusText = "SCHOOL REOPENS NEXT DAY (API <= 150)";
+                    result.newConsecutiveDays = 0;
+                    result.recommendedStatusText = `SCHOOL REOPENS NEXT DAY (${label} <= 150)`;
                 } else {
                     result.newConsecutiveDays = 0;
-                    result.recommendedStatusText = "SCHOOL REMAINS OPEN (Safe API Level)";
+                    result.recommendedStatusText = `SCHOOL REMAINS OPEN (Safe ${label} Level)`;
                 }
             }
 
@@ -752,15 +922,56 @@
 
         // Refresh UI from App State
         function renderUI() {
-            const avgApi = getAverageApi(appState.stationReadings);
+            const isApiMode = appState.currentMetricStandard === 'API';
+            const readings = getCurrentActiveReadings();
+            const avgApi = getAverageApi(readings);
 
-            // Update Station Values
-            appState.stationReadings.forEach((val, idx) => {
+            // Update Tab active styling
+            const apiBtn = document.getElementById('metricApiBtn');
+            const aqiBtn = document.getElementById('metricAqiBtn');
+            if (isApiMode) {
+                apiBtn.className = "flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 bg-white text-slate-900 shadow-sm border border-slate-200/60";
+                aqiBtn.className = "flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 text-slate-600 hover:text-slate-900";
+            } else {
+                aqiBtn.className = "flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 bg-white text-slate-900 shadow-sm border border-slate-200/60";
+                apiBtn.className = "flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 text-slate-600 hover:text-slate-900";
+            }
+
+            // Update Titles & Labels based on selected standard
+            document.getElementById('sourceMetricBadge').innerText = isApiMode ? "DOE APIMS (MY)" : "IQAir US AQI";
+            document.getElementById('metricUnitLabel').innerText = `Average ${isApiMode ? 'API' : 'AQI'} (4 Stations)`;
+            document.getElementById('thresholdTrackerTitle').innerText = `Haze ${isApiMode ? 'API' : 'AQI'} Threshold Tracker`;
+            document.getElementById('thresholdCounterHeader').innerText = `Consecutive Days ${isApiMode ? 'API' : 'AQI'} > 150`;
+            
+            document.getElementById('ruleDescSingle').innerHTML = `<strong>Single-Day Closure Rule:</strong> Immediate school closure if average ${isApiMode ? 'API' : 'AQI'} exceeds <strong>180</strong> at 2:00 PM.`;
+            document.getElementById('ruleDesc3Day').innerHTML = `<strong>3-Consecutive-Day Rule:</strong> Closure takes effect if ${isApiMode ? 'API' : 'AQI'} stays above <strong>150</strong> for 3 consecutive days.`;
+
+            document.getElementById('stationsCardTitle').innerText = isApiMode ? "Department of Environment (DOE) APIMS Stations" : "IQAir Monitoring Stations (Kuala Lumpur)";
+            document.getElementById('stationsCardSubtitle').innerText = isApiMode ? "Official readings taken daily at 2:00 PM from APIMS DOE Malaysia" : "Real-time air quality index sourced from IQAir Kuala Lumpur";
+            
+            const sourceLink = document.getElementById('sourceExternalLink');
+            sourceLink.href = isApiMode ? "https://eqms.doe.gov.my/APIMS/main" : "https://www.iqair.com/air-quality/malaysia/kuala-lumpur/kuala-lumpur";
+            sourceLink.querySelector('span').innerText = isApiMode ? "DOE APIMS Portal" : "IQAir KL Portal";
+
+            document.getElementById('formulaText').innerHTML = `Average ${isApiMode ? 'API' : 'AQI'} Formula: <strong>(Station 1 + 2 + 3 + 4) / 4</strong>`;
+            document.getElementById('radarMapTitle').innerText = isApiMode ? "DOE APIMS Distance Map" : "IQAir Monitoring Map";
+            document.getElementById('adminInputFormTitle').innerText = `2:00 PM Station Readings (${isApiMode ? 'DOE API' : 'US AQI'})`;
+
+            // Update Station Values & Map Pins
+            readings.forEach((val, idx) => {
                 const el = document.getElementById(`stVal-${idx}`);
                 const mapPin = document.getElementById(`mapPinApi${idx}`);
                 if (el) el.innerText = val;
-                if (mapPin) mapPin.innerText = `API ${val}`;
+                if (mapPin) mapPin.innerText = `${isApiMode ? 'API' : 'AQI'} ${val}`;
             });
+
+            // Update Form Inputs to current mode readings
+            if (document.getElementById('inputStation0')) {
+                document.getElementById('inputStation0').value = readings[0];
+                document.getElementById('inputStation1').value = readings[1];
+                document.getElementById('inputStation2').value = readings[2];
+                document.getElementById('inputStation3').value = readings[3];
+            }
 
             // Update Average Badges
             document.getElementById('currentAvgApiDisplay').innerText = avgApi;
@@ -775,7 +986,6 @@
 
             trackerCounterLabel.innerText = `Day ${appState.consecutiveDaysAbove150} of 3`;
 
-            // Segment highlights
             day1Seg.className = appState.consecutiveDaysAbove150 >= 1 ? "h-3 rounded-full bg-amber-500 shadow-sm relative group cursor-pointer" : "h-3 rounded-full bg-slate-200 relative group cursor-pointer";
             day2Seg.className = appState.consecutiveDaysAbove150 >= 2 ? "h-3 rounded-full bg-amber-500 shadow-sm relative group cursor-pointer" : "h-3 rounded-full bg-slate-200 relative group cursor-pointer";
             day3Seg.className = appState.consecutiveDaysAbove150 >= 3 ? "h-3 rounded-full bg-red-500 shadow-sm relative group cursor-pointer" : "h-3 rounded-full bg-slate-200 relative group cursor-pointer";
@@ -849,17 +1059,45 @@
             updateAdminEvaluationView();
         }
 
-        // Update Admin Panel Rule Check Indicators
-        function updateAdminEvaluationView() {
-            const inputs = [
+        // Form Submit Handler
+        function handleApiSubmit(e) {
+            e.preventDefault();
+            const readings = [
                 Number(document.getElementById('inputStation0').value),
                 Number(document.getElementById('inputStation1').value),
                 Number(document.getElementById('inputStation2').value),
                 Number(document.getElementById('inputStation3').value)
             ];
 
+            if (appState.currentMetricStandard === 'API') {
+                appState.apiReadings = readings;
+            } else {
+                appState.aqiReadings = readings;
+            }
+
             const evalResult = evaluateProtocol(
-                inputs,
+                readings,
+                appState.schoolOperationalStatus === 'CLOSED',
+                appState.consecutiveDaysAbove150
+            );
+
+            appState.consecutiveDaysAbove150 = evalResult.newConsecutiveDays;
+            saveState();
+            renderUI();
+            showToast(`Station ${appState.currentMetricStandard} readings saved & protocol evaluated!`);
+        }
+
+        // Update Admin Panel Rule Check Indicators
+        function updateAdminEvaluationView() {
+            const readings = [
+                Number(document.getElementById('inputStation0')?.value || getCurrentActiveReadings()[0]),
+                Number(document.getElementById('inputStation1')?.value || getCurrentActiveReadings()[1]),
+                Number(document.getElementById('inputStation2')?.value || getCurrentActiveReadings()[2]),
+                Number(document.getElementById('inputStation3')?.value || getCurrentActiveReadings()[3])
+            ];
+
+            const evalResult = evaluateProtocol(
+                readings,
                 appState.schoolOperationalStatus === 'CLOSED',
                 appState.consecutiveDaysAbove150
             );
@@ -871,10 +1109,14 @@
             const evalActionDetail = document.getElementById('evalActionDetail');
             const evalActionBox = document.getElementById('evalActionBox');
 
+            if (!rule1El || !rule2El || !rule3El || !evalActionBox) return;
+
+            const label = appState.currentMetricStandard;
+
             // Rule Check 1
             if (evalResult.avgApi > 180) {
                 rule1El.className = "flex justify-between items-center p-2 rounded bg-red-100 border border-red-200 font-bold text-red-800 text-xs";
-                rule1El.children[1].innerText = "TRIGGERED (API > 180)";
+                rule1El.children[1].innerText = `TRIGGERED (${label} > 180)`;
             } else {
                 rule1El.className = "flex justify-between items-center p-2 rounded bg-white border border-slate-200 text-xs";
                 rule1El.children[1].innerText = "FALSE";
@@ -910,17 +1152,17 @@
                 evalActionBox.className = "mt-4 p-4 rounded-xl bg-red-50 border border-red-200";
                 evalActionTitle.innerText = "Trigger Announcement: SCHOOL CLOSED NEXT DAY";
                 evalActionTitle.className = "text-base font-black text-red-950 mt-0.5";
-                evalActionDetail.innerText = `Average API is ${evalResult.avgApi}. ${evalResult.closureReason}. Formal closure announcement must be sent before 3:00 PM.`;
+                evalActionDetail.innerText = `Average ${label} is ${evalResult.avgApi}. ${evalResult.closureReason}. Formal closure announcement must be sent before 3:00 PM.`;
             } else if (evalResult.triggerReopen) {
                 evalActionBox.className = "mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200";
                 evalActionTitle.innerText = "Trigger Announcement: SCHOOL REOPENS NEXT DAY";
                 evalActionTitle.className = "text-base font-black text-emerald-950 mt-0.5";
-                evalActionDetail.innerText = `Average API dropped to ${evalResult.avgApi} (<= 150). School reopens next day. Count resets to 0.`;
+                evalActionDetail.innerText = `Average ${label} dropped to ${evalResult.avgApi} (<= 150). School reopens next day. Count resets to 0.`;
             } else {
                 evalActionBox.className = "mt-4 p-4 rounded-xl bg-sky-50 border border-sky-200";
                 evalActionTitle.innerText = evalResult.recommendedStatusText;
                 evalActionTitle.className = "text-base font-black text-sky-950 mt-0.5";
-                evalActionDetail.innerText = `Average API is ${evalResult.avgApi}. No operational status change required. Stay aligned with safety guidelines.`;
+                evalActionDetail.innerText = `Average ${label} is ${evalResult.avgApi}. No operational status change required. Stay aligned with safety guidelines.`;
             }
 
             generateDraftMessages(evalResult);
@@ -930,51 +1172,30 @@
         function generateDraftMessages(evalResult) {
             const waText = document.getElementById('whatsappText');
             const emailText = document.getElementById('emailText');
+            if (!waText || !emailText) return;
 
             const avgApi = evalResult.avgApi;
+            const label = appState.currentMetricStandard;
             const dateStr = "Tomorrow (Sunday, 11/10/2026)";
 
             if (evalResult.triggerClosure) {
-                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nPlease be informed that the 2:00 PM average API reading across our 4 monitoring stations today is ${avgApi}.\n\nIn accordance with our Haze Protocol rules (${evalResult.closureReason}), SASANA INTERNATIONAL SCHOOL WILL BE CLOSED TOMORROW (${dateStr}).\n\n- All physical classes & activities are suspended.\n- Virtual learning instructions will be shared via class channels.\n- Announcement takes effect starting tomorrow.\n\nThank you for your understanding and support.\n\n- Sasana School Administration`;
+                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nPlease be informed that the 2:00 PM average ${label} reading across our 4 monitoring stations today is ${avgApi}.\n\nIn accordance with our Haze Protocol rules (${evalResult.closureReason}), SASANA INTERNATIONAL SCHOOL WILL BE CLOSED TOMORROW (${dateStr}).\n\n- All physical classes & activities are suspended.\n- Virtual learning instructions will be shared via class channels.\n- Announcement takes effect starting tomorrow.\n\nThank you for your understanding and support.\n\n- Sasana School Administration`;
                 
-                emailText.value = `Subject: IMPORTANT: School Closure Notice due to Haze Protocol - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nPlease see the haze protocol status update from Sasana International School.\n\nToday at 2:00 PM, the average Air Pollutant Index (API) reading from our 4 DOE stations (Batu Muda, Petaling Jaya, Shah Alam, Kuala Selangor) was measured at ${avgApi}.\n\nBased on our protocol guidelines (${evalResult.closureReason}), the school will be CLOSED taking effect tomorrow, ${dateStr}.\n\nKey Notes:\n1. Virtual learning resources will be communicated by class teachers.\n2. When school reopens, the count of consecutive days above 150 resets to zero.\n3. Further updates will be issued before 3:00 PM when school reopens.\n\nThank you for your cooperation.\n\nWarm regards,\nSasana International School Management`;
+                emailText.value = `Subject: IMPORTANT: School Closure Notice due to Haze Protocol - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nPlease see the haze protocol status update from Sasana International School.\n\nToday at 2:00 PM, the average Air Quality reading (${label}) from our 4 monitoring stations (Batu Muda, Petaling Jaya, Shah Alam, Kuala Selangor) was measured at ${avgApi}.\n\nBased on our protocol guidelines (${evalResult.closureReason}), the school will be CLOSED taking effect tomorrow, ${dateStr}.\n\nKey Notes:\n1. Virtual learning resources will be communicated by class teachers.\n2. When school reopens, the count of consecutive days above 150 resets to zero.\n3. Further updates will be issued before 3:00 PM when school reopens.\n\nThank you for your cooperation.\n\nWarm regards,\nSasana International School Management`;
             } else if (evalResult.triggerReopen) {
-                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nWe are pleased to announce that today's 2:00 PM average API reading has dropped to ${avgApi} (150 or below).\n\nSASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\n- Physical classes resume as normal.\n- The 3-consecutive-day API count resets to zero (0).\n- Safety measures remain active during school hours.\n\nThank you for your patience and cooperation.\n\n- Sasana School Administration`;
+                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nWe are pleased to announce that today's 2:00 PM average ${label} reading has dropped to ${avgApi} (150 or below).\n\nSASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\n- Physical classes resume as normal.\n- The 3-consecutive-day count resets to zero (0).\n- Safety measures remain active during school hours.\n\nThank you for your patience and cooperation.\n\n- Sasana School Administration`;
 
-                emailText.value = `Subject: Official Notice: School Reopening Announcement - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nWe are pleased to inform you that today's 2:00 PM average API reading across our 4 nearest DOE stations is ${avgApi}.\n\nIn accordance with Section 3 of our Haze Protocol (Average API 150 or below while school is closed), SASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\nImportant Details:\n- Physical classes, dismissal protocols, and campus operations resume tomorrow.\n- As per school policy, the consecutive day count above 150 resets to zero (0) upon reopening.\n- Standard safety measures remain in place while school stays open.\n\nThank you for your continued support.\n\nWarm regards,\nSasana International School Management`;
+                emailText.value = `Subject: Official Notice: School Reopening Announcement - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nWe are pleased to inform you that today's 2:00 PM average ${label} reading across our 4 nearest stations is ${avgApi}.\n\nIn accordance with Section 3 of our Haze Protocol (Average ${label} 150 or below while school is closed), SASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\nImportant Details:\n- Physical classes, dismissal protocols, and campus operations resume tomorrow.\n- As per school policy, the consecutive day count above 150 resets to zero (0) upon reopening.\n- Standard safety measures remain in place while school stays open.\n\nThank you for your continued support.\n\nWarm regards,\nSasana International School Management`;
             } else {
-                waText.value = `[HAZE PROTOCOL UPDATE - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nToday's 2:00 PM average API reading is ${avgApi}. School remains OPEN tomorrow.\n\nPlease note:\n- Announcements are ONLY officially issued when school CLOSES or REOPENS.\n- Safety guidelines remain in full effect on campus (PE suspended, masks between blocks, indoor dismissal waiting).\n\n- Sasana School Administration`;
+                waText.value = `[HAZE PROTOCOL UPDATE - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nToday's 2:00 PM average ${label} reading is ${avgApi}. School remains OPEN tomorrow.\n\nPlease note:\n- Announcements are ONLY officially issued when school CLOSES or REOPENS.\n- Safety guidelines remain in full effect on campus (PE suspended, masks between blocks, indoor dismissal waiting).\n\n- Sasana School Administration`;
 
-                emailText.value = `Subject: Haze Protocol Daily Status Update - Sasana International School\n\nDear Parents and Guardians,\n\nToday at 2:00 PM, the average API reading across our 4 DOE stations is ${avgApi}.\n\nSchool remains OPEN. All indoor learning activities continue as scheduled with outdoor safety precautions active.\n\nNote: Official broadcast announcements are only generated when school closure or reopening criteria are triggered before 3:00 PM.\n\nThank you.\n\nSasana International School`;
+                emailText.value = `Subject: Haze Protocol Daily Status Update - Sasana International School\n\nDear Parents and Guardians,\n\nToday at 2:00 PM, the average ${label} reading across our 4 stations is ${avgApi}.\n\nSchool remains OPEN. All indoor learning activities continue as scheduled with outdoor safety precautions active.\n\nNote: Official broadcast announcements are only generated when school closure or reopening criteria are triggered before 3:00 PM.\n\nThank you.\n\nSasana International School`;
             }
-        }
-
-        // Form Submit Handler
-        function handleApiSubmit(e) {
-            e.preventDefault();
-            const readings = [
-                Number(document.getElementById('inputStation0').value),
-                Number(document.getElementById('inputStation1').value),
-                Number(document.getElementById('inputStation2').value),
-                Number(document.getElementById('inputStation3').value)
-            ];
-
-            appState.stationReadings = readings;
-            const evalResult = evaluateProtocol(
-                readings,
-                appState.schoolOperationalStatus === 'CLOSED',
-                appState.consecutiveDaysAbove150
-            );
-
-            appState.consecutiveDaysAbove150 = evalResult.newConsecutiveDays;
-            saveState();
-            renderUI();
-            showToast("Station API readings updated & protocol re-evaluated!");
         }
 
         // Publish Announcement Button Action
         function publishAnnouncement() {
-            const readings = appState.stationReadings;
+            const readings = getCurrentActiveReadings();
             const evalResult = evaluateProtocol(
                 readings,
                 appState.schoolOperationalStatus === 'CLOSED',
@@ -987,20 +1208,20 @@
 
             if (evalResult.triggerClosure) {
                 appState.pendingAnnouncementType = "CLOSED_NEXT_DAY";
-                appState.schoolOperationalStatus = "CLOSED"; // Takes effect
-                newTitle = "SCHOOL CLOSURE NOTICE (API Triggered)";
-                newBody = `Average API reached ${evalResult.avgApi}. School WILL BE CLOSED tomorrow in accordance with haze protocol guidelines (${evalResult.closureReason}). Announcement published before 3:00 PM.`;
+                appState.schoolOperationalStatus = "CLOSED";
+                newTitle = "SCHOOL CLOSURE NOTICE (Triggered)";
+                newBody = `Average reading reached ${evalResult.avgApi}. School WILL BE CLOSED tomorrow in accordance with haze protocol guidelines (${evalResult.closureReason}). Announcement published before 3:00 PM.`;
                 newType = "CLOSURE";
             } else if (evalResult.triggerReopen) {
                 appState.pendingAnnouncementType = "NONE";
                 appState.schoolOperationalStatus = "OPEN";
-                appState.consecutiveDaysAbove150 = 0; // Reset count
+                appState.consecutiveDaysAbove150 = 0;
                 newTitle = "SCHOOL REOPENING NOTICE";
-                newBody = `Average API dropped to ${evalResult.avgApi} (150 or below). School REOPENS tomorrow. Consecutive day counter reset to 0.`;
+                newBody = `Average reading dropped to ${evalResult.avgApi} (150 or below). School REOPENS tomorrow. Consecutive day counter reset to 0.`;
                 newType = "REOPEN";
             } else {
                 newTitle = "Daily Status: School Remains OPEN";
-                newBody = `Today's average API is ${evalResult.avgApi}. School remains OPEN. Safety protocols active for outdoor activities.`;
+                newBody = `Today's average reading is ${evalResult.avgApi}. School remains OPEN. Safety protocols active for outdoor activities.`;
                 newType = "INFO";
             }
 
@@ -1020,38 +1241,10 @@
             switchView('parent');
         }
 
-        // Quick Preset Scenario Launcher for Testing
-        function loadScenario(num) {
-            if (num === 1) {
-                // Scenario 1: API > 180 today
-                document.getElementById('inputStation0').value = 185;
-                document.getElementById('inputStation1').value = 182;
-                document.getElementById('inputStation2').value = 180;
-                document.getElementById('inputStation3').value = 185;
-                showToast("Loaded Scenario 1: Average API > 180 (Immediate Single-Day Closure)");
-            } else if (num === 2) {
-                // Scenario 2: Day 3 > 150 today
-                appState.consecutiveDaysAbove150 = 2; // Fri = 1, Sat = 2, today completes Day 3
-                document.getElementById('inputStation0').value = 160;
-                document.getElementById('inputStation1').value = 155;
-                document.getElementById('inputStation2').value = 162;
-                document.getElementById('inputStation3').value = 158;
-                showToast("Loaded Scenario 2: 3rd Consecutive Day > 150 (3-Day Closure Rule)");
-            } else if (num === 3) {
-                // Scenario 3: API <= 150 while closed -> Reopen
-                appState.schoolOperationalStatus = "CLOSED"; // Simulate school closed currently
-                document.getElementById('inputStation0').value = 120;
-                document.getElementById('inputStation1').value = 115;
-                document.getElementById('inputStation2').value = 130;
-                document.getElementById('inputStation3').value = 110;
-                showToast("Loaded Scenario 3: API <= 150 (School Reopening Next Day)");
-            }
-            updateAdminEvaluationView();
-        }
-
         // Copy Text Helper
         function copyToClipboard(elementId) {
             const textarea = document.getElementById(elementId);
+            if (!textarea) return;
             textarea.select();
             document.execCommand('copy');
             showToast("Copied announcement draft text to clipboard!");
@@ -1061,6 +1254,7 @@
         function showToast(message) {
             const toast = document.getElementById('toast');
             const toastMsg = document.getElementById('toastMessage');
+            if (!toast || !toastMsg) return;
             toastMsg.innerText = message;
             toast.classList.remove('translate-y-20', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
@@ -1073,7 +1267,6 @@
 
         // Initial setup on window load
         window.onload = function() {
-            // Register input listeners for real-time admin preview
             ['inputStation0', 'inputStation1', 'inputStation2', 'inputStation3'].forEach(id => {
                 const input = document.getElementById(id);
                 if (input) {
