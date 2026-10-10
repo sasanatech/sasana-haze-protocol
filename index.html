@@ -259,8 +259,13 @@
                 <div class="lg:col-span-7 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
                         <div>
-                            <h3 id="stationsCardTitle" class="font-bold text-slate-900">Department of Environment (DOE) APIMS Stations</h3>
-                            <p id="stationsCardSubtitle" class="text-xs text-slate-500">Official readings taken daily at 2:00 PM across 4 nearest stations</p>
+                            <div class="flex items-center gap-2">
+                                <h3 id="stationsCardTitle" class="font-bold text-slate-900">Department of Environment (DOE) APIMS Stations</h3>
+                                <span class="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <i class="fa-solid fa-route text-[9px]"></i> 4 Closest Stations Selected
+                                </span>
+                            </div>
+                            <p id="stationsCardSubtitle" class="text-xs text-slate-500">Automatically calculated from nearest stations to active location</p>
                         </div>
                         <a id="sourceExternalLink" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" rel="noopener" class="text-xs bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold px-2.5 py-1 rounded-lg border border-sky-200 flex items-center gap-1.5 transition">
                             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
@@ -268,16 +273,16 @@
                         </a>
                     </div>
 
-                    <!-- Grid of 4 stations -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Dynamic Grid of 4 nearest stations -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="mainFourStationsGrid">
                         <!-- Station 1 -->
                         <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/80 hover:bg-slate-50 transition">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-bold text-slate-800 text-sm">Batu Muda, KL</h4>
+                                    <h4 class="font-bold text-slate-800 text-sm" id="stName-0">Batu Muda, KL</h4>
                                     <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                                         <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 
-                                        <span id="stDist-0">19 km</span> from selected location
+                                        <span id="stDist-0">19 km</span> from active location
                                     </span>
                                 </div>
                                 <span id="stVal-0" class="text-2xl font-black text-amber-600">160</span>
@@ -288,10 +293,10 @@
                         <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/80 hover:bg-slate-50 transition">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-bold text-slate-800 text-sm">Petaling Jaya</h4>
+                                    <h4 class="font-bold text-slate-800 text-sm" id="stName-1">Petaling Jaya</h4>
                                     <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                                         <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 
-                                        <span id="stDist-1">22 km</span> from selected location
+                                        <span id="stDist-1">22 km</span> from active location
                                     </span>
                                 </div>
                                 <span id="stVal-1" class="text-2xl font-black text-amber-600">155</span>
@@ -302,10 +307,10 @@
                         <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/80 hover:bg-slate-50 transition">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-bold text-slate-800 text-sm">Shah Alam</h4>
+                                    <h4 class="font-bold text-slate-800 text-sm" id="stName-2">Shah Alam</h4>
                                     <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                                         <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 
-                                        <span id="stDist-2">24 km</span> from selected location
+                                        <span id="stDist-2">24 km</span> from active location
                                     </span>
                                 </div>
                                 <span id="stVal-2" class="text-2xl font-black text-amber-600">162</span>
@@ -316,10 +321,10 @@
                         <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/80 hover:bg-slate-50 transition">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-bold text-slate-800 text-sm">Kuala Selangor</h4>
+                                    <h4 class="font-bold text-slate-800 text-sm" id="stName-3">Kuala Selangor</h4>
                                     <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                                         <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 
-                                        <span id="stDist-3">33 km</span> from selected location
+                                        <span id="stDist-3">33 km</span> from active location
                                     </span>
                                 </div>
                                 <span id="stVal-3" class="text-2xl font-black text-amber-600">155</span>
@@ -331,7 +336,7 @@
                     <div class="mt-4 p-3 bg-sky-50 rounded-xl border border-sky-100 text-xs text-sky-900 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-calculator text-sky-600"></i>
-                            <span id="formulaText">Average Formula: <strong>(Station 1 + 2 + 3 + 4) / 4</strong></span>
+                            <span id="formulaText">Average Formula: <strong>(4 Nearest Stations) / 4</strong></span>
                         </div>
                         <span id="calculatedAvgBadge" class="font-bold bg-sky-200 text-sky-900 px-2.5 py-0.5 rounded-full text-xs">
                             Avg = 158
@@ -343,7 +348,7 @@
             <!-- MAP & SAFETY GUIDELINES SECTION -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                <!-- Visual Interactive Radar Distance Map -->
+                <!-- Visual Interactive Radar Distance Map & Location Controls -->
                 <div class="lg:col-span-6 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-2">
@@ -351,27 +356,46 @@
                             <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Radius Rings</span>
                         </div>
                         
-                        <!-- LOCATION PICKER & AUTO GPS BAR -->
-                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 mb-4 space-y-2">
+                        <!-- ENHANCED LOCATION SEARCH & AUTO GPS BAR -->
+                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 mb-4 space-y-2.5">
+                            <!-- Search Bar Input -->
+                            <form onsubmit="handleLocationSearchSubmit(event)" class="flex gap-2">
+                                <div class="relative flex-grow">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="locationSearchInput" placeholder="Search location (e.g. Subang Jaya, Klang, Mont Kiara)..."
+                                        class="w-full pl-8 pr-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                </div>
+                                <button type="submit" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition shadow-sm flex items-center gap-1 flex-shrink-0">
+                                    <span>Search</span>
+                                </button>
+                            </form>
+
                             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                                <!-- Preset Dropdown -->
                                 <div class="flex items-center gap-2 flex-grow">
-                                    <i class="fa-solid fa-location-crosshairs text-sky-600 text-xs"></i>
+                                    <i class="fa-solid fa-map-location-dot text-sky-600 text-xs"></i>
                                     <select id="locationPresetSelect" onchange="handleLocationSelectChange(this.value)" class="w-full text-xs font-bold bg-white border border-slate-300 text-slate-800 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-sky-500">
                                         <option value="sasana">🏫 Sasana Campus (Bandar Tasik Puteri)</option>
                                         <option value="rawang">📍 Rawang Town Center</option>
                                         <option value="selayang">📍 Selayang / Batu Caves</option>
                                         <option value="kl_cc">📍 KL City Centre (KLCC)</option>
                                         <option value="pj">📍 Petaling Jaya</option>
-                                        <option value="gps" id="gpsSelectOption">📡 Device GPS (Detecting...)</option>
+                                        <option value="subang">📍 Subang Jaya / USJ</option>
+                                        <option value="klang">📍 Klang City</option>
+                                        <option value="gps" id="gpsSelectOption">📡 Device GPS (Current Location)</option>
+                                        <option value="custom" id="customSearchOption" class="hidden">🔍 Custom Searched Location</option>
                                     </select>
                                 </div>
-                                <button onclick="triggerAutoGPS()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 flex-shrink-0">
-                                    <i class="fa-solid fa-satellite-dish text-[11px]"></i>
-                                    <span>Auto GPS</span>
+
+                                <!-- Current Location GPS Button -->
+                                <button type="button" onclick="triggerAutoGPS()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 flex-shrink-0">
+                                    <i class="fa-solid fa-location-crosshairs text-[11px]"></i>
+                                    <span>Use My Location</span>
                                 </button>
                             </div>
-                            <div class="flex justify-between items-center text-[10px] text-slate-500 font-mono px-1">
-                                <span>Active Anchor: <strong id="activeLocLabel" class="text-slate-700">Sasana Int. School</strong></span>
+
+                            <div class="flex justify-between items-center text-[10px] text-slate-500 font-mono px-1 border-t border-slate-200/60 pt-1.5">
+                                <span>Active Location: <strong id="activeLocLabel" class="text-slate-800">Sasana Int. School</strong></span>
                                 <span id="activeCoordsLabel">3.2842° N, 101.4674° E</span>
                             </div>
                         </div>
@@ -409,28 +433,28 @@
                                 </g>
                                 <text x="200" y="222" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle" id="radarCenterLabel">Selected Location</text>
 
-                                <!-- Station 1: Batu Muda -->
+                                <!-- Station 1 -->
                                 <g id="stationGroup-0" transform="translate(275, 255)" class="cursor-pointer group transition-transform duration-500">
                                     <circle r="8" fill="#f59e0b" />
                                     <text x="12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold" id="mapLabel-0">Batu Muda (19km)</text>
                                     <text x="12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" id="mapPinApi0">API 160</text>
                                 </g>
 
-                                <!-- Station 2: PJ -->
+                                <!-- Station 2 -->
                                 <g id="stationGroup-1" transform="translate(255, 285)" class="cursor-pointer group transition-transform duration-500">
                                     <circle r="8" fill="#f59e0b" />
                                     <text x="12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold" id="mapLabel-1">Petaling Jaya (22km)</text>
                                     <text x="12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" id="mapPinApi1">API 155</text>
                                 </g>
 
-                                <!-- Station 3: Shah Alam -->
+                                <!-- Station 3 -->
                                 <g id="stationGroup-2" transform="translate(190, 300)" class="cursor-pointer group transition-transform duration-500">
                                     <circle r="8" fill="#f59e0b" />
                                     <text x="-12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold" text-anchor="end" id="mapLabel-2">Shah Alam (24km)</text>
                                     <text x="-12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" text-anchor="end" id="mapPinApi2">API 162</text>
                                 </g>
 
-                                <!-- Station 4: Kuala Selangor -->
+                                <!-- Station 4 -->
                                 <g id="stationGroup-3" transform="translate(55, 180)" class="cursor-pointer group transition-transform duration-500">
                                     <circle r="8" fill="#f59e0b" />
                                     <text x="0" y="-12" fill="#f1f5f9" font-size="10" font-weight="bold" text-anchor="middle" id="mapLabel-3">Kuala Selangor (33km)</text>
@@ -447,12 +471,12 @@
                                         <i class="fa-solid fa-location-dot"></i>
                                     </div>
                                     <div>
-                                        <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Location Readings Summary</div>
+                                        <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">4 Nearest Stations Summary</div>
                                         <div id="locSummaryName" class="text-xs font-black text-white">Sasana Campus</div>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-[10px] text-slate-400 uppercase font-bold">Location Avg <span id="locSummaryStandardBadge">API</span></div>
+                                    <div class="text-[10px] text-slate-400 uppercase font-bold">4-Station Avg <span id="locSummaryStandardBadge">API</span></div>
                                     <div class="flex items-baseline gap-1 justify-end">
                                         <span id="locSummaryAvgVal" class="text-xl font-black text-amber-400">158</span>
                                         <span id="locSummaryHealthStatus" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">Unhealthy</span>
@@ -590,7 +614,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-slate-900 flex items-center gap-2">
                             <i class="fa-solid fa-pen-to-square text-sky-600"></i>
-                            <span id="adminInputFormTitle">2:00 PM DOE Station Readings (API)</span>
+                            <span id="adminInputFormTitle">2:00 PM Station Readings (API)</span>
                         </h3>
                         <span class="text-xs bg-slate-100 font-mono px-2 py-1 rounded">Date: Sat, 10/10/2026</span>
                     </div>
@@ -599,8 +623,8 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Station 1 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">
-                                    Batu Muda, KL (19 km)
+                                <label class="block text-xs font-bold text-slate-700 mb-1" id="adminInputLabel0">
+                                    Batu Muda, KL
                                 </label>
                                 <input type="number" id="inputStation0" value="160" min="0" max="500" required
                                     class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
@@ -608,8 +632,8 @@
 
                             <!-- Station 2 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">
-                                    Petaling Jaya (22 km)
+                                <label class="block text-xs font-bold text-slate-700 mb-1" id="adminInputLabel1">
+                                    Petaling Jaya
                                 </label>
                                 <input type="number" id="inputStation1" value="155" min="0" max="500" required
                                     class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
@@ -617,8 +641,8 @@
 
                             <!-- Station 3 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">
-                                    Shah Alam (24 km)
+                                <label class="block text-xs font-bold text-slate-700 mb-1" id="adminInputLabel2">
+                                    Shah Alam
                                 </label>
                                 <input type="number" id="inputStation2" value="162" min="0" max="500" required
                                     class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
@@ -626,8 +650,8 @@
 
                             <!-- Station 4 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">
-                                    Kuala Selangor (33 km)
+                                <label class="block text-xs font-bold text-slate-700 mb-1" id="adminInputLabel3">
+                                    Kuala Selangor
                                 </label>
                                 <input type="number" id="inputStation3" value="155" min="0" max="500" required
                                     class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none">
@@ -781,42 +805,53 @@
 
     <!-- APPLICATION JAVASCRIPT LOGIC -->
     <script>
-        // Exact Geographical Coordinates for Stations & Presets
-        const stationCoordinates = [
-            { id: 0, name: "Batu Muda, KL", lat: 3.2108, lng: 101.6833 },
-            { id: 1, name: "Petaling Jaya", lat: 3.1000, lng: 101.6167 },
-            { id: 2, name: "Shah Alam", lat: 3.0738, lng: 101.5183 },
-            { id: 3, name: "Kuala Selangor", lat: 3.3500, lng: 101.2500 }
+        // Full Master Network of Monitoring Stations Pool across Klang Valley & Nearby Regions
+        const masterStationsPool = [
+            { id: 'batu_muda', name: "Batu Muda, KL", lat: 3.2108, lng: 101.6833, defaultApi: 160, defaultAqi: 168 },
+            { id: 'pj', name: "Petaling Jaya", lat: 3.1000, lng: 101.6167, defaultApi: 155, defaultAqi: 162 },
+            { id: 'shah_alam', name: "Shah Alam", lat: 3.0738, lng: 101.5183, defaultApi: 162, defaultAqi: 170 },
+            { id: 'k_selangor', name: "Kuala Selangor", lat: 3.3500, lng: 101.2500, defaultApi: 155, defaultAqi: 164 },
+            { id: 'cheras', name: "Cheras, KL", lat: 3.1067, lng: 101.7258, defaultApi: 158, defaultAqi: 165 },
+            { id: 'klang', name: "Klang City", lat: 3.0472, lng: 101.4483, defaultApi: 164, defaultAqi: 172 },
+            { id: 'putrajaya', name: "Putrajaya", lat: 2.9264, lng: 101.6964, defaultApi: 148, defaultAqi: 152 },
+            { id: 'banting', name: "Banting", lat: 2.8122, lng: 101.5019, defaultApi: 152, defaultAqi: 158 },
+            { id: 'seremban', name: "Seremban", lat: 2.7258, lng: 101.9424, defaultApi: 138, defaultAqi: 142 },
+            { id: 'nilai', name: "Nilai", lat: 2.8181, lng: 101.7969, defaultApi: 145, defaultAqi: 150 },
+            { id: 'subang', name: "Subang Jaya", lat: 3.0480, lng: 101.5855, defaultApi: 159, defaultAqi: 166 },
+            { id: 'port_klang', name: "Port Klang", lat: 3.0000, lng: 101.4000, defaultApi: 166, defaultAqi: 174 }
         ];
 
+        // Default Presets
         const locationPresets = {
-            sasana: { name: "Sasana Campus", lat: 3.2842, lng: 101.4674 },
+            sasana: { name: "Sasana Campus (BTP)", lat: 3.2842, lng: 101.4674 },
             rawang: { name: "Rawang Town", lat: 3.3214, lng: 101.5767 },
-            selayang: { name: "Selayang", lat: 3.2384, lng: 101.6563 },
-            kl_cc: { name: "KL City Centre", lat: 3.1578, lng: 101.7118 },
-            pj: { name: "Petaling Jaya", lat: 3.1073, lng: 101.6067 }
+            selayang: { name: "Selayang / Batu Caves", lat: 3.2384, lng: 101.6563 },
+            kl_cc: { name: "KL City Centre (KLCC)", lat: 3.1578, lng: 101.7118 },
+            pj: { name: "Petaling Jaya", lat: 3.1073, lng: 101.6067 },
+            subang: { name: "Subang Jaya", lat: 3.0480, lng: 101.5855 },
+            klang: { name: "Klang City", lat: 3.0472, lng: 101.4483 }
         };
 
-        // Default application state matching initial prompt conditions
+        // Application State loaded from localStorage or default
         const defaultState = {
             isAdminAuthorized: false,
-            currentMetricStandard: "API", // "API" (DOE Malaysia) or "AQI" (IQAir / US EPA)
+            currentMetricStandard: "API", // "API" or "AQI"
             currentDateStr: "Saturday, 10/10/2026",
             lastUpdatedTime: "2:00 PM",
-            schoolOperationalStatus: "OPEN", // "OPEN", "CLOSED"
-            pendingAnnouncementType: "NONE", // "NONE", "CLOSED_NEXT_DAY", "REOPEN_NEXT_DAY"
-            consecutiveDaysAbove150: 2, // Friday (162) = Day 1, Saturday (158) = Day 2
+            schoolOperationalStatus: "OPEN",
+            pendingAnnouncementType: "NONE",
+            consecutiveDaysAbove150: 2,
             
-            // Selected Location / GPS state
+            // Selected Location / GPS / Search state
             selectedLocKey: "sasana",
             userLat: 3.2842,
             userLng: 101.4674,
             userLocName: "Sasana Int. School",
             isUsingGPS: false,
 
-            // Dual Standard Readings
-            apiReadings: [160, 155, 162, 155], // DOE Malaysia API values
-            aqiReadings: [168, 162, 170, 164], // IQAir US AQI values
+            // Station custom overrides mapping station id -> value
+            stationApiOverrides: {},
+            stationAqiOverrides: {},
 
             announcements: [
                 {
@@ -830,7 +865,6 @@
             ]
         };
 
-        // Application State loaded from localStorage or default
         let appState = JSON.parse(localStorage.getItem('sasanaHazeAppState')) || defaultState;
 
         // Calculate Haversine straight-line distance in km between two lat/lng pairs
@@ -843,10 +877,10 @@
                 Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
                 Math.sin(dLon/2) * Math.sin(dLon/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return Math.round(R * c * 10) / 10; // Round to 1 decimal place
+            return Math.round(R * c * 10) / 10;
         }
 
-        // Calculate Bearing / Angle in degrees (0 = North, 90 = East, 180 = South, 270 = West)
+        // Calculate Bearing in degrees
         function calculateBearing(lat1, lon1, lat2, lon2) {
             const toRad = deg => deg * Math.PI / 180;
             const toDeg = rad => rad * 180 / Math.PI;
@@ -859,20 +893,34 @@
             return (toDeg(brng) + 360) % 360;
         }
 
-        // Dynamically recalculate & update station positions on the Radar SVG Map
-        function updateRadarPositions(distances) {
-            const maxKm = 40; // Max km mapped to edge of radar
-            const maxRadiusPx = 150; // Radius in SVG pixels corresponding to 40km
+        // Helper to get 4 nearest stations dynamically for active location
+        function getNearest4Stations(lat, lng) {
+            const isApi = appState.currentMetricStandard === 'API';
+            const sorted = masterStationsPool.map(st => {
+                const dist = calculateHaversineDistance(lat, lng, st.lat, st.lng);
+                const overrideVal = isApi ? appState.stationApiOverrides[st.id] : appState.stationAqiOverrides[st.id];
+                const value = overrideVal !== undefined ? overrideVal : (isApi ? st.defaultApi : st.defaultAqi);
+                return {
+                    ...st,
+                    distance: dist,
+                    currentVal: value
+                };
+            }).sort((a, b) => a.distance - b.distance);
 
-            stationCoordinates.forEach((st, idx) => {
-                const dist = distances[idx];
+            return sorted.slice(0, 4);
+        }
+
+        // Dynamically recalculate & update station positions on the Radar SVG Map
+        function updateRadarPositions(nearest4Stations) {
+            const maxKm = Math.max(35, Math.max(...nearest4Stations.map(s => s.distance)) * 1.15);
+            const maxRadiusPx = 150;
+
+            nearest4Stations.forEach((st, idx) => {
+                const dist = st.distance;
                 const bearing = calculateBearing(appState.userLat, appState.userLng, st.lat, st.lng);
                 const bearingRad = bearing * Math.PI / 180;
 
-                // Scaled radial distance
-                const distPx = Math.min((dist / maxKm) * maxRadiusPx, maxRadiusPx + 15);
-
-                // Coordinates relative to SVG center (200, 200)
+                const distPx = Math.min((dist / maxKm) * maxRadiusPx, maxRadiusPx + 10);
                 const cx = 200 + distPx * Math.sin(bearingRad);
                 const cy = 200 - distPx * Math.cos(bearingRad);
 
@@ -887,10 +935,12 @@
                     radarLine.setAttribute('y2', cy.toFixed(1));
                 }
 
-                // Dynamically adjust text alignment so labels stay inside SVG bounds
                 const labelEl = document.getElementById(`mapLabel-${idx}`);
                 const pinEl = document.getElementById(`mapPinApi${idx}`);
                 if (labelEl && pinEl) {
+                    labelEl.innerText = `${st.name} (${st.distance}km)`;
+                    pinEl.innerText = `${appState.currentMetricStandard} ${st.currentVal}`;
+
                     if (cx > 220) {
                         labelEl.setAttribute('text-anchor', 'start');
                         labelEl.setAttribute('x', '12');
@@ -911,7 +961,7 @@
             });
         }
 
-        // Helper to format health category text & color according to API/AQI value
+        // Air Quality Category styling helper
         function getAirQualityCategory(value) {
             if (value <= 50) return { label: "Good", color: "text-emerald-600 bg-emerald-50 border-emerald-200" };
             if (value <= 100) return { label: "Moderate", color: "text-sky-600 bg-sky-50 border-sky-200" };
@@ -928,20 +978,79 @@
                 appState.userLng = locationPresets[key].lng;
                 appState.userLocName = locationPresets[key].name;
                 appState.isUsingGPS = false;
+                
+                const customOpt = document.getElementById('customSearchOption');
+                if (customOpt) customOpt.classList.add('hidden');
+
                 saveState();
                 renderUI();
                 showToast(`Location set to ${locationPresets[key].name}`);
             }
         }
 
-        // Auto GPS Detection Trigger
+        // Handle Location Text Search Submit (with OpenStreetMap Nominatim Geocoding fallback)
+        async function handleLocationSearchSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('locationSearchInput');
+            const query = input ? input.value.trim() : "";
+            if (!query) return;
+
+            showToast(`Searching location "${query}"...`);
+
+            // Check if query matches local preset keywords first for speed
+            const queryLower = query.toLowerCase();
+            for (const [key, preset] of Object.entries(locationPresets)) {
+                if (preset.name.toLowerCase().includes(queryLower)) {
+                    handleLocationSelectChange(key);
+                    return;
+                }
+            }
+
+            // Fallback to OSM Nominatim API Geocoding
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const result = data[0];
+                    const lat = parseFloat(result.lat);
+                    const lon = parseFloat(result.lon);
+                    const name = result.display_name.split(',')[0] || query;
+
+                    appState.selectedLocKey = "custom";
+                    appState.userLat = Math.round(lat * 10000) / 10000;
+                    appState.userLng = Math.round(lon * 10000) / 10000;
+                    appState.userLocName = name;
+                    appState.isUsingGPS = false;
+
+                    const customOpt = document.getElementById('customSearchOption');
+                    if (customOpt) {
+                        customOpt.innerText = `🔍 ${name} (${appState.userLat}, ${appState.userLng})`;
+                        customOpt.classList.remove('hidden');
+                    }
+                    const selectEl = document.getElementById('locationPresetSelect');
+                    if (selectEl) selectEl.value = 'custom';
+
+                    saveState();
+                    renderUI();
+                    showToast(`Found location: ${name} (${appState.userLat}, ${appState.userLng})`);
+                } else {
+                    showToast(`Location "${query}" not found. Try another city name or landmark.`);
+                }
+            } catch (err) {
+                console.warn("Geocoding Error:", err);
+                showToast("Unable to reach search service. Please check your internet connection.");
+            }
+        }
+
+        // Auto GPS Detection Trigger ("Use My Current Location")
         function triggerAutoGPS() {
             if (!navigator.geolocation) {
                 showToast("Geolocation is not supported by your browser.");
                 return;
             }
 
-            showToast("Acquiring GPS location coordinates...");
+            showToast("Acquiring GPS position for your current location...");
             const gpsOption = document.getElementById('gpsSelectOption');
             if (gpsOption) gpsOption.innerText = "📡 Detecting GPS Position...";
 
@@ -952,11 +1061,11 @@
                     appState.selectedLocKey = "gps";
                     appState.userLat = Math.round(lat * 10000) / 10000;
                     appState.userLng = Math.round(lng * 10000) / 10000;
-                    appState.userLocName = "My GPS Location";
+                    appState.userLocName = "My Current Location (GPS)";
                     appState.isUsingGPS = true;
 
                     if (gpsOption) {
-                        gpsOption.innerText = `📡 Device GPS (${appState.userLat}, ${appState.userLng})`;
+                        gpsOption.innerText = `📡 Current Location (${appState.userLat}, ${appState.userLng})`;
                     }
                     const selectEl = document.getElementById('locationPresetSelect');
                     if (selectEl) selectEl.value = 'gps';
@@ -967,7 +1076,7 @@
                 },
                 (error) => {
                     console.warn("GPS Error:", error.message);
-                    showToast("Unable to fetch GPS position. Falling back to Sasana Campus.");
+                    showToast("Unable to fetch GPS location. Falling back to Sasana Campus.");
                     handleLocationSelectChange('sasana');
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -1054,52 +1163,32 @@
             showToast(`Switched view metric standard to ${standard === 'API' ? 'Malaysia API (DOE APIMS)' : 'US AQI (IQAir)'}`);
         }
 
-        // Fetch / Sync Live Data Mock Function with real source links
+        // Fetch / Sync Live Data Mock Function
         function fetchLiveSourceData() {
-            if (appState.currentMetricStandard === 'API') {
-                // DOE APIMS Simulated Live Feed
-                appState.apiReadings = [
-                    Math.floor(155 + Math.random() * 12),
-                    Math.floor(150 + Math.random() * 10),
-                    Math.floor(158 + Math.random() * 10),
-                    Math.floor(152 + Math.random() * 10)
-                ];
-            } else {
-                // IQAir US AQI Simulated Live Feed
-                appState.aqiReadings = [
-                    Math.floor(162 + Math.random() * 12),
-                    Math.floor(158 + Math.random() * 10),
-                    Math.floor(165 + Math.random() * 10),
-                    Math.floor(160 + Math.random() * 10)
-                ];
-            }
-
-            // Sync input form fields
-            const currentReadings = getCurrentActiveReadings();
-            document.getElementById('inputStation0').value = currentReadings[0];
-            document.getElementById('inputStation1').value = currentReadings[1];
-            document.getElementById('inputStation2').value = currentReadings[2];
-            document.getElementById('inputStation3').value = currentReadings[3];
+            const isApi = appState.currentMetricStandard === 'API';
+            masterStationsPool.forEach(st => {
+                if (isApi) {
+                    appState.stationApiOverrides[st.id] = Math.floor(150 + Math.random() * 20);
+                } else {
+                    appState.stationAqiOverrides[st.id] = Math.floor(155 + Math.random() * 22);
+                }
+            });
 
             saveState();
             renderUI();
-            showToast(`Synced live data from ${appState.currentMetricStandard === 'API' ? 'APIMS DOE Malaysia' : 'IQAir Kuala Lumpur'}!`);
-        }
-
-        function getCurrentActiveReadings() {
-            return appState.currentMetricStandard === 'API' ? (appState.apiReadings || [160, 155, 162, 155]) : (appState.aqiReadings || [168, 162, 170, 164]);
+            showToast(`Synced live portal data for nearest stations (${isApi ? 'DOE APIMS' : 'IQAir KL'})!`);
         }
 
         // Calculate average reading from 4 stations
-        function getAverageApi(readings) {
-            if (!readings || readings.length !== 4) return 0;
-            const sum = readings.reduce((a, b) => Number(a) + Number(b), 0);
+        function getAverageApi(nearest4) {
+            if (!nearest4 || nearest4.length !== 4) return 0;
+            const sum = nearest4.reduce((a, b) => Number(a.currentVal) + Number(b.currentVal), 0);
             return Math.round(sum / 4);
         }
 
         // System Rule Evaluation Engine
-        function evaluateProtocol(readings, isSchoolCurrentlyClosed, currentConsecutiveDays) {
-            const avg = getAverageApi(readings);
+        function evaluateProtocol(nearest4, isSchoolCurrentlyClosed, currentConsecutiveDays) {
+            const avg = getAverageApi(nearest4);
             let result = {
                 avgApi: avg,
                 triggerClosure: false,
@@ -1142,16 +1231,13 @@
         // Refresh UI from App State
         function renderUI() {
             const isApiMode = appState.currentMetricStandard === 'API';
-            const readings = getCurrentActiveReadings();
-            const avgApi = getAverageApi(readings);
-
-            // Calculate Dynamic Station Distances based on selected user location/GPS
-            const stationDistances = stationCoordinates.map(st => {
-                return calculateHaversineDistance(appState.userLat, appState.userLng, st.lat, st.lng);
-            });
+            
+            // Get 4 nearest stations dynamically based on active user location / GPS
+            const nearest4 = getNearest4Stations(appState.userLat, appState.userLng);
+            const avgApi = getAverageApi(nearest4);
 
             // Update Radar SVG markers positioning dynamically
-            updateRadarPositions(stationDistances);
+            updateRadarPositions(nearest4);
 
             // Update Location Info Bar Labels
             const activeLocLabel = document.getElementById('activeLocLabel');
@@ -1183,18 +1269,16 @@
 
             if (locStationsGrid) {
                 locStationsGrid.innerHTML = "";
-                stationCoordinates.forEach((st, idx) => {
-                    const stVal = readings[idx];
-                    const stDist = stationDistances[idx];
+                nearest4.forEach(st => {
                     const card = document.createElement('div');
                     card.className = "p-2.5 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center";
                     card.innerHTML = `
                         <div>
                             <div class="font-bold text-slate-800 text-[11px]">${st.name}</div>
-                            <div class="text-[10px] text-slate-500 font-mono">${stDist} km away</div>
+                            <div class="text-[10px] text-slate-500 font-mono">${st.distance} km away</div>
                         </div>
                         <div class="text-right">
-                            <span class="text-sm font-black text-amber-600">${stVal}</span>
+                            <span class="text-sm font-black text-amber-600">${st.currentVal}</span>
                             <span class="text-[9px] block font-mono text-slate-400">${isApiMode ? 'API' : 'AQI'}</span>
                         </div>
                     `;
@@ -1215,7 +1299,7 @@
 
             // Update Titles & Labels based on selected standard
             document.getElementById('sourceMetricBadge').innerText = isApiMode ? "DOE APIMS (MY)" : "IQAir US AQI";
-            document.getElementById('metricUnitLabel').innerText = `Average ${isApiMode ? 'API' : 'AQI'} (4 Stations)`;
+            document.getElementById('metricUnitLabel').innerText = `Average ${isApiMode ? 'API' : 'AQI'} (4 Nearest Stations)`;
             document.getElementById('thresholdTrackerTitle').innerText = `Haze ${isApiMode ? 'API' : 'AQI'} Threshold Tracker`;
             document.getElementById('thresholdCounterHeader').innerText = `Consecutive Days ${isApiMode ? 'API' : 'AQI'} > 150`;
             
@@ -1223,39 +1307,30 @@
             document.getElementById('ruleDesc3Day').innerHTML = `<strong>3-Consecutive-Day Rule:</strong> Closure takes effect if ${isApiMode ? 'API' : 'AQI'} stays above <strong>150</strong> for 3 consecutive days.`;
 
             document.getElementById('stationsCardTitle').innerText = isApiMode ? "Department of Environment (DOE) APIMS Stations" : "IQAir Monitoring Stations (Kuala Lumpur)";
-            document.getElementById('stationsCardSubtitle').innerText = isApiMode ? "Official readings taken daily at 2:00 PM from APIMS DOE Malaysia" : "Real-time air quality index sourced from IQAir Kuala Lumpur";
+            document.getElementById('stationsCardSubtitle').innerText = `Selected 4 closest stations to ${appState.userLocName}`;
             
             const sourceLink = document.getElementById('sourceExternalLink');
             sourceLink.href = isApiMode ? "https://eqms.doe.gov.my/APIMS/main" : "https://www.iqair.com/air-quality/malaysia/kuala-lumpur/kuala-lumpur";
             sourceLink.querySelector('span').innerText = isApiMode ? "DOE APIMS Portal" : "IQAir KL Portal";
 
-            document.getElementById('formulaText').innerHTML = `Average ${isApiMode ? 'API' : 'AQI'} Formula: <strong>(Station 1 + 2 + 3 + 4) / 4</strong>`;
+            document.getElementById('formulaText').innerHTML = `Average Formula: <strong>(${nearest4.map(s => s.name.split(',')[0]).join(' + ')}) / 4</strong>`;
             document.getElementById('radarMapTitle').innerText = isApiMode ? "DOE APIMS Distance Map" : "IQAir Monitoring Map";
-            document.getElementById('adminInputFormTitle').innerText = `2:00 PM Station Readings (${isApiMode ? 'DOE API' : 'US AQI'})`;
+            document.getElementById('adminInputFormTitle').innerText = `2:00 PM Readings for 4 Nearest Stations (${isApiMode ? 'DOE API' : 'US AQI'})`;
 
-            // Update Station Values, Dynamic Distances & Radar Map Pin Labels
-            readings.forEach((val, idx) => {
+            // Update top 4 Station Cards & Form Inputs
+            nearest4.forEach((st, idx) => {
                 const el = document.getElementById(`stVal-${idx}`);
+                const nameEl = document.getElementById(`stName-${idx}`);
                 const distEl = document.getElementById(`stDist-${idx}`);
-                const mapPin = document.getElementById(`mapPinApi${idx}`);
-                const mapLabel = document.getElementById(`mapLabel-${idx}`);
-                
-                const distance = stationDistances[idx];
-                const stName = stationCoordinates[idx].name;
+                const inputEl = document.getElementById(`inputStation${idx}`);
+                const inputLabelEl = document.getElementById(`adminInputLabel${idx}`);
 
-                if (el) el.innerText = val;
-                if (distEl) distEl.innerText = `${distance} km`;
-                if (mapPin) mapPin.innerText = `${isApiMode ? 'API' : 'AQI'} ${val}`;
-                if (mapLabel) mapLabel.innerText = `${stName} (${distance}km)`;
+                if (el) el.innerText = st.currentVal;
+                if (nameEl) nameEl.innerText = st.name;
+                if (distEl) distEl.innerText = `${st.distance} km`;
+                if (inputEl) inputEl.value = st.currentVal;
+                if (inputLabelEl) inputLabelEl.innerText = `${st.name} (${st.distance} km)`;
             });
-
-            // Update Form Inputs to current mode readings
-            if (document.getElementById('inputStation0')) {
-                document.getElementById('inputStation0').value = readings[0];
-                document.getElementById('inputStation1').value = readings[1];
-                document.getElementById('inputStation2').value = readings[2];
-                document.getElementById('inputStation3').value = readings[3];
-            }
 
             // Update Average Badges
             document.getElementById('currentAvgApiDisplay').innerText = avgApi;
@@ -1343,24 +1418,23 @@
             updateAdminEvaluationView();
         }
 
-        // Form Submit Handler
+        // Form Submit Handler in Admin
         function handleApiSubmit(e) {
             e.preventDefault();
-            const readings = [
-                Number(document.getElementById('inputStation0').value),
-                Number(document.getElementById('inputStation1').value),
-                Number(document.getElementById('inputStation2').value),
-                Number(document.getElementById('inputStation3').value)
-            ];
+            const nearest4 = getNearest4Stations(appState.userLat, appState.userLng);
+            const isApi = appState.currentMetricStandard === 'API';
 
-            if (appState.currentMetricStandard === 'API') {
-                appState.apiReadings = readings;
-            } else {
-                appState.aqiReadings = readings;
-            }
+            nearest4.forEach((st, idx) => {
+                const val = Number(document.getElementById(`inputStation${idx}`).value);
+                if (isApi) {
+                    appState.stationApiOverrides[st.id] = val;
+                } else {
+                    appState.stationAqiOverrides[st.id] = val;
+                }
+            });
 
             const evalResult = evaluateProtocol(
-                readings,
+                nearest4,
                 appState.schoolOperationalStatus === 'CLOSED',
                 appState.consecutiveDaysAbove150
             );
@@ -1368,20 +1442,14 @@
             appState.consecutiveDaysAbove150 = evalResult.newConsecutiveDays;
             saveState();
             renderUI();
-            showToast(`Station ${appState.currentMetricStandard} readings saved & protocol evaluated!`);
+            showToast(`4 Nearest Station ${appState.currentMetricStandard} readings saved & protocol evaluated!`);
         }
 
         // Update Admin Panel Rule Check Indicators
         function updateAdminEvaluationView() {
-            const readings = [
-                Number(document.getElementById('inputStation0')?.value || getCurrentActiveReadings()[0]),
-                Number(document.getElementById('inputStation1')?.value || getCurrentActiveReadings()[1]),
-                Number(document.getElementById('inputStation2')?.value || getCurrentActiveReadings()[2]),
-                Number(document.getElementById('inputStation3')?.value || getCurrentActiveReadings()[3])
-            ];
-
+            const nearest4 = getNearest4Stations(appState.userLat, appState.userLng);
             const evalResult = evaluateProtocol(
-                readings,
+                nearest4,
                 appState.schoolOperationalStatus === 'CLOSED',
                 appState.consecutiveDaysAbove150
             );
@@ -1436,7 +1504,7 @@
                 evalActionBox.className = "mt-4 p-4 rounded-xl bg-red-50 border border-red-200";
                 evalActionTitle.innerText = "Trigger Announcement: SCHOOL CLOSED NEXT DAY";
                 evalActionTitle.className = "text-base font-black text-red-950 mt-0.5";
-                evalActionDetail.innerText = `Average ${label} is ${evalResult.avgApi}. ${evalResult.closureReason}. Formal closure announcement must be sent before 3:00 PM.`;
+                evalActionDetail.innerText = `Average ${label} across nearest 4 stations is ${evalResult.avgApi}. ${evalResult.closureReason}. Formal closure announcement must be sent before 3:00 PM.`;
             } else if (evalResult.triggerReopen) {
                 evalActionBox.className = "mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200";
                 evalActionTitle.innerText = "Trigger Announcement: SCHOOL REOPENS NEXT DAY";
@@ -1449,11 +1517,11 @@
                 evalActionDetail.innerText = `Average ${label} is ${evalResult.avgApi}. No operational status change required. Stay aligned with safety guidelines.`;
             }
 
-            generateDraftMessages(evalResult);
+            generateDraftMessages(evalResult, nearest4);
         }
 
         // Auto-Generate Announcement Text Drafts
-        function generateDraftMessages(evalResult) {
+        function generateDraftMessages(evalResult, nearest4) {
             const waText = document.getElementById('whatsappText');
             const emailText = document.getElementById('emailText');
             if (!waText || !emailText) return;
@@ -1461,27 +1529,28 @@
             const avgApi = evalResult.avgApi;
             const label = appState.currentMetricStandard;
             const dateStr = "Tomorrow (Sunday, 11/10/2026)";
+            const stationNames = nearest4.map(s => s.name).join(', ');
 
             if (evalResult.triggerClosure) {
-                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nPlease be informed that the 2:00 PM average ${label} reading across our 4 monitoring stations today is ${avgApi}.\n\nIn accordance with our Haze Protocol rules (${evalResult.closureReason}), SASANA INTERNATIONAL SCHOOL WILL BE CLOSED TOMORROW (${dateStr}).\n\n- All physical classes & activities are suspended.\n- Virtual learning instructions will be shared via class channels.\n- Announcement takes effect starting tomorrow.\n\nThank you for your understanding and support.\n\n- Sasana School Administration`;
+                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nPlease be informed that the 2:00 PM average ${label} reading across our 4 nearest monitoring stations (${stationNames}) today is ${avgApi}.\n\nIn accordance with our Haze Protocol rules (${evalResult.closureReason}), SASANA INTERNATIONAL SCHOOL WILL BE CLOSED TOMORROW (${dateStr}).\n\n- All physical classes & activities are suspended.\n- Virtual learning instructions will be shared via class channels.\n- Announcement takes effect starting tomorrow.\n\nThank you for your understanding and support.\n\n- Sasana School Administration`;
                 
-                emailText.value = `Subject: IMPORTANT: School Closure Notice due to Haze Protocol - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nPlease see the haze protocol status update from Sasana International School.\n\nToday at 2:00 PM, the average Air Quality reading (${label}) from our 4 monitoring stations (Batu Muda, Petaling Jaya, Shah Alam, Kuala Selangor) was measured at ${avgApi}.\n\nBased on our protocol guidelines (${evalResult.closureReason}), the school will be CLOSED taking effect tomorrow, ${dateStr}.\n\nKey Notes:\n1. Virtual learning resources will be communicated by class teachers.\n2. When school reopens, the count of consecutive days above 150 resets to zero.\n3. Further updates will be issued before 3:00 PM when school reopens.\n\nThank you for your cooperation.\n\nWarm regards,\nSasana International School Management`;
+                emailText.value = `Subject: IMPORTANT: School Closure Notice due to Haze Protocol - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nPlease see the haze protocol status update from Sasana International School.\n\nToday at 2:00 PM, the average Air Quality reading (${label}) from our 4 nearest stations (${stationNames}) was measured at ${avgApi}.\n\nBased on our protocol guidelines (${evalResult.closureReason}), the school will be CLOSED taking effect tomorrow, ${dateStr}.\n\nKey Notes:\n1. Virtual learning resources will be communicated by class teachers.\n2. When school reopens, the count of consecutive days above 150 resets to zero.\n3. Further updates will be issued before 3:00 PM when school reopens.\n\nThank you for your cooperation.\n\nWarm regards,\nSasana International School Management`;
             } else if (evalResult.triggerReopen) {
-                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nWe are pleased to announce that today's 2:00 PM average ${label} reading has dropped to ${avgApi} (150 or below).\n\nSASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\n- Physical classes resume as normal.\n- The 3-consecutive-day count resets to zero (0).\n- Safety measures remain active during school hours.\n\nThank you for your patience and cooperation.\n\n- Sasana School Administration`;
+                waText.value = `[OFFICIAL ANNOUNCEMENT - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nWe are pleased to announce that today's 2:00 PM average ${label} reading across 4 nearest stations has dropped to ${avgApi} (150 or below).\n\nSASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\n- Physical classes resume as normal.\n- The 3-consecutive-day count resets to zero (0).\n- Safety measures remain active during school hours.\n\nThank you for your patience and cooperation.\n\n- Sasana School Administration`;
 
-                emailText.value = `Subject: Official Notice: School Reopening Announcement - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nWe are pleased to inform you that today's 2:00 PM average ${label} reading across our 4 nearest stations is ${avgApi}.\n\nIn accordance with Section 3 of our Haze Protocol (Average ${label} 150 or below while school is closed), SASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\nImportant Details:\n- Physical classes, dismissal protocols, and campus operations resume tomorrow.\n- As per school policy, the consecutive day count above 150 resets to zero (0) upon reopening.\n- Standard safety measures remain in place while school stays open.\n\nThank you for your continued support.\n\nWarm regards,\nSasana International School Management`;
+                emailText.value = `Subject: Official Notice: School Reopening Announcement - Sasana International School\n\nDear Teachers, Staff, Parents, and Guardians,\n\nWe are pleased to inform you that today's 2:00 PM average ${label} reading across our 4 nearest stations (${stationNames}) is ${avgApi}.\n\nIn accordance with Section 3 of our Haze Protocol (Average ${label} 150 or below while school is closed), SASANA INTERNATIONAL SCHOOL WILL REOPEN TOMORROW (${dateStr}).\n\nImportant Details:\n- Physical classes, dismissal protocols, and campus operations resume tomorrow.\n- As per school policy, the consecutive day count above 150 resets to zero (0) upon reopening.\n- Standard safety measures remain in place while school stays open.\n\nThank you for your continued support.\n\nWarm regards,\nSasana International School Management`;
             } else {
-                waText.value = `[HAZE PROTOCOL UPDATE - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nToday's 2:00 PM average ${label} reading is ${avgApi}. School remains OPEN tomorrow.\n\nPlease note:\n- Announcements are ONLY officially issued when school CLOSES or REOPENS.\n- Safety guidelines remain in full effect on campus (PE suspended, masks between blocks, indoor dismissal waiting).\n\n- Sasana School Administration`;
+                waText.value = `[HAZE PROTOCOL UPDATE - SASANA INT. SCHOOL]\n\nDear Parents and Guardians,\n\nToday's 2:00 PM average ${label} reading across the 4 nearest stations is ${avgApi}. School remains OPEN tomorrow.\n\nPlease note:\n- Announcements are ONLY officially issued when school CLOSES or REOPENS.\n- Safety guidelines remain in full effect on campus (PE suspended, masks between blocks, indoor dismissal waiting).\n\n- Sasana School Administration`;
 
-                emailText.value = `Subject: Haze Protocol Daily Status Update - Sasana International School\n\nDear Parents and Guardians,\n\nToday at 2:00 PM, the average ${label} reading across our 4 stations is ${avgApi}.\n\nSchool remains OPEN. All indoor learning activities continue as scheduled with outdoor safety precautions active.\n\nNote: Official broadcast announcements are only generated when school closure or reopening criteria are triggered before 3:00 PM.\n\nThank you.\n\nSasana International School`;
+                emailText.value = `Subject: Haze Protocol Daily Status Update - Sasana International School\n\nDear Parents and Guardians,\n\nToday at 2:00 PM, the average ${label} reading across our 4 nearest stations (${stationNames}) is ${avgApi}.\n\nSchool remains OPEN. All indoor learning activities continue as scheduled with outdoor safety precautions active.\n\nNote: Official broadcast announcements are only generated when school closure or reopening criteria are triggered before 3:00 PM.\n\nThank you.\n\nSasana International School`;
             }
         }
 
         // Publish Announcement Button Action
         function publishAnnouncement() {
-            const readings = getCurrentActiveReadings();
+            const nearest4 = getNearest4Stations(appState.userLat, appState.userLng);
             const evalResult = evaluateProtocol(
-                readings,
+                nearest4,
                 appState.schoolOperationalStatus === 'CLOSED',
                 appState.consecutiveDaysAbove150
             );
@@ -1551,8 +1620,8 @@
 
         // Initial setup on window load
         window.onload = function() {
-            ['inputStation0', 'inputStation1', 'inputStation2', 'inputStation3'].forEach(id => {
-                const input = document.getElementById(id);
+            [0, 1, 2, 3].forEach(idx => {
+                const input = document.getElementById(`inputStation${idx}`);
                 if (input) {
                     input.addEventListener('input', updateAdminEvaluationView);
                 }
