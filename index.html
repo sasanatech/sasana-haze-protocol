@@ -276,7 +276,8 @@
                                 <div>
                                     <h4 class="font-bold text-slate-800 text-sm">Batu Muda, KL</h4>
                                     <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 19 km from school
+                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 
+                                        <span id="stDist-0">19 km</span> from selected location
                                     </span>
                                 </div>
                                 <span id="stVal-0" class="text-2xl font-black text-amber-600">160</span>
@@ -289,7 +290,8 @@
                                 <div>
                                     <h4 class="font-bold text-slate-800 text-sm">Petaling Jaya</h4>
                                     <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 22 km from school
+                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 
+                                        <span id="stDist-1">22 km</span> from selected location
                                     </span>
                                 </div>
                                 <span id="stVal-1" class="text-2xl font-black text-amber-600">155</span>
@@ -302,7 +304,8 @@
                                 <div>
                                     <h4 class="font-bold text-slate-800 text-sm">Shah Alam</h4>
                                     <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 24 km from school
+                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 
+                                        <span id="stDist-2">24 km</span> from selected location
                                     </span>
                                 </div>
                                 <span id="stVal-2" class="text-2xl font-black text-amber-600">162</span>
@@ -315,7 +318,8 @@
                                 <div>
                                     <h4 class="font-bold text-slate-800 text-sm">Kuala Selangor</h4>
                                     <span class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 33 km from school
+                                        <i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> 
+                                        <span id="stDist-3">33 km</span> from selected location
                                     </span>
                                 </div>
                                 <span id="stVal-3" class="text-2xl font-black text-amber-600">155</span>
@@ -346,8 +350,32 @@
                             <h3 id="radarMapTitle" class="font-bold text-slate-900">DOE Monitoring Radar Distance Map</h3>
                             <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Radius Rings</span>
                         </div>
-                        <p class="text-xs text-slate-500 mb-4">Straight-line distance from Sasana Int. School (Bandar Tasik Puteri)</p>
                         
+                        <!-- LOCATION PICKER & AUTO GPS BAR -->
+                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 mb-4 space-y-2">
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                                <div class="flex items-center gap-2 flex-grow">
+                                    <i class="fa-solid fa-location-crosshairs text-sky-600 text-xs"></i>
+                                    <select id="locationPresetSelect" onchange="handleLocationSelectChange(this.value)" class="w-full text-xs font-bold bg-white border border-slate-300 text-slate-800 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                        <option value="sasana">🏫 Sasana Campus (Bandar Tasik Puteri)</option>
+                                        <option value="rawang">📍 Rawang Town Center</option>
+                                        <option value="selayang">📍 Selayang / Batu Caves</option>
+                                        <option value="kl_cc">📍 KL City Centre (KLCC)</option>
+                                        <option value="pj">📍 Petaling Jaya</option>
+                                        <option value="gps" id="gpsSelectOption">📡 Device GPS (Detecting...)</option>
+                                    </select>
+                                </div>
+                                <button onclick="triggerAutoGPS()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 flex-shrink-0">
+                                    <i class="fa-solid fa-satellite-dish text-[11px]"></i>
+                                    <span>Auto GPS</span>
+                                </button>
+                            </div>
+                            <div class="flex justify-between items-center text-[10px] text-slate-500 font-mono px-1">
+                                <span>Active Anchor: <strong id="activeLocLabel" class="text-slate-700">Sasana Int. School</strong></span>
+                                <span id="activeCoordsLabel">3.2842° N, 101.4674° E</span>
+                            </div>
+                        </div>
+
                         <!-- SVG Radar Canvas -->
                         <div class="relative w-full aspect-square max-w-[380px] mx-auto bg-slate-900 rounded-2xl p-4 overflow-hidden border border-slate-800 shadow-inner flex items-center justify-center">
                             
@@ -374,38 +402,38 @@
                                 <line x1="200" y1="200" x2="190" y2="300" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,2"/>
                                 <line x1="200" y1="200" x2="55" y2="180" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,2"/>
 
-                                <!-- Center School Star -->
+                                <!-- Center Selected Location Pin -->
                                 <g transform="translate(200, 200)">
                                     <circle r="12" fill="#2563eb" fill-opacity="0.2" class="animate-ping"/>
                                     <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="#38bdf8"/>
                                 </g>
-                                <text x="200" y="222" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">Sasana Int. School</text>
+                                <text x="200" y="222" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle" id="radarCenterLabel">Selected Location</text>
 
-                                <!-- Station 1: Batu Muda (19km, ~135deg) -->
+                                <!-- Station 1: Batu Muda -->
                                 <g transform="translate(275, 255)" class="cursor-pointer group">
                                     <circle r="8" fill="#f59e0b" />
-                                    <text x="12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold">Batu Muda (19km)</text>
+                                    <text x="12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold" id="mapLabel-0">Batu Muda (19km)</text>
                                     <text x="12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" id="mapPinApi0">API 160</text>
                                 </g>
 
-                                <!-- Station 2: PJ (22km, ~155deg) -->
+                                <!-- Station 2: PJ -->
                                 <g transform="translate(255, 285)" class="cursor-pointer group">
                                     <circle r="8" fill="#f59e0b" />
-                                    <text x="12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold">Petaling Jaya (22km)</text>
+                                    <text x="12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold" id="mapLabel-1">Petaling Jaya (22km)</text>
                                     <text x="12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" id="mapPinApi1">API 155</text>
                                 </g>
 
-                                <!-- Station 3: Shah Alam (24km, ~185deg) -->
+                                <!-- Station 3: Shah Alam -->
                                 <g transform="translate(190, 300)" class="cursor-pointer group">
                                     <circle r="8" fill="#f59e0b" />
-                                    <text x="-12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold" text-anchor="end">Shah Alam (24km)</text>
+                                    <text x="-12" y="3" fill="#f1f5f9" font-size="10" font-weight="bold" text-anchor="end" id="mapLabel-2">Shah Alam (24km)</text>
                                     <text x="-12" y="15" fill="#f59e0b" font-size="9" font-weight="bold" text-anchor="end" id="mapPinApi2">API 162</text>
                                 </g>
 
-                                <!-- Station 4: Kuala Selangor (33km, ~275deg) -->
+                                <!-- Station 4: Kuala Selangor -->
                                 <g transform="translate(55, 180)" class="cursor-pointer group">
                                     <circle r="8" fill="#f59e0b" />
-                                    <text x="0" y="-12" fill="#f1f5f9" font-size="10" font-weight="bold" text-anchor="middle">Kuala Selangor (33km)</text>
+                                    <text x="0" y="-12" fill="#f1f5f9" font-size="10" font-weight="bold" text-anchor="middle" id="mapLabel-3">Kuala Selangor (33km)</text>
                                     <text x="0" y="22" fill="#f59e0b" font-size="9" font-weight="bold" text-anchor="middle" id="mapPinApi3">API 155</text>
                                 </g>
                             </svg>
@@ -726,6 +754,22 @@
 
     <!-- APPLICATION JAVASCRIPT LOGIC -->
     <script>
+        // Exact Geographical Coordinates for Stations & Presets
+        const stationCoordinates = [
+            { id: 0, name: "Batu Muda, KL", lat: 3.2108, lng: 101.6833 },
+            { id: 1, name: "Petaling Jaya", lat: 3.1000, lng: 101.6167 },
+            { id: 2, name: "Shah Alam", lat: 3.0738, lng: 101.5183 },
+            { id: 3, name: "Kuala Selangor", lat: 3.3500, lng: 101.2500 }
+        ];
+
+        const locationPresets = {
+            sasana: { name: "Sasana Campus", lat: 3.2842, lng: 101.4674 },
+            rawang: { name: "Rawang Town", lat: 3.3214, lng: 101.5767 },
+            selayang: { name: "Selayang", lat: 3.2384, lng: 101.6563 },
+            kl_cc: { name: "KL City Centre", lat: 3.1578, lng: 101.7118 },
+            pj: { name: "Petaling Jaya", lat: 3.1073, lng: 101.6067 }
+        };
+
         // Default application state matching initial prompt conditions
         const defaultState = {
             isAdminAuthorized: false,
@@ -736,6 +780,13 @@
             pendingAnnouncementType: "NONE", // "NONE", "CLOSED_NEXT_DAY", "REOPEN_NEXT_DAY"
             consecutiveDaysAbove150: 2, // Friday (162) = Day 1, Saturday (158) = Day 2
             
+            // Selected Location / GPS state
+            selectedLocKey: "sasana",
+            userLat: 3.2842,
+            userLng: 101.4674,
+            userLocName: "Sasana Int. School",
+            isUsingGPS: false,
+
             // Dual Standard Readings
             apiReadings: [160, 155, 162, 155], // DOE Malaysia API values
             aqiReadings: [168, 162, 170, 164], // IQAir US AQI values
@@ -754,6 +805,78 @@
 
         // Application State loaded from localStorage or default
         let appState = JSON.parse(localStorage.getItem('sasanaHazeAppState')) || defaultState;
+
+        // Calculate Haversine straight-line distance in km between two lat/lng pairs
+        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return Math.round(R * c * 10) / 10; // Round to 1 decimal place
+        }
+
+        // Handle Location Preset Selection
+        function handleLocationSelectChange(key) {
+            if (key === 'gps') {
+                triggerAutoGPS();
+                return;
+            }
+
+            if (locationPresets[key]) {
+                appState.selectedLocKey = key;
+                appState.userLat = locationPresets[key].lat;
+                appState.userLng = locationPresets[key].lng;
+                appState.userLocName = locationPresets[key].name;
+                appState.isUsingGPS = false;
+                saveState();
+                renderUI();
+                showToast(`Location set to ${locationPresets[key].name}`);
+            }
+        }
+
+        // Auto GPS Detection Trigger
+        function triggerAutoGPS() {
+            if (!navigator.geolocation) {
+                showToast("Geolocation is not supported by your browser.");
+                return;
+            }
+
+            showToast("Acquiring GPS location coordinates...");
+            const gpsOption = document.getElementById('gpsSelectOption');
+            if (gpsOption) gpsOption.innerText = "📡 Detecting GPS Position...";
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    appState.selectedLocKey = "gps";
+                    appState.userLat = Math.round(lat * 10000) / 10000;
+                    appState.userLng = Math.round(lng * 10000) / 10000;
+                    appState.userLocName = "My GPS Location";
+                    appState.isUsingGPS = true;
+
+                    if (gpsOption) {
+                        gpsOption.innerText = `📡 Device GPS (${appState.userLat}, ${appState.userLng})`;
+                    }
+                    const selectEl = document.getElementById('locationPresetSelect');
+                    if (selectEl) selectEl.value = 'gps';
+
+                    saveState();
+                    renderUI();
+                    showToast(`GPS Position Locked: (${appState.userLat}, ${appState.userLng})`);
+                },
+                (error) => {
+                    console.warn("GPS Error:", error.message);
+                    showToast("Unable to fetch GPS position. Falling back to Sasana Campus.");
+                    handleLocationSelectChange('sasana');
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
 
         // Save current state to localStorage
         function saveState() {
@@ -926,6 +1049,22 @@
             const readings = getCurrentActiveReadings();
             const avgApi = getAverageApi(readings);
 
+            // Calculate Dynamic Station Distances based on selected user location/GPS
+            const stationDistances = stationCoordinates.map(st => {
+                return calculateHaversineDistance(appState.userLat, appState.userLng, st.lat, st.lng);
+            });
+
+            // Update Location Info Bar Labels
+            const activeLocLabel = document.getElementById('activeLocLabel');
+            const activeCoordsLabel = document.getElementById('activeCoordsLabel');
+            const radarCenterLabel = document.getElementById('radarCenterLabel');
+            const selectEl = document.getElementById('locationPresetSelect');
+
+            if (activeLocLabel) activeLocLabel.innerText = appState.userLocName;
+            if (activeCoordsLabel) activeCoordsLabel.innerText = `${appState.userLat}° N, ${appState.userLng}° E`;
+            if (radarCenterLabel) radarCenterLabel.innerText = appState.userLocName;
+            if (selectEl) selectEl.value = appState.selectedLocKey;
+
             // Update Tab active styling
             const apiBtn = document.getElementById('metricApiBtn');
             const aqiBtn = document.getElementById('metricAqiBtn');
@@ -957,12 +1096,20 @@
             document.getElementById('radarMapTitle').innerText = isApiMode ? "DOE APIMS Distance Map" : "IQAir Monitoring Map";
             document.getElementById('adminInputFormTitle').innerText = `2:00 PM Station Readings (${isApiMode ? 'DOE API' : 'US AQI'})`;
 
-            // Update Station Values & Map Pins
+            // Update Station Values, Dynamic Distances & Radar Map Pin Labels
             readings.forEach((val, idx) => {
                 const el = document.getElementById(`stVal-${idx}`);
+                const distEl = document.getElementById(`stDist-${idx}`);
                 const mapPin = document.getElementById(`mapPinApi${idx}`);
+                const mapLabel = document.getElementById(`mapLabel-${idx}`);
+                
+                const distance = stationDistances[idx];
+                const stName = stationCoordinates[idx].name;
+
                 if (el) el.innerText = val;
+                if (distEl) distEl.innerText = `${distance} km`;
                 if (mapPin) mapPin.innerText = `${isApiMode ? 'API' : 'AQI'} ${val}`;
+                if (mapLabel) mapLabel.innerText = `${stName} (${distance}km)`;
             });
 
             // Update Form Inputs to current mode readings
