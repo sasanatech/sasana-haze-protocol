@@ -58,16 +58,26 @@
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
                         Sasana Haze Protocol Tracker
-                        <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 hover:bg-sky-500/40 transition flex items-center gap-1">
-                            <span>DOE APIMS Live</span>
+                        <a id="header-source-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 hover:bg-sky-500/40 transition flex items-center gap-1">
+                            <span id="header-source-name">DOE APIMS Live</span>
                             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                         </a>
                     </h1>
-                    <p class="text-xs text-slate-400">Air Pollutant Index Monitoring & School Closure Safety System (DOE Malaysia)</p>
+                    <p class="text-xs text-slate-400">Air Index Monitoring & School Closure Safety System</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                <!-- Dual Metric Selector (API vs AQI) -->
+                <div class="bg-slate-800 p-1 rounded-xl border border-slate-700 flex items-center gap-1">
+                    <button id="btn-metric-api" onclick="setMetricStandard('API')" class="px-2.5 py-1 rounded-lg font-bold text-xs transition bg-sky-600 text-white shadow">
+                        API (DOE)
+                    </button>
+                    <button id="btn-metric-aqi" onclick="setMetricStandard('AQI')" class="px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white">
+                        AQI (AQICN)
+                    </button>
+                </div>
+
                 <button onclick="openApimsViewerModal()" class="px-3 py-1.5 rounded-lg bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700/60 flex items-center gap-2 transition font-medium">
                     <i class="fa-solid fa-globe text-sky-400"></i>
                     <span class="hidden sm:inline">View Official</span> Portal
@@ -87,22 +97,23 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
+        <!-- Banner showing currently selected metric standard & link -->
         <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white rounded-2xl p-4 shadow-sm border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-3">
                 <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
                 <div>
-                    <span class="font-bold text-slate-200">Official Data Source:</span>
-                    <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="underline text-sky-300 font-mono ml-1 hover:text-sky-200">
-                        eqms.doe.gov.my/APIMS/main
+                    <span class="font-bold text-slate-200">Active Metric & Source:</span>
+                    <span id="active-metric-label" class="bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded font-bold border border-sky-500/30 ml-1">API (DOE)</span>
+                    <a id="banner-source-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="underline text-sky-300 font-mono ml-2 hover:text-sky-200">
+                        https://eqms.doe.gov.my/APIMS/main
                     </a>
-                    <span class="text-slate-400 ml-2">(Jabatan Alam Sekitar Malaysia)</span>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <span id="last-sync-time" class="text-slate-400 font-mono">Last Sync: Today 2:00 PM</span>
                 <button onclick="fetchLiveAPIMSData()" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition flex items-center gap-1.5">
                     <i class="fa-solid fa-rotate-right" id="refresh-icon"></i>
-                    <span>Sync APIMS</span>
+                    <span>Sync Live Data</span>
                 </button>
             </div>
         </div>
@@ -124,14 +135,14 @@
                         </div>
                         <h2 id="status-title" class="text-2xl font-extrabold text-slate-900 mt-1">School Opens as Normal Next Day</h2>
                         <p id="status-description" class="text-sm text-slate-600 mt-1 max-w-2xl">
-                            Today's 4-station average API is 82.0. This is within safe parameters (Below 150 threshold).
+                            Today's 4-station average reading is within safe parameters.
                         </p>
                     </div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center min-w-[120px]">
-                        <span class="text-xs text-slate-500 uppercase tracking-wide font-semibold block">Today's Avg API</span>
+                        <span id="label-today-avg" class="text-xs text-slate-500 uppercase tracking-wide font-semibold block">Today's Avg API</span>
                         <span id="header-today-avg" class="text-2xl font-extrabold text-slate-900">82.0</span>
                     </div>
                     <button onclick="openWhatsAppShare()" class="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition">
@@ -216,13 +227,13 @@
                         <div>
                             <div class="flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">1</span>
-                                <h3 class="font-bold text-slate-900 text-base">4 Nearest Station API Readings</h3>
+                                <h3 id="station-readings-heading" class="font-bold text-slate-900 text-base">4 Nearest Station API Readings</h3>
                             </div>
-                            <p class="text-xs text-slate-500 mt-0.5 ml-8">Readings taken from <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-600 underline">eqms.doe.gov.my/APIMS/main</a> at 2:00 PM</p>
+                            <p class="text-xs text-slate-500 mt-0.5 ml-8">Readings taken at 2:00 PM</p>
                         </div>
                         <button onclick="openApimsViewerModal()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition">
                             <i class="fa-solid fa-list-check"></i>
-                            <span>Check All Stations</span>
+                            <span>Check Live Portal</span>
                         </button>
                     </div>
 
@@ -237,7 +248,7 @@
                             <i class="fa-solid fa-calculator text-amber-400 text-base"></i>
                             <div>
                                 <p class="font-semibold text-slate-200">Daily Protocol Formula</p>
-                                <p class="text-slate-400">Sum of 4 stations $\div$ 4 = Daily Decision API</p>
+                                <p id="formula-text-desc" class="text-slate-400">Sum of 4 stations $\div$ 4 = Daily Decision API</p>
                             </div>
                         </div>
                         <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-center font-mono text-sm w-full sm:w-auto">
@@ -254,7 +265,7 @@
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Test Protocol Rules (Quick Scenarios):</p>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="loadScenario('safe')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-medium transition">
-                            🟢 Normal (< 100 API)
+                            🟢 Normal (< 100 Index)
                         </button>
                         <button onclick="loadScenario('consecutive_orange')" class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-medium transition">
                             🟠 3 Days > 150 (Closed)
@@ -319,7 +330,7 @@
                                     <span class="font-bold text-xs text-rose-900 uppercase">Single-Day Spike</span>
                                     <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-600 text-white">CLOSED NEXT DAY</span>
                                 </div>
-                                <p class="text-sm font-bold text-rose-950 mt-0.5">Average API above 180</p>
+                                <p id="rule-red-heading" class="text-sm font-bold text-rose-950 mt-0.5">Average Index above 180</p>
                                 <p class="text-xs text-rose-700 mt-0.5">Triggers immediate closure on any single day evaluated at 2:00 PM.</p>
                             </div>
                         </div>
@@ -332,7 +343,7 @@
                                     <span class="font-bold text-xs text-amber-900 uppercase">3-Day Cumulative</span>
                                     <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-600 text-white">CLOSED NEXT DAY</span>
                                 </div>
-                                <p class="text-sm font-bold text-amber-950 mt-0.5">Average API above 150</p>
+                                <p id="rule-orange-heading" class="text-sm font-bold text-amber-950 mt-0.5">Average Index above 150</p>
                                 <p class="text-xs text-amber-700 mt-0.5">When average remains above 150 for 3 consecutive days.</p>
                             </div>
                         </div>
@@ -345,7 +356,7 @@
                                     <span class="font-bold text-xs text-emerald-900 uppercase">Reopening Condition</span>
                                     <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-600 text-white">REOPENS NEXT DAY</span>
                                 </div>
-                                <p class="text-sm font-bold text-emerald-950 mt-0.5">Average API 150 or below</p>
+                                <p id="rule-reopen-heading" class="text-sm font-bold text-emerald-950 mt-0.5">Average Index 150 or below</p>
                                 <p class="text-xs text-emerald-700 mt-0.5">While school is closed, dropping to $\le$ 150 reopens school next day.</p>
                             </div>
                         </div>
@@ -353,7 +364,7 @@
                 </div>
 
                 <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500">
-                    <p class="italic"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Official portal updates: <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-600 underline">eqms.doe.gov.my</a></p>
+                    <p class="italic"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Check official readings on <a id="footer-rule-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-600 underline">DOE APIMS Portal</a></p>
                 </div>
             </div>
 
@@ -677,11 +688,178 @@
                 state.history[2].avgApi = todayAvg;
             }
 
-            const dayMinus2 = state.history[0] ? state.history[0].avgApi : 0;
-            const dayMinus1 = state.history[1] ? state.history[1].avgApi : 0;
-            const dayToday = state.history[2] ? state.history[2].avgApi : todayAvg;
+    <!-- Official Live Portal Viewer Modal with Dual Tab support (API vs AQI) -->
+    <div id="apims-viewer-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white rounded-2xl max-w-5xl w-full h-[90vh] flex flex-col shadow-2xl border border-slate-700 overflow-hidden">
+            <!-- Modal Header with Tab Selector -->
+            <div class="bg-slate-900 text-white p-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
+                            Live Air Quality Network Portal
+                        </h3>
+                        <p id="modal-portal-url-display" class="text-xs text-slate-400 font-mono">https://eqms.doe.gov.my/APIMS/main</p>
+                    </div>
+                </div>
 
-            // DOM elements with safe checks
+                <div class="flex items-center gap-2">
+                    <!-- Tab Buttons for DOE APIMS vs AQICN -->
+                    <div class="bg-slate-800 p-1 rounded-xl border border-slate-700 flex items-center gap-1">
+                        <button id="modal-tab-api" onclick="switchPortalTab('API')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white">
+                            DOE APIMS (API)
+                        </button>
+                        <button id="modal-tab-aqi" onclick="switchPortalTab('AQI')" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                            AQICN (AQI)
+                        </button>
+                    </div>
+
+                    <a id="modal-external-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                        <span>Open Tab</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                    <button onclick="closeApimsViewerModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- APIMS / AQICN Viewer Body -->
+            <div class="flex-1 bg-slate-100 relative">
+                <iframe id="portal-iframe" src="https://eqms.doe.gov.my/APIMS/main" class="w-full h-full border-0" title="Official Air Quality Portal"></iframe>
+                
+                <!-- Helper overlay info box -->
+                <div class="absolute bottom-4 left-4 right-4 bg-slate-900/90 text-white p-3 rounded-xl backdrop-blur border border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-sky-400 text-base"></i>
+                        <span>Check real-time readings from the portal above, then update station values in the app engine.</span>
+                    </div>
+                    <button onclick="closeApimsViewerModal()" class="px-3 py-1 bg-sky-600 text-white rounded font-bold hover:bg-sky-500">Back to App Engine</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const APIMS_STATIONS_DB = [
+            { id: "batu_muda", name: "Batu Muda, KL", defaultDist: 19, baseAPI: 85, baseAQI: 92, state: "KL", coords: { x: 75, y: 62 } },
+            { id: "pj", name: "Petaling Jaya", defaultDist: 22, baseAPI: 80, baseAQI: 88, state: "Selangor", coords: { x: 65, y: 72 } },
+            { id: "shah_alam", name: "Shah Alam", defaultDist: 24, baseAPI: 88, baseAQI: 95, state: "Selangor", coords: { x: 52, y: 78 } },
+            { id: "k_selangor", name: "Kuala Selangor", defaultDist: 33, baseAPI: 75, baseAQI: 82, state: "Selangor", coords: { x: 18, y: 50 } },
+            { id: "cheras", name: "Cheras, KL", defaultDist: 25, baseAPI: 84, baseAQI: 90, state: "KL", coords: { x: 80, y: 70 } },
+            { id: "klang", name: "Klang", defaultDist: 28, baseAPI: 92, baseAQI: 102, state: "Selangor", coords: { x: 40, y: 80 } },
+            { id: "johan_setia", name: "Johan Setia, Klang", defaultDist: 29, baseAPI: 127, baseAQI: 140, state: "Selangor", coords: { x: 38, y: 82 } },
+            { id: "banting", name: "Banting", defaultDist: 40, baseAPI: 82, baseAQI: 89, state: "Selangor", coords: { x: 45, y: 92 } },
+            { id: "putrajaya", name: "Putrajaya", defaultDist: 38, baseAPI: 78, baseAQI: 85, state: "Putrajaya", coords: { x: 70, y: 88 } },
+            { id: "nilai", name: "Nilai", defaultDist: 52, baseAPI: 154, baseAQI: 165, state: "Negeri Sembilan", coords: { x: 75, y: 92 } },
+            { id: "seremban", name: "Seremban", defaultDist: 65, baseAPI: 121, baseAQI: 132, state: "Negeri Sembilan", coords: { x: 80, y: 95 } },
+            { id: "georgetown", name: "George Town", defaultDist: 12, baseAPI: 65, baseAQI: 72, state: "Penang", coords: { x: 30, y: 30 } },
+            { id: "minden", name: "Minden, Penang", defaultDist: 14, baseAPI: 62, baseAQI: 68, state: "Penang", coords: { x: 32, y: 32 } },
+            { id: "jb_city", name: "Larkin, Johor Bahru", defaultDist: 15, baseAPI: 162, baseAQI: 175, state: "Johor", coords: { x: 80, y: 85 } },
+            { id: "pasir_gudang", name: "Pasir Gudang", defaultDist: 22, baseAPI: 155, baseAQI: 168, state: "Johor", coords: { x: 85, y: 88 } },
+            { id: "batu_pahat", name: "Batu Pahat", defaultDist: 35, baseAPI: 154, baseAQI: 162, state: "Johor", coords: { x: 70, y: 82 } },
+            { id: "segamat", name: "Segamat", defaultDist: 45, baseAPI: 153, baseAQI: 160, state: "Johor", coords: { x: 68, y: 78 } },
+            { id: "kuching", name: "Kuching", defaultDist: 10, baseAPI: 167, baseAQI: 178, state: "Sarawak", coords: { x: 78, y: 70 } },
+            { id: "serian", name: "Serian", defaultDist: 18, baseAPI: 182, baseAQI: 195, state: "Sarawak", coords: { x: 82, y: 75 } },
+            { id: "samarahan", name: "Kota Samarahan", defaultDist: 15, baseAPI: 168, baseAQI: 180, state: "Sarawak", coords: { x: 80, y: 72 } }
+        ];
+
+        let state = {
+            metricStandard: 'API', // 'API' or 'AQI'
+            currentLocationName: "Sasana Int. School Bandar Tasik Puteri",
+            shortLocationName: "Sasana Int. School",
+            isSchoolCurrentlyClosed: false,
+            
+            selectedStations: [
+                { id: "batu_muda", name: "Batu Muda, KL", dist: 19, api: 85, aqi: 92, coords: { x: 78, y: 60 } },
+                { id: "pj", name: "Petaling Jaya", dist: 22, api: 80, aqi: 88, coords: { x: 68, y: 74 } },
+                { id: "shah_alam", name: "Shah Alam", dist: 24, api: 88, aqi: 95, coords: { x: 52, y: 79 } },
+                { id: "k_selangor", name: "Kuala Selangor", dist: 33, api: 75, aqi: 82, coords: { x: 15, y: 50 } }
+            ],
+
+            history: [
+                { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" },
+                { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 84.0, avgAqi: 90.0, status: "OPEN" },
+                { dayLabel: "Today (2:00 PM)", dateStr: getRelativeDate(0), avgApi: 82.0, avgAqi: 89.0, status: "OPEN" }
+            ]
+        };
+
+        const URL_DOE = "https://eqms.doe.gov.my/APIMS/main";
+        const URL_AQICN = "https://aqicn.org/network/my.apims/";
+
+        function setMetricStandard(standard) {
+            state.metricStandard = standard;
+            
+            const btnApi = document.getElementById('btn-metric-api');
+            const btnAqi = document.getElementById('btn-metric-aqi');
+            const activeLabel = document.getElementById('active-metric-label');
+            const bannerLink = document.getElementById('banner-source-link');
+            const headerLink = document.getElementById('header-source-link');
+            const headerName = document.getElementById('header-source-name');
+            const labelTodayAvg = document.getElementById('label-today-avg');
+            const headingStations = document.getElementById('station-readings-heading');
+            const formulaDesc = document.getElementById('formula-text-desc');
+            const footerRuleLink = document.getElementById('footer-rule-link');
+
+            const ruleRed = document.getElementById('rule-red-heading');
+            const ruleOrange = document.getElementById('rule-orange-heading');
+            const ruleReopen = document.getElementById('rule-reopen-heading');
+
+            if (standard === 'AQI') {
+                if (btnAqi) btnAqi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition bg-indigo-600 text-white shadow";
+                if (btnApi) btnApi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white";
+                if (activeLabel) activeLabel.textContent = "AQI (AQICN)";
+                if (bannerLink) { bannerLink.href = URL_AQICN; bannerLink.textContent = URL_AQICN; }
+                if (headerLink) headerLink.href = URL_AQICN;
+                if (headerName) headerName.textContent = "AQICN Live";
+                if (labelTodayAvg) labelTodayAvg.textContent = "Today's Avg AQI";
+                if (headingStations) headingStations.textContent = "4 Nearest Station AQI Readings";
+                if (formulaDesc) formulaDesc.textContent = "Sum of 4 stations ÷ 4 = Daily Decision AQI";
+                if (footerRuleLink) { footerRuleLink.href = URL_AQICN; footerRuleLink.textContent = "AQICN Portal"; }
+
+                if (ruleRed) ruleRed.textContent = "Average AQI above 180";
+                if (ruleOrange) ruleOrange.textContent = "Average AQI above 150";
+                if (ruleReopen) ruleReopen.textContent = "Average AQI 150 or below";
+            } else {
+                if (btnApi) btnApi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition bg-sky-600 text-white shadow";
+                if (btnAqi) btnAqi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white";
+                if (activeLabel) activeLabel.textContent = "API (DOE)";
+                if (bannerLink) { bannerLink.href = URL_DOE; bannerLink.textContent = URL_DOE; }
+                if (headerLink) headerLink.href = URL_DOE;
+                if (headerName) headerName.textContent = "DOE APIMS Live";
+                if (labelTodayAvg) labelTodayAvg.textContent = "Today's Avg API";
+                if (headingStations) headingStations.textContent = "4 Nearest Station API Readings";
+                if (formulaDesc) formulaDesc.textContent = "Sum of 4 stations ÷ 4 = Daily Decision API";
+                if (footerRuleLink) { footerRuleLink.href = URL_DOE; footerRuleLink.textContent = "DOE APIMS Portal"; }
+
+                if (ruleRed) ruleRed.textContent = "Average API above 180";
+                if (ruleOrange) ruleOrange.textContent = "Average API above 150";
+                if (ruleReopen) ruleReopen.textContent = "Average API 150 or below";
+            }
+
+            evaluateHazeProtocol();
+            showToast(`Switched tracking standard to ${standard}`);
+        }
+
+        function evaluateHazeProtocol() {
+            const isAQI = state.metricStandard === 'AQI';
+            const metricKey = isAQI ? 'aqi' : 'api';
+            const unitLabel = isAQI ? 'AQI' : 'API';
+
+            const sum = state.selectedStations.reduce((acc, st) => acc + (parseInt(st[metricKey]) || 0), 0);
+            const todayAvg = Math.round((sum / 4) * 10) / 10;
+
+            if (state.history[2]) {
+                if (isAQI) state.history[2].avgAqi = todayAvg;
+                else state.history[2].avgApi = todayAvg;
+            }
+
+            const dayMinus2 = state.history[0] ? (isAQI ? state.history[0].avgAqi : state.history[0].avgApi) : 0;
+            const dayMinus1 = state.history[1] ? (isAQI ? state.history[1].avgAqi : state.history[1].avgApi) : 0;
+            const dayToday = todayAvg;
+
             const card = document.getElementById('protocol-status-card');
             const badge = document.getElementById('status-icon-badge');
             const pill = document.getElementById('status-pill');
@@ -696,55 +874,49 @@
             if (avgDisplay) avgDisplay.textContent = todayAvg.toFixed(1);
             if (headerAvg) headerAvg.textContent = todayAvg.toFixed(1);
 
-            // Rule 1: RED ALERT — Single day average > 180
+            // Rule 1: RED ALERT (> 180)
             if (dayToday > 180) {
                 if (card) card.className = "rounded-2xl p-6 shadow-xl transition-all duration-300 bg-rose-50 border-2 border-rose-500 pulse-ring";
                 if (badge) {
                     badge.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-rose-600 text-white shadow-lg shadow-rose-300";
                     badge.innerHTML = `<i class="fa-solid fa-school-circle-xmark"></i>`;
                 }
-                
                 if (pill) {
                     pill.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-600 text-white shadow-sm";
-                    pill.textContent = "CLOSED NEXT DAY (RED ALERT > 180)";
+                    pill.textContent = `CLOSED NEXT DAY (RED ALERT ${unitLabel} > 180)`;
                 }
-
                 if (title) {
                     title.className = "text-2xl font-extrabold text-rose-950 mt-1";
                     title.textContent = "SCHOOL CLOSED NEXT DAY";
                 }
-
                 if (desc) {
-                    desc.textContent = `CRITICAL: Today's 4-station average API is ${todayAvg.toFixed(1)} (> 180 threshold). Per DOE APIMS Protocol Rule #1, school will be CLOSED tomorrow.`;
+                    desc.textContent = `CRITICAL: Today's 4-station average ${unitLabel} is ${todayAvg.toFixed(1)} (> 180 threshold). Per Protocol Rule #1, school will be CLOSED tomorrow.`;
                 }
                 if (state.history[2]) state.history[2].status = "CLOSED";
                 state.isSchoolCurrentlyClosed = true;
             }
-            // Rule 2: ORANGE ALERT — 3 consecutive days average > 150
+            // Rule 2: ORANGE ALERT (> 150 for 3 days)
             else if (dayMinus2 > 150 && dayMinus1 > 150 && dayToday > 150) {
                 if (card) card.className = "rounded-2xl p-6 shadow-xl transition-all duration-300 bg-amber-50 border-2 border-amber-500";
                 if (badge) {
                     badge.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-amber-500 text-white shadow-lg shadow-amber-200";
                     badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
                 }
-
                 if (pill) {
                     pill.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500 text-white shadow-sm";
-                    pill.textContent = "CLOSED NEXT DAY (3-DAY ORANGE > 150)";
+                    pill.textContent = `CLOSED NEXT DAY (3-DAY ORANGE ${unitLabel} > 150)`;
                 }
-
                 if (title) {
                     title.className = "text-2xl font-extrabold text-amber-950 mt-1";
                     title.textContent = "SCHOOL CLOSED NEXT DAY";
                 }
-
                 if (desc) {
-                    desc.textContent = `WARNING: Average API has exceeded 150 for 3 consecutive days (${dayMinus2.toFixed(1)}, ${dayMinus1.toFixed(1)}, ${dayToday.toFixed(1)}). Per DOE APIMS Protocol Rule #2, school will be CLOSED tomorrow.`;
+                    desc.textContent = `WARNING: Average ${unitLabel} has exceeded 150 for 3 consecutive days (${dayMinus2.toFixed(1)}, ${dayMinus1.toFixed(1)}, ${dayToday.toFixed(1)}). Per Protocol Rule #2, school will be CLOSED tomorrow.`;
                 }
                 if (state.history[2]) state.history[2].status = "CLOSED";
                 state.isSchoolCurrentlyClosed = true;
             }
-            // Rule 3: REOPENING or NORMAL OPEN (Green)
+            // Rule 3: REOPENING or SAFE OPEN (Green)
             else {
                 if (state.isSchoolCurrentlyClosed) {
                     if (card) card.className = "rounded-2xl p-6 shadow-md transition-all duration-300 bg-emerald-50 border-2 border-emerald-400";
@@ -752,19 +924,16 @@
                         badge.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-emerald-600 text-white shadow-md";
                         badge.innerHTML = `<i class="fa-solid fa-door-open"></i>`;
                     }
-
                     if (pill) {
                         pill.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-600 text-white";
                         pill.textContent = "REOPENS NEXT DAY";
                     }
-
                     if (title) {
                         title.className = "text-2xl font-extrabold text-emerald-950 mt-1";
                         title.textContent = "SCHOOL REOPENS NEXT DAY";
                     }
-
                     if (desc) {
-                        desc.textContent = `Today's average API dropped to ${todayAvg.toFixed(1)} (≤ 150 threshold). School will REOPEN tomorrow! (3-day counter resets).`;
+                        desc.textContent = `Today's average ${unitLabel} dropped to ${todayAvg.toFixed(1)} (≤ 150 threshold). School will REOPEN tomorrow!`;
                     }
                 } else {
                     if (card) card.className = "rounded-2xl p-6 shadow-md transition-all duration-300 bg-white border-2 border-emerald-200";
@@ -772,19 +941,16 @@
                         badge.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 bg-emerald-100 text-emerald-600 border border-emerald-200";
                         badge.innerHTML = `<i class="fa-solid fa-school"></i>`;
                     }
-
                     if (pill) {
                         pill.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300";
                         pill.textContent = "NORMAL / OPEN";
                     }
-
                     if (title) {
                         title.className = "text-2xl font-extrabold text-slate-900 mt-1";
                         title.textContent = "School Opens as Normal Next Day";
                     }
-
                     if (desc) {
-                        desc.textContent = `Today's average API is ${todayAvg.toFixed(1)}. This is within safe parameters (≤ 150). Standard safety guidelines apply while open.`;
+                        desc.textContent = `Today's average ${unitLabel} is ${todayAvg.toFixed(1)}. This is within safe parameters (≤ 150). Standard safety guidelines apply.`;
                     }
                 }
                 if (state.history[2]) state.history[2].status = "OPEN";
@@ -800,12 +966,11 @@
             if (!container) return;
             container.innerHTML = '';
 
-            state.selectedStations.forEach((st, idx) => {
-                const apiVal = parseInt(st.api) || 0;
-                let badgeBg = "bg-emerald-100 text-emerald-800 border-emerald-200";
-                if (apiVal > 180) badgeBg = "bg-rose-100 text-rose-800 border-rose-300 font-bold";
-                else if (apiVal > 150) badgeBg = "bg-amber-100 text-amber-800 border-amber-300 font-bold";
+            const isAQI = state.metricStandard === 'AQI';
+            const metricKey = isAQI ? 'aqi' : 'api';
 
+            state.selectedStations.forEach((st, idx) => {
+                const val = parseInt(st[metricKey]) || 0;
                 const cardHtml = `
                     <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition flex items-center justify-between gap-3">
                         <div class="flex-1 min-w-0">
@@ -814,8 +979,9 @@
                             <p class="text-xs text-slate-500"><i class="fa-solid fa-route text-sky-500 mr-1"></i>${st.dist} km from school</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="number" value="${st.api}" min="0" max="500" 
-                                onchange="updateStationAPI(${idx}, this.value)" 
+                            <span class="text-xs font-bold text-slate-400">${isAQI ? 'AQI' : 'API'}:</span>
+                            <input type="number" value="${val}" min="0" max="500" 
+                                onchange="updateStationVal(${idx}, this.value)" 
                                 class="w-16 p-2 text-center font-bold text-slate-900 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none shadow-sm">
                         </div>
                     </div>
@@ -824,9 +990,11 @@
             });
         }
 
-        function updateStationAPI(idx, val) {
+        function updateStationVal(idx, val) {
             if (state.selectedStations[idx]) {
-                state.selectedStations[idx].api = parseInt(val) || 0;
+                const num = parseInt(val) || 0;
+                if (state.metricStandard === 'AQI') state.selectedStations[idx].aqi = num;
+                else state.selectedStations[idx].api = num;
                 evaluateHazeProtocol();
             }
         }
@@ -836,15 +1004,19 @@
             if (!container) return;
             container.innerHTML = '';
 
+            const isAQI = state.metricStandard === 'AQI';
+            const unitLabel = isAQI ? 'AQI' : 'API';
+
             state.history.forEach((item, idx) => {
                 const isToday = idx === 2;
+                const avgVal = isAQI ? item.avgAqi : item.avgApi;
                 let bgStyle = "bg-slate-50 border-slate-200";
                 let badgeStyle = "bg-emerald-100 text-emerald-800";
 
-                if (item.avgApi > 180) {
+                if (avgVal > 180) {
                     bgStyle = "bg-rose-50 border-rose-300";
                     badgeStyle = "bg-rose-600 text-white font-bold";
-                } else if (item.avgApi > 150) {
+                } else if (avgVal > 150) {
                     bgStyle = "bg-amber-50 border-amber-300";
                     badgeStyle = "bg-amber-500 text-white font-bold";
                 }
@@ -859,20 +1031,20 @@
                         </div>
 
                         <div class="my-1">
-                            <div class="text-2xl font-extrabold text-slate-900">${typeof item.avgApi === 'number' ? item.avgApi.toFixed(1) : item.avgApi}</div>
+                            <div class="text-2xl font-extrabold text-slate-900">${typeof avgVal === 'number' ? avgVal.toFixed(1) : avgVal}</div>
                             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-1 ${badgeStyle}">
-                                ${item.avgApi > 150 ? (item.avgApi > 180 ? 'HIGH RISK (>180)' : 'MODERATE RISK (>150)') : 'SAFE (≤150)'}
+                                ${avgVal > 150 ? (avgVal > 180 ? 'HIGH RISK (>180)' : 'MODERATE RISK (>150)') : 'SAFE (≤150)'}
                             </span>
                         </div>
 
                         ${!isToday ? `
                             <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                                <span class="text-slate-500">Edit Avg:</span>
-                                <input type="number" value="${item.avgApi}" onchange="updateHistoryAvg(${idx}, this.value)" class="w-14 p-1 text-center font-bold text-slate-800 bg-white border border-slate-300 rounded text-xs">
+                                <span class="text-slate-500">Edit ${unitLabel}:</span>
+                                <input type="number" value="${avgVal}" onchange="updateHistoryAvg(${idx}, this.value)" class="w-14 p-1 text-center font-bold text-slate-800 bg-white border border-slate-300 rounded text-xs">
                             </div>
                         ` : `
                             <div class="pt-2 border-t border-slate-200/60 text-[10px] text-sky-600 font-semibold text-center">
-                                Today's Calculated Average
+                                Today's Calculated ${unitLabel}
                             </div>
                         `}
                     </div>
@@ -883,232 +1055,71 @@
 
         function updateHistoryAvg(idx, val) {
             if (state.history[idx]) {
-                state.history[idx].avgApi = parseFloat(val) || 0;
+                const num = parseFloat(val) || 0;
+                if (state.metricStandard === 'AQI') state.history[idx].avgAqi = num;
+                else state.history[idx].avgApi = num;
                 evaluateHazeProtocol();
             }
         }
 
-        function reset3DayCounter() {
-            state.history[0].avgApi = 80.0;
-            state.history[1].avgApi = 82.0;
-            state.isSchoolCurrentlyClosed = false;
-            evaluateHazeProtocol();
-            showToast("3-Day Counter has been reset!");
-        }
+        function switchPortalTab(target) {
+            const tabApi = document.getElementById('modal-tab-api');
+            const tabAqi = document.getElementById('modal-tab-aqi');
+            const iframe = document.getElementById('portal-iframe');
+            const urlDisplay = document.getElementById('modal-portal-url-display');
+            const externalLink = document.getElementById('modal-external-link');
 
-        function renderRadarMap() {
-            const svg = document.getElementById('radar-svg-overlay');
-            const stationsContainer = document.getElementById('radar-stations-container');
-            const centerLabel = document.getElementById('radar-center-name');
-
-            if (centerLabel) centerLabel.textContent = state.shortLocationName;
-            if (svg) svg.innerHTML = '';
-            if (stationsContainer) stationsContainer.innerHTML = '';
-            if (!svg || !stationsContainer) return;
-
-            const center = { x: 50, y: 50 };
-
-            state.selectedStations.forEach((st, idx) => {
-                const coords = st.coords || { x: 30 + idx * 20, y: 60 };
-
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', `${center.x}%`);
-                line.setAttribute('y1', `${center.y}%`);
-                line.setAttribute('x2', `${coords.x}%`);
-                line.setAttribute('y2', `${coords.y}%`);
-                line.setAttribute('stroke', '#0284c7');
-                line.setAttribute('stroke-width', '1.5');
-                line.setAttribute('stroke-dasharray', '3 3');
-                svg.appendChild(line);
-
-                let dotColor = "bg-amber-400 shadow-amber-500/50";
-                if (st.api > 180) dotColor = "bg-rose-500 shadow-rose-500/50";
-                else if (st.api <= 100) dotColor = "bg-emerald-400 shadow-emerald-500/50";
-
-                const nodeHtml = `
-                    <div class="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer"
-                         style="left: ${coords.x}%; top: ${coords.y}%;"
-                         onclick="highlightStation(${idx})">
-                        <div class="w-4 h-4 rounded-full ${dotColor} shadow-md border-2 border-white transition group-hover:scale-125"></div>
-                        <div class="bg-slate-900/90 text-white text-[10px] font-medium px-1.5 py-0.5 rounded border border-slate-700 shadow mt-1 whitespace-nowrap">
-                            ${st.name.split(',')[0]} (${st.dist}km)
-                        </div>
-                    </div>
-                `;
-                stationsContainer.innerHTML += nodeHtml;
-            });
-        }
-
-        function highlightStation(idx) {
-            showToast(`Station: ${state.selectedStations[idx].name} (API: ${state.selectedStations[idx].api})`);
-        }
-
-        function loadScenario(type) {
-            if (type === 'safe') {
-                state.selectedStations = state.selectedStations.map((s, i) => ({ ...s, api: [85, 78, 82, 75][i] }));
-                state.history[0].avgApi = 80.0;
-                state.history[1].avgApi = 82.0;
-                state.isSchoolCurrentlyClosed = false;
-                showToast("Loaded Scenario: Normal Safe Conditions (< 100 API)");
-            } else if (type === 'consecutive_orange') {
-                state.selectedStations = state.selectedStations.map(s => ({ ...s, api: 158 }));
-                state.history[0].avgApi = 155.0;
-                state.history[1].avgApi = 152.0;
-                showToast("Loaded Scenario: 3 Consecutive Days > 150 (Orange Rule)");
-            } else if (type === 'single_red') {
-                state.selectedStations = state.selectedStations.map(s => ({ ...s, api: 188 }));
-                state.history[0].avgApi = 110.0;
-                state.history[1].avgApi = 120.0;
-                showToast("Loaded Scenario: Single Day Spike > 180 (Red Alert Rule)");
-            } else if (type === 'reopening') {
-                state.isSchoolCurrentlyClosed = true;
-                state.selectedStations = state.selectedStations.map(s => ({ ...s, api: 125 }));
-                state.history[0].avgApi = 165.0;
-                state.history[1].avgApi = 170.0;
-                showToast("Loaded Scenario: Reopening Trigger (Dropped ≤ 150)");
+            if (target === 'AQI') {
+                if (tabAqi) tabAqi.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-indigo-600 text-white";
+                if (tabApi) tabApi.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
+                if (iframe) iframe.src = URL_AQICN;
+                if (urlDisplay) urlDisplay.textContent = URL_AQICN;
+                if (externalLink) externalLink.href = URL_AQICN;
+            } else {
+                if (tabApi) tabApi.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-sky-600 text-white";
+                if (tabAqi) tabAqi.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
+                if (iframe) iframe.src = URL_DOE;
+                if (urlDisplay) urlDisplay.textContent = URL_DOE;
+                if (externalLink) externalLink.href = URL_DOE;
             }
-            evaluateHazeProtocol();
-        }
-
-        function triggerQuickSimulate() {
-            const types = ['safe', 'consecutive_orange', 'single_red', 'reopening'];
-            const randomType = types[Math.floor(Math.random() * types.length)];
-            loadScenario(randomType);
-        }
-
-        function fetchLiveAPIMSData() {
-            const icon = document.getElementById('refresh-icon');
-            if (icon) icon.classList.add('fa-spin');
-            
-            setTimeout(() => {
-                if (icon) icon.classList.remove('fa-spin');
-                // Simulate fluctuation matching APIMS hourly updates
-                state.selectedStations.forEach(st => {
-                    const delta = Math.floor(Math.random() * 9) - 4;
-                    st.api = Math.max(20, st.api + delta);
-                });
-                
-                const lastSync = document.getElementById('last-sync-time');
-                if (lastSync) lastSync.textContent = "Last Sync: Just now (" + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + ")";
-                
-                evaluateHazeProtocol();
-                showToast("Synced live data from eqms.doe.gov.my/APIMS/main!");
-            }, 600);
-        }
-
-        function openLocationModal() {
-            document.getElementById('location-modal').classList.remove('hidden');
-            renderModalStationSelectors();
-        }
-
-        function closeLocationModal() {
-            document.getElementById('location-modal').classList.add('hidden');
         }
 
         function openApimsViewerModal() {
+            switchPortalTab(state.metricStandard);
             document.getElementById('apims-viewer-modal').classList.remove('hidden');
-        }
-
-        function closeApimsViewerModal() {
-            document.getElementById('apims-viewer-modal').classList.add('hidden');
-        }
-
-        function renderModalStationSelectors() {
-            const container = document.getElementById('modal-station-selectors');
-            if (!container) return;
-            container.innerHTML = '';
-
-            for (let i = 0; i < 4; i++) {
-                const currentStation = state.selectedStations[i];
-                let optionsHtml = APIMS_STATIONS_DB.map(s => `
-                    <option value="${s.id}" ${s.id === currentStation.id ? 'selected' : ''}>
-                        ${s.name} (${s.defaultDist} km - ${s.state})
-                    </option>
-                `).join('');
-
-                container.innerHTML += `
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Station ${i + 1}</label>
-                        <select id="modal-select-${i}" class="w-full rounded-lg border border-slate-300 p-2 text-xs font-medium text-slate-800">
-                            ${optionsHtml}
-                        </select>
-                    </div>
-                `;
-            }
-        }
-
-        function handleLocationPresetChange(presetKey) {
-            const preset = LOCATION_PRESETS[presetKey];
-            if (!preset) return;
-
-            const input = document.getElementById('custom-location-input');
-            if (input) input.value = preset.name;
-
-            preset.stations.forEach((st, idx) => {
-                const sel = document.getElementById(`modal-select-${idx}`);
-                if (sel) sel.value = st.id;
-            });
-        }
-
-        function applyLocationSettings() {
-            const customInput = document.getElementById('custom-location-input');
-            const locationName = customInput ? customInput.value : "Sasana Int. School";
-            state.currentLocationName = locationName;
-            
-            const words = locationName.split(' ');
-            state.shortLocationName = words[0] + " " + (words[1] || "");
-
-            const locationLabel = document.getElementById('current-location-label');
-            if (locationLabel) locationLabel.textContent = state.shortLocationName;
-
-            const newSelected = [];
-            for (let i = 0; i < 4; i++) {
-                const selectEl = document.getElementById(`modal-select-${i}`);
-                const stationId = selectEl ? selectEl.value : null;
-                const dbEntry = APIMS_STATIONS_DB.find(s => s.id === stationId) || APIMS_STATIONS_DB[i];
-                
-                newSelected.push({
-                    id: dbEntry.id,
-                    name: dbEntry.name,
-                    dist: dbEntry.defaultDist,
-                    api: dbEntry.baseAPI,
-                    coords: dbEntry.coords
-                });
-            }
-
-            state.selectedStations = newSelected;
-            closeLocationModal();
-            evaluateHazeProtocol();
-            showToast("Location and 4 APIMS stations updated!");
         }
 
         function openWhatsAppShare() {
             const modal = document.getElementById('whatsapp-modal');
             const textarea = document.getElementById('whatsapp-text-area');
 
-            const todayAvg = state.history[2].avgApi.toFixed(1);
+            const isAQI = state.metricStandard === 'AQI';
+            const unitLabel = isAQI ? 'AQI' : 'API';
+            const sourceUrl = isAQI ? URL_AQICN : URL_DOE;
+
+            const todayAvg = (isAQI ? state.history[2].avgAqi : state.history[2].avgApi).toFixed(1);
             const todayStatus = state.history[2].status;
             const dateStr = getRelativeDate(0);
 
             let statusMessage = "";
             if (todayStatus === "CLOSED") {
-                statusMessage = `🔴 *SCHOOL CLOSURE ANNOUNCEMENT*\nDue to haze conditions, today's 4-station average API reached *${todayAvg}* (Exceeding safety threshold).\n\n🏫 *School will be CLOSED tomorrow (${getRelativeDate(1)}).*`;
+                statusMessage = `🔴 *SCHOOL CLOSURE ANNOUNCEMENT*\nDue to haze conditions, today's 4-station average ${unitLabel} reached *${todayAvg}* (Exceeding safety threshold).\n\n🏫 *School will be CLOSED tomorrow (${getRelativeDate(1)}).*`;
             } else {
-                statusMessage = `🟢 *HAZE PROTOCOL UPDATE*\nToday's 4-station average API is *${todayAvg}* (Safe parameter ≤ 150).\n\n🏫 *School remains OPEN tomorrow (${getRelativeDate(1)}).*`;
+                statusMessage = `🟢 *HAZE PROTOCOL UPDATE*\nToday's 4-station average ${unitLabel} is *${todayAvg}* (Safe parameter ≤ 150).\n\n🏫 *School remains OPEN tomorrow (${getRelativeDate(1)}).*`;
             }
 
             const text = `📢 *${state.currentLocationName} — Haze Safety Update* 📢\n` +
-                         `🔗 *Source:* https://eqms.doe.gov.my/APIMS/main\n` +
+                         `🔗 *Tracking Standard:* ${unitLabel} (${sourceUrl})\n` +
                          `📅 *Date:* ${dateStr} (2:00 PM Protocol Measurement)\n\n` +
-                         `📊 *4 Nearest DOE APIMS Station Readings:*\n` +
-                         state.selectedStations.map(s => `• ${s.name}: API ${s.api}`).join('\n') +
-                         `\n\n🧮 *Average API Used:* *${todayAvg}*\n\n` +
+                         `📊 *4 Nearest Stations Readings:*\n` +
+                         state.selectedStations.map(s => `• ${s.name}: ${unitLabel} ${isAQI ? s.aqi : s.api}`).join('\n') +
+                         `\n\n🧮 *Average ${unitLabel} Used:* *${todayAvg}*\n\n` +
                          `${statusMessage}\n\n` +
                          `⚠️ *Safety Guidelines While Open:*\n` +
                          `- Outdoor activities & PE suspended.\n` +
                          `- Face masks mandatory between blocks.\n` +
                          `- Dismissal waiting strictly indoors.\n\n` +
-                         `Stay safe and follow official DOE updates!`;
+                         `Stay safe and follow official updates!`;
 
             if (textarea) textarea.value = text;
             if (modal) modal.classList.remove('hidden');
