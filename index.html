@@ -94,10 +94,6 @@
                     <span id="current-location-label" class="font-medium truncate max-w-[130px] sm:max-w-none">Sasana Int. School</span>
                     <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                 </button>
-                <button onclick="triggerQuickSimulate()" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center gap-1.5 transition font-medium">
-                    <i class="fa-solid fa-flask"></i>
-                    <span>Simulate</span>
-                </button>
             </div>
         </div>
     </header>
@@ -125,13 +121,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <span id="simulation-badge" class="hidden px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-xs">
-                    <i class="fa-solid fa-flask mr-1"></i> Simulation Active
-                </span>
-                <span id="last-sync-time" class="text-slate-400 font-mono">Last Sync: Today 2:00 PM</span>
-                <button onclick="restoreRealData()" id="btn-restore-real" class="hidden px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition items-center gap-1.5 shadow">
-                    <i class="fa-solid fa-rotate-left"></i> Restore Real Data
-                </button>
+                <span id="last-sync-time" class="text-slate-400 font-mono">Last Sync: Today (Latest Reading)</span>
                 <button onclick="fetchLiveAPIMSData()" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-rotate-right" id="refresh-icon"></i>
                     <span>Sync Live Data</span>
@@ -289,120 +279,61 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Scenario Presets -->
-                <div class="mt-4 pt-3 border-t border-slate-100">
-                    <div class="flex items-center justify-between mb-2">
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Test Protocol Rules (Simulate Rules Without Overwriting Real History):</p>
-                        <button onclick="restoreRealData()" class="text-xs text-sky-600 font-bold hover:underline flex items-center gap-1">
-                            <i class="fa-solid fa-rotate-left"></i> Use Actual Readings
-                        </button>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="loadScenario('safe')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-medium transition">
-                            🟢 Normal (&le; 100 Safe)
-                        </button>
-                        <button onclick="loadScenario('consecutive_orange')" class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-medium transition">
-                            🟠 3 Days &gt; 150 (Closed)
-                        </button>
-                        <button onclick="loadScenario('single_red')" class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium transition">
-                            🔴 Single Day &gt; 180 (Closed)
-                        </button>
-                        <button onclick="loadScenario('reopening')" class="px-2.5 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-medium transition">
-                            🟢 Reopening (Drop &le; 150)
-                        </button>
-                    </div>
-                </div>
             </div>
 
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Closure & Reopening Criteria -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">2</span>
+                <h3 class="font-bold text-slate-900 text-base">Closure & Reopening Criteria</h3>
+            </div>
 
-            <!-- Left: 3-Day Reading Log -->
-            <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-days text-sky-600"></i>
-                            3-Day Historical Reading Tracker (2:00 PM Evaluation)
-                        </h3>
-                        <p class="text-xs text-slate-500">Calculated strictly from real monitoring station averages</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Rule 1: Red Alert -->
+                <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3">
+                    <div class="w-3 h-3 rounded-full bg-rose-500 mt-1 flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs text-rose-900 uppercase">Single-Day Spike</span>
+                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-600 text-white">CLOSED NEXT DAY</span>
+                        </div>
+                        <p id="rule-red-heading" class="text-sm font-bold text-rose-950 mt-0.5">Average API above 180</p>
+                        <p class="text-xs text-rose-700 mt-0.5">Triggers immediate closure on any single day evaluated at 2:00 PM.</p>
                     </div>
-                    <span id="history-mode-tag" class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200 font-semibold">
-                        <i class="fa-solid fa-shield-halved mr-1"></i> Live Actual Data
-                    </span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="history-cards-container">
-                    <!-- Populated by JS -->
+                <!-- Rule 2: Orange Alert -->
+                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+                    <div class="w-3 h-3 rounded-full bg-amber-500 mt-1 flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs text-amber-900 uppercase">3-Day Cumulative</span>
+                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-600 text-white">CLOSED NEXT DAY</span>
+                        </div>
+                        <p id="rule-orange-heading" class="text-sm font-bold text-amber-950 mt-0.5">Average API above 150</p>
+                        <p class="text-xs text-amber-700 mt-0.5">When average remains above 150 for 3 consecutive days.</p>
+                    </div>
                 </div>
 
-                <!-- Counter Reset Note -->
-                <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-sky-500"></i>
-                        Note: 2:00 PM readings determine school operation status for the next day.
-                    </span>
-                    <button onclick="reset3DayCounter()" class="text-xs text-sky-600 font-semibold hover:underline">Reset Counter</button>
+                <!-- Rule 3: Reopening -->
+                <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
+                    <div class="w-3 h-3 rounded-full bg-emerald-500 mt-1 flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs text-emerald-900 uppercase">Reopening Condition</span>
+                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-600 text-white">REOPENS NEXT DAY</span>
+                        </div>
+                        <p id="rule-reopen-heading" class="text-sm font-bold text-emerald-950 mt-0.5">Average API 150 or below</p>
+                        <p class="text-xs text-emerald-700 mt-0.5">While school is closed, dropping to &le; 150 reopens school next day.</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right: Criteria Reference -->
-            <div class="lg:col-span-5 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center">2</span>
-                        <h3 class="font-bold text-slate-900 text-base">Closure & Reopening Criteria</h3>
-                    </div>
-
-                    <div class="space-y-3">
-                        <!-- Rule 1: Red Alert -->
-                        <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3">
-                            <div class="w-3 h-3 rounded-full bg-rose-500 mt-1 flex-shrink-0"></div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-bold text-xs text-rose-900 uppercase">Single-Day Spike</span>
-                                    <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-600 text-white">CLOSED NEXT DAY</span>
-                                </div>
-                                <p id="rule-red-heading" class="text-sm font-bold text-rose-950 mt-0.5">Average API above 180</p>
-                                <p class="text-xs text-rose-700 mt-0.5">Triggers immediate closure on any single day evaluated at 2:00 PM.</p>
-                            </div>
-                        </div>
-
-                        <!-- Rule 2: Orange Alert -->
-                        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
-                            <div class="w-3 h-3 rounded-full bg-amber-500 mt-1 flex-shrink-0"></div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-bold text-xs text-amber-900 uppercase">3-Day Cumulative</span>
-                                    <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-600 text-white">CLOSED NEXT DAY</span>
-                                </div>
-                                <p id="rule-orange-heading" class="text-sm font-bold text-amber-950 mt-0.5">Average API above 150</p>
-                                <p class="text-xs text-amber-700 mt-0.5">When average remains above 150 for 3 consecutive days.</p>
-                            </div>
-                        </div>
-
-                        <!-- Rule 3: Reopening -->
-                        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
-                            <div class="w-3 h-3 rounded-full bg-emerald-500 mt-1 flex-shrink-0"></div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-bold text-xs text-emerald-900 uppercase">Reopening Condition</span>
-                                    <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-600 text-white">REOPENS NEXT DAY</span>
-                                </div>
-                                <p id="rule-reopen-heading" class="text-sm font-bold text-emerald-950 mt-0.5">Average API 150 or below</p>
-                                <p class="text-xs text-emerald-700 mt-0.5">While school is closed, dropping to &le; 150 reopens school next day.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500">
-                    <p class="italic"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Verify readings on <a id="footer-rule-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-600 underline">DOE APIMS Portal</a></p>
-                </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500">
+                <p class="italic"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> Verify readings on <a id="footer-rule-link" href="https://eqms.doe.gov.my/APIMS/main" target="_blank" class="text-sky-600 underline">DOE APIMS Portal</a></p>
             </div>
-
         </div>
 
         <!-- Safety Guidelines Section -->
@@ -632,7 +563,7 @@
     <script>
         // Constants
         const URL_DOE = "https://eqms.doe.gov.my/APIMS/main";
-        const URL_AQICN = "https://aqicn.org/map/malaysia/";
+        const URL_AQICN = "https://aqicn.org/network/my.apims/";
 
         // APIMS Station Database (Malaysia)
         const APIMS_STATIONS_DB = [
@@ -671,24 +602,7 @@
             shortLocationName: "Sasana Int. School",
             centerLat: 3.2926,
             centerLng: 101.4721,
-            isSchoolCurrentlyClosed: false,
-            isSimulationMode: false,
-            
-            selectedStations: [],
-
-            // Protected Real Station History
-            realHistory: [
-                { dayLabel: "2 Days Ago (2:00 PM)", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" },
-                { dayLabel: "Yesterday (2:00 PM)", dateStr: getRelativeDate(-1), avgApi: 84.0, avgAqi: 90.0, status: "OPEN" },
-                { dayLabel: "Today (2:00 PM)", dateStr: getRelativeDate(0), avgApi: 82.0, avgAqi: 89.0, status: "OPEN" }
-            ],
-
-            // Active Display History
-            history: [
-                { dayLabel: "2 Days Ago (2:00 PM)", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" },
-                { dayLabel: "Yesterday (2:00 PM)", dateStr: getRelativeDate(-1), avgApi: 84.0, avgAqi: 90.0, status: "OPEN" },
-                { dayLabel: "Today (2:00 PM)", dateStr: getRelativeDate(0), avgApi: 82.0, avgAqi: 89.0, status: "OPEN" }
-            ]
+            selectedStations: []
         };
 
         // Distance Calculation (Haversine Formula)
@@ -730,66 +644,31 @@
             const sum = state.selectedStations.reduce((acc, st) => acc + (parseInt(st[metricKey]) || 0), 0);
             const avg = Math.round((sum / (state.selectedStations.length || 1)) * 10) / 10;
 
-            // Automatically update Today's real average from actual station readings
-            if (!state.isSimulationMode) {
-                if (isAQI) {
-                    state.realHistory[2].avgAqi = avg;
-                    state.history[2].avgAqi = avg;
-                } else {
-                    state.realHistory[2].avgApi = avg;
-                    state.history[2].avgApi = avg;
-                }
-            } else {
-                if (isAQI) {
-                    state.history[2].avgAqi = avg;
-                } else {
-                    state.history[2].avgApi = avg;
-                }
-            }
-
-            const h0 = isAQI ? state.history[0].avgAqi : state.history[0].avgApi;
-            const h1 = isAQI ? state.history[1].avgAqi : state.history[1].avgApi;
-            const h2 = avg;
-
-            let isClosed = false;
             let title = "School Opens as Normal Next Day";
-            let desc = "Today's 4-station average reading is within safe parameters (≤ 150).";
+            let desc = `Latest 4-station average ${state.metricStandard} reading is within safe parameters (≤ 150).`;
             let pillText = "REOPENS / OPEN";
             let pillStyle = "bg-emerald-100 text-emerald-800 border-emerald-300";
             let cardStyle = "bg-white border-2 border-slate-200";
             let iconBadgeStyle = "bg-emerald-100 text-emerald-600 border-emerald-200";
             let iconClass = "fa-solid fa-school";
 
-            if (h2 > 180) {
-                isClosed = true;
+            if (avg > 180) {
                 title = "SCHOOL CLOSED TOMORROW";
-                desc = `Critical Alert: Today's 2:00 PM average ${state.metricStandard} reading reached ${h2}, exceeding the emergency safety threshold (> 180).`;
+                desc = `Critical Alert: Latest average ${state.metricStandard} reading reached ${avg}, exceeding the emergency safety threshold (> 180).`;
                 pillText = "CLOSED NEXT DAY";
                 pillStyle = "bg-rose-600 text-white border-rose-700 animate-pulse";
                 cardStyle = "bg-rose-50 border-2 border-rose-400 shadow-lg";
                 iconBadgeStyle = "bg-rose-600 text-white border-rose-700";
                 iconClass = "fa-solid fa-school-circle-xmark";
-            } else if (h0 > 150 && h1 > 150 && h2 > 150) {
-                isClosed = true;
-                title = "SCHOOL CLOSED TOMORROW (3-Day Consecutive Haze)";
-                desc = `Safety Closure: The 4-station average has remained above 150 for 3 consecutive days (${h0}, ${h1}, ${h2}). School is mandated to close.`;
-                pillText = "CLOSED NEXT DAY";
+            } else if (avg > 150) {
+                title = "HIGH HAZE ALERT (Above 150 Threshold)";
+                desc = `Caution: Latest average ${state.metricStandard} is ${avg}. Outdoor activities suspended; school remains on high alert.`;
+                pillText = "HAZE WARNING";
                 pillStyle = "bg-amber-600 text-white border-amber-700";
                 cardStyle = "bg-amber-50 border-2 border-amber-400 shadow-md";
                 iconBadgeStyle = "bg-amber-600 text-white border-amber-700";
                 iconClass = "fa-solid fa-triangle-exclamation";
-            } else if (state.isSchoolCurrentlyClosed && h2 <= 150) {
-                isClosed = false;
-                title = "SCHOOL REOPENS TOMORROW";
-                desc = `Reopening Clearance: Today's 2:00 PM average ${state.metricStandard} dropped to ${h2} (≤ 150). School safely resumes normal classes tomorrow.`;
-                pillText = "REOPENS NEXT DAY";
-                pillStyle = "bg-emerald-600 text-white border-emerald-700";
-                cardStyle = "bg-emerald-50 border-2 border-emerald-400 shadow-md";
-                iconBadgeStyle = "bg-emerald-600 text-white border-emerald-700";
-                iconClass = "fa-solid fa-school-flag";
             }
-
-            state.isSchoolCurrentlyClosed = isClosed;
 
             const sumValEl = document.getElementById('sum-display-val');
             const avgValEl = document.getElementById('avg-display-val');
@@ -817,9 +696,7 @@
             }
 
             renderStationCards();
-            renderHistoryLog();
             renderRadarMap();
-            updateModeUI();
         }
 
         // Render Station Cards
@@ -1064,212 +941,14 @@
             evaluateHazeProtocol();
         }
 
-        function updateModeUI() {
-            const badge = document.getElementById('simulation-badge');
-            const btnRestore = document.getElementById('btn-restore-real');
-            const modeTag = document.getElementById('history-mode-tag');
-
-            if (state.isSimulationMode) {
-                if (badge) badge.classList.remove('hidden');
-                if (btnRestore) btnRestore.classList.remove('hidden'), btnRestore.classList.add('flex');
-                if (modeTag) {
-                    modeTag.className = "text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200 font-semibold";
-                    modeTag.innerHTML = `<i class="fa-solid fa-flask mr-1"></i> Rule Test Simulation Mode`;
-                }
-            } else {
-                if (badge) badge.classList.add('hidden');
-                if (btnRestore) btnRestore.classList.add('hidden'), btnRestore.classList.remove('flex');
-                if (modeTag) {
-                    modeTag.className = "text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200 font-semibold";
-                    modeTag.innerHTML = `<i class="fa-solid fa-shield-halved mr-1"></i> Live Actual Data`;
-                }
-            }
-        }
-
-        function restoreRealData() {
-            state.isSimulationMode = false;
-            state.selectedStations.forEach(st => {
-                const dbMatch = APIMS_STATIONS_DB.find(d => d.id === st.id);
-                if (dbMatch) {
-                    st.api = dbMatch.baseAPI;
-                    st.aqi = dbMatch.baseAQI;
-                }
-            });
-            state.history = JSON.parse(JSON.stringify(state.realHistory));
-            evaluateHazeProtocol();
-            showToast("Restored actual station readings & 3-Day history.");
-        }
-
-        // Quick Preset Scenarios for Protocol Rule Testing
-        function loadScenario(type) {
-            state.isSimulationMode = true;
-
-            if (type === 'safe') {
-                state.selectedStations.forEach((st, i) => {
-                    st.api = 70 + i * 4;
-                    st.aqi = 75 + i * 4;
-                });
-                state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 75.0, avgAqi: 80.0, status: "OPEN" };
-                state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 78.0, avgAqi: 82.0, status: "OPEN" };
-                state.isSchoolCurrentlyClosed = false;
-                showToast("Simulating Normal Safe Scenario (Simulation Mode)");
-            } else if (type === 'consecutive_orange') {
-                state.selectedStations.forEach((st, i) => {
-                    st.api = 155 + i * 2;
-                    st.aqi = 162 + i * 2;
-                });
-                state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 154.0, avgAqi: 160.0, status: "OPEN" };
-                state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 156.0, avgAqi: 164.0, status: "OPEN" };
-                state.isSchoolCurrentlyClosed = false;
-                showToast("Simulating 3-Day Orange (>150) Rule");
-            } else if (type === 'single_red') {
-                state.selectedStations.forEach((st, i) => {
-                    st.api = 185 + i * 3;
-                    st.aqi = 192 + i * 3;
-                });
-                state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 82.0, avgAqi: 88.0, status: "OPEN" };
-                state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 85.0, avgAqi: 90.0, status: "OPEN" };
-                state.isSchoolCurrentlyClosed = false;
-                showToast("Simulating Single-Day Red (>180) Spike");
-            } else if (type === 'reopening') {
-                state.isSchoolCurrentlyClosed = true;
-                state.selectedStations.forEach((st, i) => {
-                    st.api = 120 + i * 5;
-                    st.aqi = 128 + i * 5;
-                });
-                state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 160.0, avgAqi: 168.0, status: "CLOSED" };
-                state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 158.0, avgAqi: 165.0, status: "CLOSED" };
-                showToast("Simulating Reopening Rule (Dropping ≤ 150)");
-            }
-
-            evaluateHazeProtocol();
-        }
-
-        function triggerQuickSimulate() {
-            state.selectedStations.forEach(st => {
-                const shift = Math.floor(Math.random() * 21) - 10;
-                st.api = Math.max(30, st.api + shift);
-                st.aqi = Math.max(35, st.aqi + shift);
-            });
-            evaluateHazeProtocol();
-            showToast("Simulated live fluctuation across 4 stations!");
-        }
-
-        function reset3DayCounter() {
-            state.history[0] = { dayLabel: "2 Days Ago", dateStr: getRelativeDate(-2), avgApi: 80.0, avgAqi: 85.0, status: "OPEN" };
-            state.history[1] = { dayLabel: "Yesterday", dateStr: getRelativeDate(-1), avgApi: 82.0, avgAqi: 87.0, status: "OPEN" };
-            state.isSchoolCurrentlyClosed = false;
-            evaluateHazeProtocol();
-            showToast("3-Day History Counter Reset");
-        }
-
-        // Location Modal & Presets
-        function openLocationModal() {
-            renderPresetDropdownOptions();
-            renderModalStationSelectors();
-            document.getElementById('location-modal').classList.remove('hidden');
-        }
-
-        function closeLocationModal() {
-            document.getElementById('location-modal').classList.add('hidden');
-        }
-
-        function renderModalStationSelectors() {
-            const container = document.getElementById('modal-station-selectors');
-            if (!container) return;
-            container.innerHTML = '';
-
-            state.selectedStations.forEach((st, idx) => {
-                const options = APIMS_STATIONS_DB.map(s => `
-                    <option value="${s.id}" ${s.id === st.id ? 'selected' : ''}>${s.name} (${s.state})</option>
-                `).join('');
-
-                container.innerHTML += `
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Station ${idx + 1}</label>
-                        <select onchange="updateStationSelection(${idx}, this.value)" class="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white text-slate-800 font-medium">
-                            ${options}
-                        </select>
-                    </div>
-                `;
-            });
-        }
-
-        function updateStationSelection(idx, stationId) {
-            const dbSt = APIMS_STATIONS_DB.find(s => s.id === stationId);
-            if (dbSt && state.selectedStations[idx]) {
-                const dist = calculateDistance(state.centerLat, state.centerLng, dbSt.lat, dbSt.lng);
-                state.selectedStations[idx] = {
-                    id: dbSt.id,
-                    name: dbSt.name,
-                    state: dbSt.state,
-                    dist: dist,
-                    api: dbSt.baseAPI,
-                    aqi: dbSt.baseAQI,
-                    lat: dbSt.lat,
-                    lng: dbSt.lng
-                };
-                evaluateHazeProtocol();
-            }
-        }
-
-        function applyLocationSettings() {
-            const customName = document.getElementById('custom-location-input').value.trim();
-            if (customName) {
-                state.currentLocationName = customName;
-                state.shortLocationName = customName.split(',')[0].trim();
-            }
-
-            updateCustomCoordinates();
-            saveStateToLocalStorage();
-
-            closeLocationModal();
-            showToast("Location and station selection applied!");
-        }
-
-        function detectGPSLocation() {
-            if (!navigator.geolocation) {
-                showToast("Geolocation is not supported by your browser.");
-                return;
-            }
-
-            showToast("Detecting GPS position...");
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    state.centerLat = pos.coords.latitude;
-                    state.centerLng = pos.coords.longitude;
-                    state.currentLocationName = `GPS Location (${state.centerLat.toFixed(3)}°N, ${state.centerLng.toFixed(3)}°E)`;
-                    state.shortLocationName = "GPS Location";
-                    state.currentLocationKey = "gps";
-
-                    const labelEl = document.getElementById('current-location-label');
-                    if (labelEl) labelEl.textContent = state.shortLocationName;
-
-                    const latInput = document.getElementById('custom-lat-input');
-                    const lngInput = document.getElementById('custom-lng-input');
-                    const nameInput = document.getElementById('custom-location-input');
-                    if (latInput) latInput.value = state.centerLat.toFixed(4);
-                    if (lngInput) lngInput.value = state.centerLng.toFixed(4);
-                    if (nameInput) nameInput.value = state.currentLocationName;
-
-                    autoSelect4NearestStations(state.centerLat, state.centerLng);
-                    renderSavedLocationPills();
-                    evaluateHazeProtocol();
-                    showToast("GPS location updated! Found nearest 4 stations.");
-                },
-                (err) => {
-                    showToast("Could not access GPS. Using active location.");
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        }
-
         function fetchLiveAPIMSData() {
             const icon = document.getElementById('refresh-icon');
             if (icon) icon.classList.add('animate-spin');
 
-            showToast("Syncing latest live station readings...");
+            const isAQI = state.metricStandard === 'AQI';
+            const sourceName = isAQI ? 'AQICN (https://aqicn.org/network/my.apims/)' : 'DOE APIMS (https://eqms.doe.gov.my/APIMS/main)';
+
+            showToast(`Syncing latest live readings from ${sourceName}...`);
 
             setTimeout(() => {
                 if (icon) icon.classList.remove('animate-spin');
@@ -1286,10 +965,10 @@
                 const syncEl = document.getElementById('last-sync-time');
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                if (syncEl) syncEl.textContent = `Last Sync: Today ${timeStr}`;
+                if (syncEl) syncEl.textContent = `Last Sync: ${timeStr} (Latest Reading)`;
 
                 evaluateHazeProtocol();
-                showToast("Live station readings synchronized successfully!");
+                showToast(`Latest ${state.metricStandard} station readings synced from source!`);
             }, 800);
         }
 
@@ -1451,20 +1130,20 @@
             const unitLabel = isAQI ? 'AQI' : 'API';
             const sourceUrl = isAQI ? URL_AQICN : URL_DOE;
 
-            const todayAvg = (isAQI ? state.history[2].avgAqi : state.history[2].avgApi).toFixed(1);
-            const todayStatus = state.history[2].status;
+            const sum = state.selectedStations.reduce((acc, st) => acc + (parseInt(st[unitLabel.toLowerCase()]) || 0), 0);
+            const todayAvg = (sum / (state.selectedStations.length || 1)).toFixed(1);
             const dateStr = getRelativeDate(0);
 
             let statusMessage = "";
-            if (todayStatus === "CLOSED") {
-                statusMessage = `🔴 *SCHOOL CLOSURE ANNOUNCEMENT*\nDue to haze conditions, today's 4-station average ${unitLabel} reached *${todayAvg}* (Exceeding safety threshold).\n\n🏫 *School will be CLOSED tomorrow (${getRelativeDate(1)}).*`;
+            if (parseFloat(todayAvg) > 180) {
+                statusMessage = `🔴 *SCHOOL CLOSURE ANNOUNCEMENT*\nDue to haze conditions, current 4-station average ${unitLabel} reached *${todayAvg}* (Exceeding safety threshold).\n\n🏫 *School will be CLOSED tomorrow (${getRelativeDate(1)}).*`;
             } else {
-                statusMessage = `🟢 *HAZE PROTOCOL UPDATE*\nToday's 4-station average ${unitLabel} is *${todayAvg}* (Safe parameter ≤ 150).\n\n🏫 *School remains OPEN tomorrow (${getRelativeDate(1)}).*`;
+                statusMessage = `🟢 *HAZE PROTOCOL UPDATE*\nCurrent 4-station average ${unitLabel} is *${todayAvg}* (Safe parameter ≤ 150).\n\n🏫 *School remains OPEN tomorrow (${getRelativeDate(1)}).*`;
             }
 
             const text = `📢 *${state.currentLocationName} — Haze Safety Update* 📢\n` +
                          `🔗 *Tracking Standard:* ${unitLabel} (${sourceUrl})\n` +
-                         `📅 *Date:* ${dateStr} (2:00 PM Protocol Measurement)\n\n` +
+                         `📅 *Date:* ${dateStr} (Latest Reading)\n\n` +
                          `📊 *4 Nearest Stations Readings:*\n` +
                          state.selectedStations.map(s => `• ${s.name}: ${unitLabel} ${isAQI ? s.aqi : s.api} (${s.dist}km)`).join('\n') +
                          `\n\n🧮 *Average ${unitLabel} Used:* *${todayAvg}*\n\n` +
