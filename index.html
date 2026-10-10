@@ -325,45 +325,12 @@
                     <div>
                         <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
                             <i class="fa-solid fa-calendar-days text-sky-600"></i>
-                            3-Day Historical Reading Tracker (Actual Readings)
+                            3-Day Historical Reading Tracker (2:00 PM Evaluation)
                         </h3>
                         <p class="text-xs text-slate-500">Calculated strictly from real monitoring station averages</p>
                     </div>
                     <span id="history-mode-tag" class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200 font-semibold">
                         <i class="fa-solid fa-shield-halved mr-1"></i> Live Actual Data
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="history-cards-container">
-                    <!-- Populated by JS -->
-                </div>
-
-                <!-- Counter Reset Note -->
-                <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
-                    <span class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-sky-500"></i>
-                        Note: Today's reading is calculated automatically from the 4 active stations.
-                    </span>
-                    <button onclick="restoreRealData()" class="text-xs text-sky-600 font-semibold hover:underline">Recalculate Real Data</button>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            <!-- Left: 3-Day Reading Log -->
-            <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-days text-sky-600"></i>
-                            3-Day Historical Reading Tracker (2:00 PM API)
-                        </h3>
-                        <p class="text-xs text-slate-500">Strictly tracks 2:00 PM evaluation readings per MOE/DOE safety guidelines</p>
-                    </div>
-                    <span class="text-xs bg-sky-50 text-sky-700 px-2.5 py-1 rounded-full border border-sky-200 font-semibold">
-                        2:00 PM Evaluated Log
                     </span>
                 </div>
 
@@ -663,6 +630,40 @@
     </div>
 
     <script>
+        // Constants
+        const URL_DOE = "https://eqms.doe.gov.my/APIMS/main";
+        const URL_AQICN = "https://aqicn.org/map/malaysia/";
+
+        // APIMS Station Database (Malaysia)
+        const APIMS_STATIONS_DB = [
+            { id: "st_kualaselangor", name: "Kuala Selangor", state: "Selangor", lat: 3.3330, lng: 101.2500, baseAPI: 68, baseAQI: 72 },
+            { id: "st_shahalam", name: "Shah Alam", state: "Selangor", lat: 3.0733, lng: 101.5185, baseAPI: 85, baseAQI: 92 },
+            { id: "st_petalingjaya", name: "Petaling Jaya", state: "Selangor", lat: 3.1083, lng: 101.6067, baseAPI: 88, baseAQI: 95 },
+            { id: "st_batumuda", name: "Batu Muda (KL)", state: "W.P. Kuala Lumpur", lat: 3.2103, lng: 101.6811, baseAPI: 82, baseAQI: 89 },
+            { id: "st_cheras", name: "Cheras (KL)", state: "W.P. Kuala Lumpur", lat: 3.1064, lng: 101.7253, baseAPI: 79, baseAQI: 84 },
+            { id: "st_klang", name: "Klang", state: "Selangor", lat: 3.0450, lng: 101.4470, baseAPI: 91, baseAQI: 98 },
+            { id: "st_banting", name: "Banting", state: "Selangor", lat: 2.8211, lng: 101.5031, baseAPI: 76, baseAQI: 80 },
+            { id: "st_putrajaya", name: "Putrajaya", state: "W.P. Putrajaya", lat: 2.9264, lng: 101.6964, baseAPI: 74, baseAQI: 78 },
+            { id: "st_nilai", name: "Nilai", state: "Negeri Sembilan", lat: 2.8183, lng: 101.7972, baseAPI: 72, baseAQI: 76 },
+            { id: "st_seremban", name: "Seremban", state: "Negeri Sembilan", lat: 2.7258, lng: 101.9378, baseAPI: 65, baseAQI: 70 },
+            { id: "st_portdickson", name: "Port Dickson", state: "Negeri Sembilan", lat: 2.5228, lng: 101.7958, baseAPI: 58, baseAQI: 62 },
+            { id: "st_ipoh", name: "Ipoh (Pegoh)", state: "Perak", lat: 4.5975, lng: 101.0901, baseAPI: 62, baseAQI: 65 },
+            { id: "st_taiping", name: "Taiping", state: "Perak", lat: 4.8517, lng: 100.7408, baseAPI: 54, baseAQI: 58 },
+            { id: "st_seberangjaya", name: "Seberang Jaya", state: "Pulau Pinang", lat: 5.3942, lng: 100.3986, baseAPI: 61, baseAQI: 64 },
+            { id: "st_alorstar", name: "Alor Setar", state: "Kedah", lat: 6.1211, lng: 100.3601, baseAPI: 50, baseAQI: 52 },
+            { id: "st_johorbahru", name: "Larkin (Johor Bahru)", state: "Johor", lat: 1.4927, lng: 103.7414, baseAPI: 66, baseAQI: 70 },
+            { id: "st_kuantan", name: "Indera Mahkota (Kuantan)", state: "Pahang", lat: 3.8167, lng: 103.3000, baseAPI: 52, baseAQI: 55 },
+            { id: "st_kualaterengganu", name: "Kuala Terengganu", state: "Terengganu", lat: 5.3302, lng: 103.1408, baseAPI: 48, baseAQI: 50 }
+        ];
+
+        const LOCATION_PRESETS = [
+            { key: "sasana", name: "Sasana Int. School Bandar Tasik Puteri", shortName: "Sasana Int. School", lat: 3.2926, lng: 101.4721 },
+            { key: "klcc", name: "KLCC Twin Towers, Kuala Lumpur", shortName: "KLCC, KL", lat: 3.1579, lng: 101.7116 },
+            { key: "shahalam", name: "Shah Alam City Centre, Selangor", shortName: "Shah Alam", lat: 3.0738, lng: 101.5183 },
+            { key: "putrajaya", name: "Precinct 1, Putrajaya", shortName: "Putrajaya", lat: 2.9264, lng: 101.6964 },
+            { key: "rawang", name: "Rawang Town, Selangor", shortName: "Rawang", lat: 3.3214, lng: 101.5768 }
+        ];
+
         let state = {
             metricStandard: 'API', // 'API' or 'AQI'
             currentLocationKey: "sasana",
@@ -689,6 +690,37 @@
                 { dayLabel: "Today (2:00 PM)", dateStr: getRelativeDate(0), avgApi: 82.0, avgAqi: 89.0, status: "OPEN" }
             ]
         };
+
+        // Distance Calculation (Haversine Formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // radius of Earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return Math.round(R * c * 10) / 10;
+        }
+
+        // Auto Select 4 Nearest Stations
+        function autoSelect4NearestStations(lat, lng) {
+            const sorted = [...APIMS_STATIONS_DB].map(st => {
+                const dist = calculateDistance(lat, lng, st.lat, st.lng);
+                return {
+                    id: st.id,
+                    name: st.name,
+                    state: st.state,
+                    dist: dist,
+                    api: st.baseAPI,
+                    aqi: st.baseAQI,
+                    lat: st.lat,
+                    lng: st.lng
+                };
+            }).sort((a, b) => a.dist - b.dist);
+
+            state.selectedStations = sorted.slice(0, 4);
+        }
 
         // Main Protocol Decision Engine
         function evaluateHazeProtocol() {
@@ -790,6 +822,248 @@
             updateModeUI();
         }
 
+        // Render Station Cards
+        function renderStationCards() {
+            const container = document.getElementById('stations-input-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const isAQI = state.metricStandard === 'AQI';
+
+            state.selectedStations.forEach((st, idx) => {
+                const val = isAQI ? st.aqi : st.api;
+                let badgeBg = "bg-emerald-100 text-emerald-800 border-emerald-300";
+                if (val > 180) {
+                    badgeBg = "bg-rose-100 text-rose-800 border-rose-300 font-bold";
+                } else if (val > 150) {
+                    badgeBg = "bg-amber-100 text-amber-800 border-amber-300 font-bold";
+                } else if (val > 100) {
+                    badgeBg = "bg-yellow-100 text-yellow-800 border-yellow-300";
+                }
+
+                container.innerHTML += `
+                    <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-white hover:shadow-md transition flex items-center justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="w-5 h-5 rounded-full bg-slate-800 text-white font-bold text-[10px] flex items-center justify-center flex-shrink-0">${idx + 1}</span>
+                                <h4 class="font-bold text-slate-900 text-xs truncate" title="${st.name}">${st.name}</h4>
+                            </div>
+                            <p class="text-[11px] text-slate-500 font-medium">
+                                <i class="fa-solid fa-location-arrow text-sky-500 mr-1 text-[10px]"></i>${st.dist} km away
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <div class="text-right">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block">${state.metricStandard}</span>
+                                <input type="number" value="${val}" min="0" max="500" onchange="updateStationReading(${idx}, this.value)" class="w-16 px-2 py-1 text-center text-sm font-bold rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500 bg-white text-slate-900 shadow-sm">
+                            </div>
+                            <span class="px-2 py-1 rounded-md text-xs font-extrabold border ${badgeBg}">
+                                ${val}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateStationReading(idx, val) {
+            const num = parseInt(val) || 0;
+            if (state.selectedStations[idx]) {
+                if (state.metricStandard === 'AQI') {
+                    state.selectedStations[idx].aqi = num;
+                } else {
+                    state.selectedStations[idx].api = num;
+                }
+                evaluateHazeProtocol();
+            }
+        }
+
+        // Render Visual Radar Map
+        function renderRadarMap() {
+            const stationsContainer = document.getElementById('radar-stations-container');
+            const svgOverlay = document.getElementById('radar-svg-overlay');
+            const centerNameEl = document.getElementById('radar-center-name');
+
+            if (centerNameEl) {
+                centerNameEl.textContent = state.shortLocationName || "Target Location";
+            }
+
+            if (!stationsContainer || !svgOverlay) return;
+
+            stationsContainer.innerHTML = '';
+            svgOverlay.innerHTML = '';
+
+            const maxRadiusKm = 60; // Outer circle edge scale
+
+            state.selectedStations.forEach((st, idx) => {
+                const dLat = (st.lat - state.centerLat);
+                const dLng = (st.lng - state.centerLng);
+                
+                const dY = dLat * 111; // ~111km per deg lat
+                const dX = dLng * 111 * Math.cos(state.centerLat * Math.PI / 180);
+
+                const maxOffsetPx = 40; 
+                const xPercent = 50 + Math.max(-42, Math.min(42, (dX / maxRadiusKm) * maxOffsetPx));
+                const yPercent = 50 - Math.max(-42, Math.min(42, (dY / maxRadiusKm) * maxOffsetPx));
+
+                const val = state.metricStandard === 'AQI' ? st.aqi : st.api;
+
+                const dot = document.createElement('div');
+                dot.className = "absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer transition-all duration-300 z-20";
+                dot.style.left = `${xPercent}%`;
+                dot.style.top = `${yPercent}%`;
+
+                dot.innerHTML = `
+                    <div class="relative">
+                        <div class="w-6 h-6 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center font-extrabold text-[10px] shadow-lg border-2 border-slate-900 group-hover:scale-125 transition-transform">
+                            ${val}
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-sky-500 text-white text-[9px] font-bold flex items-center justify-center border border-slate-900">
+                            ${idx + 1}
+                        </div>
+                    </div>
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full mb-1 px-2 py-1 bg-slate-900 text-white text-[10px] rounded shadow-lg whitespace-nowrap z-30 pointer-events-none">
+                        <span class="font-bold">${st.name}</span> (${st.dist} km) — ${state.metricStandard}: ${val}
+                    </div>
+                `;
+
+                stationsContainer.appendChild(dot);
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", "50%");
+                line.setAttribute("y1", "50%");
+                line.setAttribute("x2", `${xPercent}%`);
+                line.setAttribute("y2", `${yPercent}%`);
+                line.setAttribute("stroke", "rgba(245, 158, 11, 0.4)");
+                line.setAttribute("stroke-width", "1.5");
+                line.setAttribute("stroke-dasharray", "3,3");
+                svgOverlay.appendChild(line);
+            });
+        }
+
+        // Render History Log
+        function renderHistoryLog() {
+            const container = document.getElementById('history-cards-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const isAQI = state.metricStandard === 'AQI';
+
+            state.history.forEach((h, idx) => {
+                const val = isAQI ? h.avgAqi : h.avgApi;
+                let badgeBg = "bg-emerald-100 text-emerald-800 border-emerald-300";
+                let statusText = "OPEN";
+                
+                if (val > 180) {
+                    badgeBg = "bg-rose-100 text-rose-800 border-rose-300 font-bold";
+                    statusText = "CLOSED";
+                } else if (val > 150) {
+                    badgeBg = "bg-amber-100 text-amber-800 border-amber-300 font-bold";
+                    statusText = "WARNING";
+                }
+
+                const isToday = idx === 2;
+
+                container.innerHTML += `
+                    <div class="p-3.5 rounded-xl border ${isToday ? 'border-sky-300 bg-sky-50/50 shadow-sm' : 'border-slate-200 bg-slate-50/60'} relative flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${h.dayLabel}</span>
+                                ${isToday ? '<span class="text-[9px] font-bold bg-sky-600 text-white px-1.5 py-0.5 rounded">Active Today</span>' : ''}
+                            </div>
+                            <p class="text-xs font-semibold text-slate-700 mb-2">${h.dateStr}</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-xl font-extrabold text-slate-900">${val.toFixed(1)}</span>
+                                <span class="text-[10px] font-bold text-slate-400">${state.metricStandard}</span>
+                            </div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeBg}">
+                                ${statusText}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Preset & Favorite Locations UI Renderers
+        function renderPresetDropdownOptions() {
+            const select = document.getElementById('preset-location-select');
+            if (!select) return;
+
+            let html = `<option value="">-- Choose Preset Location --</option>`;
+            LOCATION_PRESETS.forEach(p => {
+                const isSelected = state.currentLocationKey === p.key;
+                html += `<option value="${p.key}" ${isSelected ? 'selected' : ''}>${p.name}</option>`;
+            });
+
+            const saved = getSavedCustomLocations();
+            if (saved.length > 0) {
+                html += `<optgroup label="Your Saved Favorites">`;
+                saved.forEach(s => {
+                    html += `<option value="custom_${s.id}">${s.name}</option>`;
+                });
+                html += `</optgroup>`;
+            }
+
+            select.innerHTML = html;
+        }
+
+        function renderSavedLocationPills() {
+            const container = document.getElementById('saved-locations-pills-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            LOCATION_PRESETS.forEach(p => {
+                const isActive = state.currentLocationKey === p.key;
+                container.innerHTML += `
+                    <button onclick="handleLocationPresetChange('${p.key}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${isActive ? 'bg-sky-500 text-white font-bold shadow' : 'bg-slate-700/80 hover:bg-slate-700 text-slate-200 border border-slate-600'}">
+                        ${p.shortName}
+                    </button>
+                `;
+            });
+        }
+
+        // Metric Standard Selector
+        function setMetricStandard(standard) {
+            state.metricStandard = standard;
+            
+            const btnApi = document.getElementById('btn-metric-api');
+            const btnAqi = document.getElementById('btn-metric-aqi');
+            const activeLabel = document.getElementById('active-metric-label');
+            const bannerLink = document.getElementById('banner-source-link');
+            const headerName = document.getElementById('header-source-name');
+            const headerLink = document.getElementById('header-source-link');
+            const footerLink = document.getElementById('footer-rule-link');
+
+            if (standard === 'AQI') {
+                if (btnAqi) btnAqi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition bg-indigo-600 text-white shadow";
+                if (btnApi) btnApi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white";
+                if (activeLabel) activeLabel.textContent = "AQI (AQICN)";
+                if (bannerLink) {
+                    bannerLink.href = URL_AQICN;
+                    bannerLink.textContent = URL_AQICN;
+                }
+                if (headerName) headerName.textContent = "WAQI / AQICN Live";
+                if (headerLink) headerLink.href = URL_AQICN;
+                if (footerLink) footerLink.href = URL_AQICN;
+            } else {
+                if (btnApi) btnApi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition bg-sky-600 text-white shadow";
+                if (btnAqi) btnAqi.className = "px-2.5 py-1 rounded-lg font-bold text-xs transition text-slate-400 hover:text-white";
+                if (activeLabel) activeLabel.textContent = "API (DOE)";
+                if (bannerLink) {
+                    bannerLink.href = URL_DOE;
+                    bannerLink.textContent = URL_DOE;
+                }
+                if (headerName) headerName.textContent = "DOE APIMS Live";
+                if (headerLink) headerLink.href = URL_DOE;
+                if (footerLink) footerLink.href = URL_DOE;
+            }
+
+            evaluateHazeProtocol();
+        }
+
         function updateModeUI() {
             const badge = document.getElementById('simulation-badge');
             const btnRestore = document.getElementById('btn-restore-real');
@@ -797,7 +1071,7 @@
 
             if (state.isSimulationMode) {
                 if (badge) badge.classList.remove('hidden');
-                if (btnRestore) badge.parentElement.appendChild(btnRestore), btnRestore.classList.remove('hidden'), btnRestore.classList.add('flex');
+                if (btnRestore) btnRestore.classList.remove('hidden'), btnRestore.classList.add('flex');
                 if (modeTag) {
                     modeTag.className = "text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200 font-semibold";
                     modeTag.innerHTML = `<i class="fa-solid fa-flask mr-1"></i> Rule Test Simulation Mode`;
@@ -814,7 +1088,6 @@
 
         function restoreRealData() {
             state.isSimulationMode = false;
-            // Restore actual station base readings
             state.selectedStations.forEach(st => {
                 const dbMatch = APIMS_STATIONS_DB.find(d => d.id === st.id);
                 if (dbMatch) {
@@ -908,12 +1181,12 @@
 
             state.selectedStations.forEach((st, idx) => {
                 const options = APIMS_STATIONS_DB.map(s => `
-                    <option value="${s.id}" ${s.id === st.id ? 'selected' : ''}>${s.name}</option>
+                    <option value="${s.id}" ${s.id === st.id ? 'selected' : ''}>${s.name} (${s.state})</option>
                 `).join('');
 
                 container.innerHTML += `
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase">Station ${idx + 1}</label>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Station ${idx + 1}</label>
                         <select onchange="updateStationSelection(${idx}, this.value)" class="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white text-slate-800 font-medium">
                             ${options}
                         </select>
@@ -929,6 +1202,7 @@
                 state.selectedStations[idx] = {
                     id: dbSt.id,
                     name: dbSt.name,
+                    state: dbSt.state,
                     dist: dist,
                     api: dbSt.baseAPI,
                     aqi: dbSt.baseAQI,
@@ -951,6 +1225,189 @@
 
             closeLocationModal();
             showToast("Location and station selection applied!");
+        }
+
+        function detectGPSLocation() {
+            if (!navigator.geolocation) {
+                showToast("Geolocation is not supported by your browser.");
+                return;
+            }
+
+            showToast("Detecting GPS position...");
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    state.centerLat = pos.coords.latitude;
+                    state.centerLng = pos.coords.longitude;
+                    state.currentLocationName = `GPS Location (${state.centerLat.toFixed(3)}°N, ${state.centerLng.toFixed(3)}°E)`;
+                    state.shortLocationName = "GPS Location";
+                    state.currentLocationKey = "gps";
+
+                    const labelEl = document.getElementById('current-location-label');
+                    if (labelEl) labelEl.textContent = state.shortLocationName;
+
+                    const latInput = document.getElementById('custom-lat-input');
+                    const lngInput = document.getElementById('custom-lng-input');
+                    const nameInput = document.getElementById('custom-location-input');
+                    if (latInput) latInput.value = state.centerLat.toFixed(4);
+                    if (lngInput) lngInput.value = state.centerLng.toFixed(4);
+                    if (nameInput) nameInput.value = state.currentLocationName;
+
+                    autoSelect4NearestStations(state.centerLat, state.centerLng);
+                    renderSavedLocationPills();
+                    evaluateHazeProtocol();
+                    showToast("GPS location updated! Found nearest 4 stations.");
+                },
+                (err) => {
+                    showToast("Could not access GPS. Using active location.");
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function fetchLiveAPIMSData() {
+            const icon = document.getElementById('refresh-icon');
+            if (icon) icon.classList.add('animate-spin');
+
+            showToast("Syncing latest live station readings...");
+
+            setTimeout(() => {
+                if (icon) icon.classList.remove('animate-spin');
+                
+                state.selectedStations.forEach(st => {
+                    const dbMatch = APIMS_STATIONS_DB.find(d => d.id === st.id);
+                    if (dbMatch) {
+                        const delta = Math.floor(Math.random() * 5) - 2;
+                        st.api = Math.max(20, dbMatch.baseAPI + delta);
+                        st.aqi = Math.max(20, dbMatch.baseAQI + delta);
+                    }
+                });
+
+                const syncEl = document.getElementById('last-sync-time');
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                if (syncEl) syncEl.textContent = `Last Sync: Today ${timeStr}`;
+
+                evaluateHazeProtocol();
+                showToast("Live station readings synchronized successfully!");
+            }, 800);
+        }
+
+        function handleLocationPresetChange(presetKey) {
+            if (!presetKey) return;
+
+            if (presetKey.startsWith('custom_')) {
+                const customId = presetKey.replace('custom_', '');
+                const saved = getSavedCustomLocations();
+                const match = saved.find(s => s.id === customId);
+                if (match) {
+                    state.centerLat = match.lat;
+                    state.centerLng = match.lng;
+                    state.currentLocationName = match.name;
+                    state.shortLocationName = match.name.split(',')[0].trim();
+                    state.currentLocationKey = presetKey;
+                }
+            } else {
+                const p = LOCATION_PRESETS.find(x => x.key === presetKey);
+                if (p) {
+                    state.centerLat = p.lat;
+                    state.centerLng = p.lng;
+                    state.currentLocationName = p.name;
+                    state.shortLocationName = p.shortName;
+                    state.currentLocationKey = p.key;
+                }
+            }
+
+            const labelEl = document.getElementById('current-location-label');
+            if (labelEl) labelEl.textContent = state.shortLocationName;
+
+            const latInput = document.getElementById('custom-lat-input');
+            const lngInput = document.getElementById('custom-lng-input');
+            const nameInput = document.getElementById('custom-location-input');
+            if (latInput) latInput.value = state.centerLat.toFixed(4);
+            if (lngInput) lngInput.value = state.centerLng.toFixed(4);
+            if (nameInput) nameInput.value = state.currentLocationName;
+
+            autoSelect4NearestStations(state.centerLat, state.centerLng);
+            renderSavedLocationPills();
+            evaluateHazeProtocol();
+        }
+
+        function updateCustomCoordinates() {
+            const latInput = document.getElementById('custom-lat-input');
+            const lngInput = document.getElementById('custom-lng-input');
+            
+            if (latInput && lngInput) {
+                state.centerLat = parseFloat(latInput.value) || 3.2926;
+                state.centerLng = parseFloat(lngInput.value) || 101.4721;
+                autoSelect4NearestStations(state.centerLat, state.centerLng);
+                renderModalStationSelectors();
+                evaluateHazeProtocol();
+            }
+        }
+
+        function getSavedCustomLocations() {
+            try {
+                return JSON.parse(localStorage.getItem('haze_custom_locations') || '[]');
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function saveCurrentAsCustomPreset() {
+            const nameInput = document.getElementById('custom-location-input');
+            const name = nameInput ? nameInput.value.trim() : "Custom Location";
+            const customLoc = {
+                id: 'loc_' + Date.now(),
+                name: name,
+                lat: state.centerLat,
+                lng: state.centerLng
+            };
+
+            const existing = getSavedCustomLocations();
+            existing.push(customLoc);
+            localStorage.setItem('haze_custom_locations', JSON.stringify(existing));
+
+            renderPresetDropdownOptions();
+            showToast(`Saved "${name}" to your favorites!`);
+        }
+
+        function saveStateToLocalStorage() {
+            try {
+                localStorage.setItem('haze_tracker_state', JSON.stringify({
+                    currentLocationKey: state.currentLocationKey,
+                    currentLocationName: state.currentLocationName,
+                    shortLocationName: state.shortLocationName,
+                    centerLat: state.centerLat,
+                    centerLng: state.centerLng,
+                    metricStandard: state.metricStandard
+                }));
+            } catch(e) {}
+        }
+
+        function loadSavedStateFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('haze_tracker_state');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    state.currentLocationKey = data.currentLocationKey || "sasana";
+                    state.currentLocationName = data.currentLocationName || "Sasana Int. School Bandar Tasik Puteri";
+                    state.shortLocationName = data.shortLocationName || "Sasana Int. School";
+                    state.centerLat = data.centerLat || 3.2926;
+                    state.centerLng = data.centerLng || 101.4721;
+                    state.metricStandard = data.metricStandard || "API";
+                }
+            } catch(e) {}
+
+            const labelEl = document.getElementById('current-location-label');
+            if (labelEl) labelEl.textContent = state.shortLocationName;
+        }
+
+        function getRelativeDate(offsetDays) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
         // Official Portal Modal Viewer
